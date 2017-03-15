@@ -46,19 +46,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\BreakableManager.cs" />
      <Compile Include="Assets\Scripts\ButtonController.cs" />
+     <Compile Include="Assets\Scripts\ButtonListController.cs" />
      <Compile Include="Assets\Scripts\CPadController.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\FanController.cs" />
      <Compile Include="Assets\Scripts\GearController.cs" />
      <Compile Include="Assets\Scripts\GravityOrbController.cs" />
-     <Compile Include="Assets\Scripts\HoverCarControl.cs" />
-     <Compile Include="Assets\Scripts\HoverFollowCam.cs" />
+     <Compile Include="Assets\Scripts\HoverObject.cs" />
+     <Compile Include="Assets\Scripts\LevelTransition.cs" />
+     <Compile Include="Assets\Scripts\PickUp.cs" />
      <Compile Include="Assets\Scripts\PlatformController.cs" />
-     <Compile Include="Assets\Scripts\PlayerController.cs" />
      <Compile Include="Assets\Scripts\ResetCubeController.cs" />
      <Compile Include="Assets\Scripts\SpeedPadController.cs" />
      <Compile Include="Assets\Scripts\SpinablePlatformController.cs" />
+     <Compile Include="Assets\Scripts\Switch.cs" />
+     <Compile Include="Assets\Scripts\SwitchManager.cs" />
+     <Compile Include="Assets\Scripts\TeleportController.cs" />
      <Compile Include="Assets\Scripts\_CarController.cs" />
      <None Include="Assets\Standard Assets\Vehicles\Car\Shaders\DiffuseReflectiveShader.shader" />
      <None Include="Assets\Standard Assets\Vehicles\Aircraft\AircraftGuidelines.txt" />

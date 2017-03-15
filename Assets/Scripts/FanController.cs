@@ -6,10 +6,9 @@ public class FanController : MonoBehaviour {
     private GameObject player;
 	private Transform blade;
 	private Rigidbody playerRB;
-	private bool buttonPressed;
+	private float fanForce = 40;
 
-
-    private float fanForce = 16;
+	public bool buttonPressed;
 
 	void pressedButton(){
 		buttonPressed = true;

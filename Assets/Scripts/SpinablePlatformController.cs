@@ -18,7 +18,7 @@ public class SpinablePlatformController : MonoBehaviour {
 		endRotation = 90.0f; //The amount that you want to object to spin
 		speed = 10.0f;
 		transform.eulerAngles = destEuler; //set the transform of the object equal to the curr/destEuler just in case it wasn't placed correctly
-		puzzleObjectOnPad = false; //set the ability to rotate puzzle object to false because why would we start with the puzzle finished?
+		//puzzleObjectOnPad = true; //set the ability to rotate puzzle object to false because why would we start with the puzzle finished?
 	}
 		
 	void FixedUpdate () {
@@ -41,7 +41,11 @@ public class SpinablePlatformController : MonoBehaviour {
 		}
 	}
 
-	void OnTriggerStay(Collider Other){}
+	void OnTriggerStay(Collider Other){
+		if (Other.gameObject.Equals(puzzleObject)) {
+			puzzleObjectOnPad = true; // Check if our puzzle object is on the pad
+		}
+	}
 
 	void OnTriggerExit(Collider Other){
 		if (Other.gameObject.Equals(puzzleObject)) {

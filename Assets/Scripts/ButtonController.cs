@@ -9,7 +9,7 @@ public class ButtonController : MonoBehaviour {
 
 	void OnTriggerEnter(Collider Other) {
 		if(Other.gameObject.CompareTag("PlayerTrigger")){
-			puzzleObject.SendMessage("pressedButton"); 
+			puzzleObject.SendMessage("pressedButton");
 		}
 	}
 

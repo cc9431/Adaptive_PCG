@@ -21,7 +21,7 @@ public class GravityOrbController : MonoBehaviour {
 		Rotate ();
 
 		foreach (Collider collider in Physics.OverlapSphere(transform.position, pullRadius)) {
-			if (collider.gameObject.CompareTag("Player")) {
+			if (collider.gameObject.CompareTag("PlayerTrigger")) {
 				
 				// Calculate vector towards gravOrb
 				Vector3 forceDirection = transform.position - player.transform.position;

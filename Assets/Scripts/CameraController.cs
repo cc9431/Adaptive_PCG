@@ -4,22 +4,30 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 	private Transform player;
-	private Vector3 lookUp;
+	private Vector3 centerScreen;
 	private Vector3 offset;
-
-	public float turnSpeed;
+	private Vector3 lookUp;
 
 	void Start () {
 		player = GameObject.FindGameObjectWithTag("Player").transform;
 		offset = transform.position - player.transform.position; //Gets distance from player to camera
-		lookUp = Vector3.up * 2; //Don't want the camera to look directly at player, it feels weird
+		centerScreen = Vector3.up * 2; //Don't want the camera to look directly at player, it feels weird
 	}
 
-	void LateUpdate() {
-		//This spins the offset around the player when the left or right keys are pressed, the "Mouse X" axis is just a place holder for now
-		offset = Quaternion.AngleAxis (Input.GetAxis ("CameraAxis") * turnSpeed, lookUp) * offset;
+	void FixedUpdate() {
+		//lookUp = (Input.GetAxis ("CameraAxisUp") * Vector3.up * 5f) + (Vector3.up * 2);
+		//centerScreen = Vector3.Lerp (centerScreen, lookUp, Time.deltaTime * 6f);
 
-		transform.position = player.position + offset; //Reset the position based on the player movement and Mouse X input
-		transform.LookAt (player.position + lookUp); //Turn the camera towards the player, but don't look directly down at player
+		transform.position = player.transform.position + (CalculatePos() * offset); //Reset the position based on the player movement and Mouse X input
+		transform.LookAt (player.position + centerScreen); //Turn the camera towards the player, but don't look directly down at player
+
+	}
+
+	Quaternion CalculatePos(){
+		float currAngle = transform.eulerAngles.y;
+		float desiredAngle = player.transform.eulerAngles.y;
+		float angle = Mathf.LerpAngle(currAngle, desiredAngle, Time.deltaTime * 6f); //Lerp function with Time.delta creates a smooth transition every frame to the final destination
+		Quaternion rotation = Quaternion.Euler(0, angle, 0);
+		return rotation;
 	}
 }
