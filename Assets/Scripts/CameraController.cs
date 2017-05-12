@@ -26,7 +26,7 @@ public class CameraController : MonoBehaviour {
 	Quaternion CalculatePos(){
 		float currAngle = transform.eulerAngles.y;
 		float desiredAngle = player.transform.eulerAngles.y;
-		float angle = Mathf.LerpAngle(currAngle, desiredAngle, Time.deltaTime * 6f); //Lerp function with Time.delta creates a smooth transition every frame to the final destination
+		float angle = Mathf.LerpAngle(currAngle, desiredAngle, Time.deltaTime * 8f); //Lerp function with Time.delta creates a smooth transition every frame to the final destination
 		Quaternion rotation = Quaternion.Euler(0, angle, 0);
 		return rotation;
 	}

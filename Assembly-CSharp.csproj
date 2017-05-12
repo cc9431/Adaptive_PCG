@@ -54,6 +54,7 @@
      <Compile Include="Assets\Scripts\FanController.cs" />
      <Compile Include="Assets\Scripts\GearController.cs" />
      <Compile Include="Assets\Scripts\GravityOrbController.cs" />
+     <Compile Include="Assets\Scripts\HoverCar.cs" />
      <Compile Include="Assets\Scripts\HoverObject.cs" />
      <Compile Include="Assets\Scripts\LevelTransition.cs" />
      <Compile Include="Assets\Scripts\PickUp.cs" />
