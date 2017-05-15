@@ -46,32 +46,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\BreakableManager.cs" />
-     <Compile Include="Assets\Scripts\ButtonController.cs" />
-     <Compile Include="Assets\Scripts\ButtonListController.cs" />
-     <Compile Include="Assets\Scripts\CPadController.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
-     <Compile Include="Assets\Scripts\FanController.cs" />
-     <Compile Include="Assets\Scripts\GearController.cs" />
-     <Compile Include="Assets\Scripts\GravityOrbController.cs" />
-     <Compile Include="Assets\Scripts\HoverCar.cs" />
-     <Compile Include="Assets\Scripts\HoverObject.cs" />
-     <Compile Include="Assets\Scripts\LevelTransition.cs" />
-     <Compile Include="Assets\Scripts\PickUp.cs" />
-     <Compile Include="Assets\Scripts\PlatformController.cs" />
-     <Compile Include="Assets\Scripts\ResetCubeController.cs" />
-     <Compile Include="Assets\Scripts\SpeedPadController.cs" />
-     <Compile Include="Assets\Scripts\SpinablePlatformController.cs" />
-     <Compile Include="Assets\Scripts\Switch.cs" />
-     <Compile Include="Assets\Scripts\SwitchManager.cs" />
-     <Compile Include="Assets\Scripts\TeleportController.cs" />
+     <Compile Include="Assets\Scripts\CameraController1.cs" />
+     <Compile Include="Assets\Scripts\GenerateInfinite.cs" />
+     <Compile Include="Assets\Scripts\PerlinNoiseGround.cs" />
      <Compile Include="Assets\Scripts\_CarController.cs" />
-     <None Include="Assets\Standard Assets\Vehicles\Car\Shaders\DiffuseReflectiveShader.shader" />
-     <None Include="Assets\Standard Assets\Vehicles\Aircraft\AircraftGuidelines.txt" />
-     <None Include="Assets\Standard Assets\Vehicles\Car\Shaders\ReflectiveDiffuseSpecTransp.shader" />
-     <None Include="Assets\Standard Assets\Vehicles\Car\Shaders\ReflectiveDiffuseSpec.shader" />
-     <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
-     <None Include="Assets\Standard Assets\Vehicles\Car\CarGuidelines.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Volumes/Macintosh HD 2/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
@@ -90,10 +69,6 @@
  <Reference Include="UnityEngine.VR">
  <HintPath>/Volumes/Macintosh HD 2/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
  </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{9A1C38E8-66DA-53C4-9CE7-BC62BFE88820}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
