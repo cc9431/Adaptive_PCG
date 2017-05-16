@@ -52,7 +52,7 @@ public class GenerateInfinite : MonoBehaviour {
 			float coinFlip = Random.Range(0, 2);
 
 			// If the ramp wins, place a ramp tile else normal tile
-			if (rampTile && coinFlip == 0) t = (GameObject) Instantiate(Tile, posZ, Quaternion.identity);
+			if (rampTile && coinFlip == 0) t = (GameObject) Instantiate(rampPlane, posZ, Quaternion.identity);
 			else if (rampTile && coinFlip == 1) t = (GameObject) Instantiate(bigRampPlane, posZ, Quaternion.identity);
 			else t = (GameObject) Instantiate(groundPlane, posZ, Quaternion.identity);
 
