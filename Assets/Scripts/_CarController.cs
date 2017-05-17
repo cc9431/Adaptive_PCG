@@ -9,6 +9,7 @@ public class _CarController : MonoBehaviour {
 	private float Accel;
 	private float Turn;
 	private bool Brake;
+	private bool Power;
 	//private bool inAir;
 
 	private float HighSteerAngle = 10f;
@@ -21,15 +22,17 @@ public class _CarController : MonoBehaviour {
 		Physics.gravity = (Vector3.down * 17);
 		WheelColliders = gameObject.GetComponentsInChildren<WheelCollider> ();
 
-		foreach (WheelCollider wheel in WheelColliders) wheel.ConfigureVehicleSubsteps(10, 10, 30);
+		foreach (WheelCollider wheel in WheelColliders) {
+			wheel.ConfigureVehicleSubsteps(10, 10, 30);
+			wheel.motorTorque = 0.00001f;
+		}
 	}
 
 	void Start(){
 		//inAir = false;
 		PlayerRB = gameObject.GetComponent<Rigidbody> ();
 
-		PlayerRB.centerOfMass = new Vector3(0f, -0.1f, 0.09f);
-		downForce = new Vector3(0f, -200f, 0f);
+		PlayerRB.centerOfMass = new Vector3(0f, -0.1f, 0.04f);
 		maxSpeed = new Vector3 (40f, 0f, 40f);
 	}
 
@@ -41,25 +44,32 @@ public class _CarController : MonoBehaviour {
 		Turn = Input.GetAxis ("Horizontal");
 		Accel = Input.GetAxis ("Vertical");
 		Brake = Input.GetKey (KeyCode.Space);
+		Power = Input.GetKey (KeyCode.LeftShift);
 
 		float steering = HighSteerAngle * Turn;
 		WheelColliders [0].steerAngle = steering;
 		WheelColliders [1].steerAngle = steering;
 
+		if (Brake){ 
+			WheelColliders [2].brakeTorque = 1700f;
+			WheelColliders [3].brakeTorque = 1700f;
+		} else {
+			WheelColliders [2].brakeTorque = 0f;
+			WheelColliders [3].brakeTorque = 0f;
+		}
+
+		if (Power) {
+			PlayerRB.AddRelativeForce (10000f * Vector3.forward * Accel, ForceMode.Force);
+		}
+
 		float drive = HorsePower * Accel;
 		foreach (WheelCollider wheel in WheelColliders) {
 			wheel.motorTorque = drive;
-
-			if (Brake){
-				wheel.brakeTorque = 2000f;
-				PlayerRB.AddForce(downForce); 
-			} else wheel.brakeTorque = 0f;
-
 			FixMeshPositions(wheel);
 		}
 
 		//bool canDrive = (PlayerRB.velocity.x < maxSpeed.x) && (PlayerRB.velocity.z < maxSpeed.z);
-		//if (canDrive) PlayerRB.AddRelativeForce (4000f * Vector3.forward * Accel, ForceMode.Force);
+		//if (canDrive) 
 	}
 
 	void FixMeshPositions(WheelCollider collider){
