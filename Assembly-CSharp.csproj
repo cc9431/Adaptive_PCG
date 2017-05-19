@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{CDCCC0C2-96BA-3A45-6829-0ACB016CFDD7}</ProjectGuid>
+    <ProjectGuid>{A9A31462-4401-C727-3BDE-F7BC64A3B289}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -47,9 +47,11 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\CameraController.cs" />
-     <Compile Include="Assets\Scripts\CameraController1.cs" />
      <Compile Include="Assets\Scripts\GenerateInfinite.cs" />
+     <Compile Include="Assets\Scripts\GenerationDev\GenerateInfiniteDev.cs" />
+     <Compile Include="Assets\Scripts\GenerationDev\Tile.cs" />
      <Compile Include="Assets\Scripts\PerlinNoiseGround.cs" />
+     <Compile Include="Assets\Scripts\Stabilize.cs" />
      <Compile Include="Assets\Scripts\_CarController.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Volumes/Macintosh HD 2/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
