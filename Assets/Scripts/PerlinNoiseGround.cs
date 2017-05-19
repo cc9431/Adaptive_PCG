@@ -8,7 +8,7 @@ public class PerlinNoiseGround : MonoBehaviour {
 	private Vector3 v2SampleStart = new Vector3(0f, 0f, 0f);
 
 	void Start () {
-		v2SampleStart = new Vector3(Random.Range (0.0f, 50.0f) , 0, Random.Range (0.0f, 50.0f));
+		v2SampleStart = new Vector3(10f, Random.Range (0.0f, 50.0f), 10f);
 		MeshFilter mf = GetComponent<MeshFilter>();
 		Vector3[] vertices = mf.mesh.vertices;
 		for (int i = 0; i < vertices.Length; i++) {    

@@ -48,6 +48,8 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\GenerateInfinite.cs" />
+     <Compile Include="Assets\Scripts\GenerationDev\GenerateInfiniteDev.cs" />
+     <Compile Include="Assets\Scripts\GenerationDev\Tile.cs" />
      <Compile Include="Assets\Scripts\PerlinNoiseGround.cs" />
      <Compile Include="Assets\Scripts\Stabilize.cs" />
      <Compile Include="Assets\Scripts\_CarController.cs" />

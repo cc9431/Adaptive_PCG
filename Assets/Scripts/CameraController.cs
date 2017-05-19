@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour {
 
 	void Update() {
 		transform.position = player.transform.position + (CalculatePos() * offset); //Reset the position based on the player movement and Mouse X input
-		transform.LookAt (player.position + centerScreen); //Turn the camera towards the player, but don't look directly down at player
+		transform.LookAt (player.position); //Turn the camera towards the player, but don't look directly down at player
 	}
 
 	Quaternion CalculatePos(){

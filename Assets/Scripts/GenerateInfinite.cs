@@ -19,7 +19,7 @@ public class GenerateInfinite : MonoBehaviour {
 	public GameObject groundPlane;
 	public GameObject rampPlane;
 	public GameObject bigRampPlane;
-	public GameObject player;
+	private GameObject player;
 
 	int groundPlaneSize = 10;
 	int tilesZ = 10;
@@ -31,6 +31,9 @@ public class GenerateInfinite : MonoBehaviour {
 	Hashtable tileMatrix = new Hashtable();
 
 	void Start(){
+		// Get player from tag
+		player = GameObject.FindWithTag("Player");
+
 		// Set player and generator positions to zero
 		this.gameObject.transform.position = Vector3.zero;
 		startPos = Vector3.zero;
@@ -48,12 +51,11 @@ public class GenerateInfinite : MonoBehaviour {
 			Vector3 posZ = new Vector3(0, 0, (z * groundPlaneSize + startPos.z));
 
 			// Check every 10 tiles to insert a ramp
-			bool rampTile = (posZ.z%100 == 50);
-			float coinFlip = Random.Range(0, 2);
+			float coinFlip = Random.Range(0, 10);
 
 			// If the ramp wins, place a ramp tile else normal tile
-			if (rampTile && coinFlip == 0) t = (GameObject) Instantiate(rampPlane, posZ, Quaternion.identity);
-			else if (rampTile && coinFlip == 1) t = (GameObject) Instantiate(bigRampPlane, posZ, Quaternion.identity);
+			if (coinFlip == 1) t = (GameObject) Instantiate(rampPlane, posZ, Quaternion.identity);
+			else if (coinFlip == 2) t = (GameObject) Instantiate(bigRampPlane, posZ, Quaternion.identity);
 			else t = (GameObject) Instantiate(groundPlane, posZ, Quaternion.identity);
 
 			// This name scheme is mostly for debugging in the future when tiles have ramps on them
@@ -88,16 +90,15 @@ public class GenerateInfinite : MonoBehaviour {
 				// Then create the tile
 				Vector3 posZ = new Vector3 (0, 0, (z * groundPlaneSize + playerZ));
 
-				// Check every 10 tiles to insert a ramp
-				bool rampTile = (posZ.z%100 == 0);
-				int coinFlip = Random.Range(0, 2);
+				// Check every 100 tiles to insert a ramp
+				int coinFlip = Random.Range(0, 10);
 
 				string tilename = "Tile_" + ((int)(posZ.z)).ToString();
 				
 				if (!tileMatrix.ContainsKey (tilename)) {
 					// If the ramp wins, place a ramp tile else normal tile
-					if (rampTile && coinFlip == 0) t = (GameObject) Instantiate(bigRampPlane, posZ, Quaternion.identity);
-					else if (rampTile && coinFlip == 1) t = (GameObject) Instantiate(rampPlane, posZ, Quaternion.identity);
+					if (coinFlip == 1) t = (GameObject) Instantiate(rampPlane, posZ, Quaternion.identity);
+					else if (coinFlip == 2) t = (GameObject) Instantiate(bigRampPlane, posZ, Quaternion.identity);
 					else t = (GameObject) Instantiate(groundPlane, posZ, Quaternion.identity);
 
 					t.name = tilename;
