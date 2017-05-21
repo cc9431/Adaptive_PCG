@@ -63,9 +63,9 @@ public class _CarController : MonoBehaviour {
 
 		PlayerRB.AddForce (40000f * gameObject.transform.forward * Boost, ForceMode.Force);
 
-		bool maxedOut = RPMs > 3000;
-		float drive = 0;
-		if (!maxedOut & !inAir){
+		bool maxSpeed = RPMs > 3000;
+		float drive = 3000;
+		if (!maxSpeed & !inAir){
 			if (Accel > 0) drive = HorsePower * Accel;
 			if (Reverse < 0) drive = HorsePower * Reverse;
 		}

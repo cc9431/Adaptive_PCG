@@ -51,6 +51,7 @@
      <Compile Include="Assets\Scripts\GenerationDev\GenerateInfiniteDev.cs" />
      <Compile Include="Assets\Scripts\GenerationDev\Tile.cs" />
      <Compile Include="Assets\Scripts\PerlinNoiseGround.cs" />
+     <Compile Include="Assets\Scripts\Speedometer.cs" />
      <Compile Include="Assets\Scripts\Stabilize.cs" />
      <Compile Include="Assets\Scripts\_CarController.cs" />
  <Reference Include="UnityEngine.UI">
