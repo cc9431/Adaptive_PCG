@@ -97,10 +97,11 @@ public class GenerateInfinite : MonoBehaviour {
 				
 				if (!tileMatrix.ContainsKey (tilename)) {
 					// If the ramp wins, place a ramp tile else normal tile
-					if (coinFlip == 1) t = (GameObject) Instantiate(rampPlane, posZ, Quaternion.identity);
-					else if (coinFlip == 2) t = (GameObject) Instantiate(bigRampPlane, posZ, Quaternion.identity);
-					else t = (GameObject) Instantiate(groundPlane, posZ, Quaternion.identity);
+					//if (coinFlip == 1) t = (GameObject) Instantiate(rampPlane, posZ, Quaternion.identity);
+					//else if (coinFlip == 2) t = (GameObject) Instantiate(bigRampPlane, posZ, Quaternion.identity);
+					//else t = (GameObject) Instantiate(groundPlane, posZ, Quaternion.identity);
 
+					t = (GameObject) Instantiate(groundPlane, posZ, Quaternion.identity);
 					t.name = tilename;
 					Tile tile = new Tile (t, updateTime);
 					tileMatrix.Add (tilename, tile);
