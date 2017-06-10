@@ -2,6 +2,48 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// --------------------------------------------------------------- //
+/* 
+	Ideas for car improvments:
+		- All the wheels need to move as though they are child objects of each other
+		- Tiny amount of relative forward force in drive
+			- ForceMode.Impulse?
+		- Right stick [inAir] {
+			Up : Pitch Forward,
+			Down : Pitch Backward,
+			Left : Roll Left,
+			Right : Roll Right,
+		}
+		- Left stick [Spherically] {
+			Up/Down : Camera Up/Down
+			Left/Right : Camera Left/Right
+		}
+		- Very high Wheel dampening
+		- if(body.isGrounded && Wheels.inAir && pressA){
+			RigidBody.centerOfGravity = Vector3.Down * 25
+		} else {
+			RigidBody.centerOfGravity = centerOfGrav // Global variable
+		}
+		- foreach(WheelCollider wheel in WheelColliders){
+			inAir = !wheel.isGrounded && inAir
+		}
+		- if (carSpeed < someNumber){
+			wheels.addTorque(normal)
+			rigibody.addRelativeForce(tiny)
+		}
+		- Back wheels wider that front
+		- Maybe... If wheels are grounded, addforce down on all the wheels... [That's what Stabilize.cs is trying to do!]
+		- Boost.....
+			- small invisible cube in the back of the car?
+			- rigidbody.AddRelativeForce(tinytiny, ForceMode.Impulse)
+
+		Visuals:
+		- Wheel/RearLight trails
+		- Smoke/gravel particles when driving
+		- Wind and Trail particles when you hit high speed!
+*/ 
+// --------------------------------------------------------------- //
+
 public class _CarController : MonoBehaviour {
 	private WheelCollider[] WheelColliders;
 	private Rigidbody PlayerRB;

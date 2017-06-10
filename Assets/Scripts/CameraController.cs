@@ -2,6 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// --------------------------------------------------------------- //
+/* 
+	Ideas for car improvments:
+		- Camera has two main states
+			- Player.inAir
+				- Rotation to player is saved in it's spot the
+				  moment the player leaves the air. The camera
+				  rotation is then spherically lerped based on the 
+				  Vector3 of the player's momentum.
+			- !Player.inAir
+				- Simple follow
+		- Outside of those two state, always have the distance to 
+		  the player be negatively proportional to the speed of the
+		  player.
+*/ 
+// --------------------------------------------------------------- //
+
 public class CameraController : MonoBehaviour {
 	private Transform player;
 	private Vector3 centerScreen;

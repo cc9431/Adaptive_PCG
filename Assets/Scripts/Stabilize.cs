@@ -6,7 +6,7 @@ public class Stabilize : MonoBehaviour{
  
     public WheelCollider WheelL;
     public WheelCollider WheelR;
-    public float AntiRoll = 5000.0f;
+    public float AntiRoll;
  
     public void FixedUpdate(){
         WheelHit hit;
