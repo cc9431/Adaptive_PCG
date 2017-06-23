@@ -13,9 +13,8 @@ using UnityEngine;
 				  Vector3 of the player's momentum.
 			- !Player.inAir
 				- Simple follow
-		- Outside of those two state, always have the distance to 
-		  the player be negatively proportional to the speed of the
-		  player.
+		- Always have the distance from the player be proportional
+		  to the speed of the player.
 */ 
 // --------------------------------------------------------------- //
 
@@ -39,8 +38,11 @@ public class CameraController : MonoBehaviour {
 	Quaternion CalculatePos(){
 		float currAngle = transform.eulerAngles.y;
 		float desiredAngle = player.transform.eulerAngles.y;
-		float angle = Mathf.LerpAngle(currAngle, desiredAngle, Time.deltaTime * 8f); //Lerp function with Time.delta creates a smooth transition every frame to the final destination
+
+		//Lerp function with Time.delta creates a smooth transition every frame to the final destination
+		float angle = Mathf.LerpAngle(currAngle, desiredAngle, Time.deltaTime * 8f);
 		Quaternion rotation = Quaternion.Euler(0, angle, 0);
+		
 		return rotation;
 	}
 }

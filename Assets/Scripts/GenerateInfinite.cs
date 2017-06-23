@@ -2,6 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// --------------------------------------------------------------- //
+/* 
+	Ideas for Generation Improvements:
+		- Decision tree implementation?
+			- Build decision tree based off of test data that takes
+			  in player's stats -- refering to the numbers generated
+			  by the player's interaction with the objects. Allow
+			  game to classify player after set intervals. Use this
+			  classification to determine generation
+		- Random generation of position for interactables
+*/ 
+// --------------------------------------------------------------- //
 
 // Class for each block of road to be generated
 class Tile{

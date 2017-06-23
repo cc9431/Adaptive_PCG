@@ -2,8 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Stabilize : MonoBehaviour{
- 
+public class Stabilize : MonoBehaviour{ 
     public WheelCollider WheelL;
     public WheelCollider WheelR;
     public float AntiRoll;
