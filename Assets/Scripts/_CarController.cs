@@ -4,11 +4,8 @@ using UnityEngine;
 
 // --------------------------------------------------------------- //
 /* 
-	Ideas for car improvments:
 		- All the wheels need to move as though they are child objects of each other
-		- Tiny amount of relative forward force in drive
-			- ForceMode.Impulse?
-		- Right stick [inAir] {
+		- Right stick [inAir] { : MOSTLY DONE
 			Up : Pitch Forward,
 			Down : Pitch Backward,
 			Left : Roll Left,
@@ -18,7 +15,7 @@ using UnityEngine;
 			Up/Down : Camera Up/Down
 			Left/Right : Camera Left/Right
 		}
-		- Very high Wheel dampening
+		- Very high Wheel dampening : DONE
 		- if(body.isGrounded && Wheels.inAir && pressA){
 			RigidBody.centerOfGravity = Vector3.Down * 25
 		} else {
@@ -35,7 +32,7 @@ using UnityEngine;
 		- Maybe... If wheels are grounded, addforce down on all the wheels... [That's what Stabilize.cs is trying to do!]
 		- Boost.....
 			- small invisible cube in the back of the car?
-			- rigidbody.AddRelativeForce(tinytiny, ForceMode.Impulse)
+			- rigidbody.AddRelativeForce(tinytiny, ForceMode.Impulse) : DONE
 
 		Visuals:
 		- Wheel/RearLight trails
@@ -48,19 +45,15 @@ public class _CarController : MonoBehaviour {
 	private WheelCollider[] WheelColliders;
 	private Rigidbody PlayerRB;
 
-	private float RPMs;
-	private bool inAir;
+	public float RPMs;
+	public bool inAir;
 
 	private float HighSteerAngle = 10f;
-	private float HorsePower = 1300f;
+	private float HorsePower = 2500f;
 
 	void Awake(){
 		Physics.gravity = (Vector3.down * 17);
 		WheelColliders = gameObject.GetComponentsInChildren<WheelCollider> ();
-
-		foreach (WheelCollider wheel in WheelColliders) {
-			wheel.motorTorque = 0.00001f;
-		}
 	}
 
 	void Start(){
@@ -88,28 +81,40 @@ public class _CarController : MonoBehaviour {
 
 	void MoveThatCar(){
 		float Turn = Input.GetAxis ("Horizontal");
+		float Pitch = Input.GetAxis ("Vertical");
 		float Accel = Input.GetAxis ("Drive");
 		float Reverse = Input.GetAxis ("Reverse");
-		float Brake = Input.GetAxis("Brake");
-		float Boost = Input.GetAxis("Boost");
-		float Jump = Input.GetAxis("Jump");
+		float Brake = Input.GetAxis ("Brake");
+		float Boost = Input.GetAxis ("Boost");
+		float Jump = Input.GetAxis ("Jump");
 
 		float steering = HighSteerAngle * Turn;
+		bool maxSpeed = RPMs > 3000;
+		float drive = 0;
+
 		WheelColliders [0].steerAngle = steering;
 		WheelColliders [1].steerAngle = steering;
 
 		WheelColliders [2].brakeTorque = 1700f * Brake;
 		WheelColliders [3].brakeTorque = 1700f * Brake;
 
-		if (!inAir) PlayerRB.AddForce (5000f * gameObject.transform.up * Jump, ForceMode.Impulse);
+		PlayerRB.AddForce (20000f * gameObject.transform.forward * Boost, ForceMode.Force);
 
-		PlayerRB.AddForce (40000f * gameObject.transform.forward * Boost, ForceMode.Force);
+		if (inAir) {
+			// [rocketleague] If left bumper is pressed have car spin instead of turn?
+			// Maybe just use Rigidbody.transform.Rotate?!?!?
+			PlayerRB.drag = 0f;
+			PlayerRB.AddRelativeTorque (100f * Vector3.up * Turn, ForceMode.Impulse);
+			PlayerRB.AddRelativeTorque (100f * Vector3.right * Pitch, ForceMode.Impulse);
+		} else {
+			PlayerRB.AddForce (6000f * gameObject.transform.up * Jump, ForceMode.Impulse);
+			PlayerRB.drag = 0.5f;
+			if (!maxSpeed) {
+				if (Accel > 0) drive = HorsePower * Accel;
+				if (Reverse < 0) drive = HorsePower * Reverse;
 
-		bool maxSpeed = RPMs > 3000;
-		float drive = 3000;
-		if (!maxSpeed & !inAir){
-			if (Accel > 0) drive = HorsePower * Accel;
-			if (Reverse < 0) drive = HorsePower * Reverse;
+				if (steering != 0) drive /= 2f;
+			}
 		}
 
 		foreach (WheelCollider wheel in WheelColliders) {
