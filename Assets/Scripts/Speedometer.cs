@@ -8,14 +8,12 @@ public class Speedometer : MonoBehaviour{
 	private float maxSpeed = 88f;
 	private Image speedometer;
 
-
 	void Start(){
 		speedometer = GetComponent<Image>();
 	}
 
 	void Update(){
-
-
-		speedometer.fillAmount = PlayerRB.velocity.magnitude/maxSpeed;
+		Vector2 localVel = new Vector2 (PlayerRB.velocity.x, PlayerRB.velocity.z);
+		speedometer.fillAmount = (localVel.magnitude)/maxSpeed;
 	}
 }
