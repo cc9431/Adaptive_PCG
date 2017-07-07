@@ -1,9 +1,11 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/_CarController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GenerateInfinite.cs">
     <Files>
-      <File FileName="Assets/Scripts/_CarController.cs" Line="108" Column="21" />
-      <File FileName="Assets/Scripts/GenerateInfinite.cs" Line="114" Column="6" />
+      <File FileName="../Unity Projects/Adaptive_PCG-Charlie/Assets/Scripts/TODO.txt" Line="11" Column="123" />
+      <File FileName="Assets/Scripts/_CarController.cs" Line="3" Column="19" />
+      <File FileName="Assets/Scripts/CameraController.cs" Line="27" Column="22" />
+      <File FileName="Assets/Scripts/GenerateInfinite.cs" Line="44" Column="28" />
       <File FileName="Assets/Scripts/PerlinNoiseGround.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Speedometer.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Stabilize.cs" Line="1" Column="1" />

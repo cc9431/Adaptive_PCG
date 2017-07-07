@@ -27,20 +27,31 @@ class Tile{
 	}
 }
 
+class Interact{
+	public GameObject interactable;
+	public float creationTime;
+
+	// Instatiation
+	public Interact(GameObject i, float ctime){
+		interactable = i;
+		creationTime = ctime;
+	}
+}
+
 public class GenerateInfinite : MonoBehaviour {
 	public GameObject groundPlane;
-	public GameObject rampPlane;
-	public GameObject bigRampPlane;
+	public GameObject Interact_Ramp;
 	private GameObject player;
 
-	int groundPlaneSize = 10;
-	int tilesZ = 10;
+	int groundPlaneSize = 10 * 5;
+	int tilesInFront = 10;
 	int tilesBehind = -3;
 
 	Vector3 startPos;
 
 	// Hashtable of every tile and its creation time
 	Hashtable tileMatrix = new Hashtable();
+	Hashtable interactableMatrix = new Hashtable();
 
 	void Start(){
 		// Get player from tag
@@ -54,25 +65,39 @@ public class GenerateInfinite : MonoBehaviour {
 		float updateTime = Time.realtimeSinceStartup;
 
 		// Loop from -tiles to tiles to create a grid centered on the player
-		for (int z = tilesBehind; z <= tilesZ; z++){
+		for (int z = tilesBehind; z <= tilesInFront; z++){
 			// This will be our tile for each slot
 			GameObject t;
+			GameObject interact;
 
-			// For each tile - get the position by multiplying the iteration number by the plane size and the start position of the player (0)
-			// Then create the tile
-			Vector3 posZ = new Vector3(0, 0, (z * groundPlaneSize + startPos.z));
+			// Tile location
+			float tileLocation = (z * groundPlaneSize + startPos.z);
+			float randomLocation = Random.Range (-20f, 20f);
+			Quaternion quat = Quaternion.Euler (-90, 0, -90);
 
-			// Check every 10 tiles to insert a ramp
-			float coinFlip = Random.Range(0, 10);
+			Vector3 tilePos = new Vector3(0, 0, tileLocation);
+			Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
 
-			// If the ramp wins, place a ramp tile else normal tile
-			if (coinFlip == 1) t = (GameObject) Instantiate(rampPlane, posZ, Quaternion.identity);
-			else if (coinFlip == 2) t = (GameObject) Instantiate(bigRampPlane, posZ, Quaternion.identity);
-			else t = (GameObject) Instantiate(groundPlane, posZ, Quaternion.identity);
+			string interactName = "Inter_" + ((int)(tilePos.z).ToString());
+
+			// 10% chance to create ramp
+			bool coinFlip = Random.Range(0, 10) == 1 && (z == 9);
+
+			// If the ramp wins, place a ramp and add to hashmap
+			if (coinFlip) {
+				interact = (GameObject)Instantiate (Interact_Ramp, interactPos, quat);
+				interact.name = interactName;
+				Interact funObj = new Interact (interact, updateTime+z);
+				interactableMatrix.Add (interactName, funObj);
+			}
+
+			t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);
 
 			// This name scheme is mostly for debugging in the future when tiles have ramps on them
-			string tilename = "Tile_" + ((int)(posZ.z)).ToString();
+			string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
 			t.name = tilename;
+
+
 
 			// Create tile and add it to the hashtable
 			Tile tile = new Tile(t, updateTime);
@@ -89,29 +114,41 @@ public class GenerateInfinite : MonoBehaviour {
 		if (Mathf.Abs (zMove) >= groundPlaneSize) {
 			float updateTime = Time.realtimeSinceStartup;
 
-			int playerZ = (int)(Mathf.Floor(player.transform.position.z/groundPlaneSize) * groundPlaneSize);
-
 			// Loop through every tile space that should exist for the new position and check if this tile already exists
 			// If so, update the time identity
 			// If not, create the new tile and add it to the matrix
-			for (int z = tilesBehind; z <= tilesZ; z++) {
+			for (int z = tilesBehind; z <= tilesInFront; z++) {
 				// This will be our tile for each slot
 				GameObject t;
+				GameObject interact;
 
 				// For each tile - get the position by multiplying the iteration number by the plane size and the start position of the player (0)
-				// Then create the tile
-				Vector3 posZ = new Vector3 (0, 0, (z * groundPlaneSize + playerZ));
+				float tileLocation = (z * groundPlaneSize + startPos.z);
+				float randomLocation = Random.Range (-20f, 20f);
+				Quaternion quat = Quaternion.Euler (-90, 0, -90);
 
-				// Check every 100 tiles to insert a ramp
-				int coinFlip = Random.Range(0, 10);
+				Vector3 tilePos = new Vector3 (0, 0, tileLocation);
+				string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
+				string interactName = "Inter_" + ((int)(tilePos.z)).ToString ();
 
-				string tilename = "Tile_" + ((int)(posZ.z)).ToString();
+				if (!interactableMatrix.ContainsKey (interactName)) {
+					// 10% chance to create ramp
+					bool coinFlip = Random.Range(0, 2) == 1 && (z == 9);
+
+					// If the ramp wins, place a ramp and add to hashmap
+					if (coinFlip) {
+						Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
+						interact = (GameObject)Instantiate (Interact_Ramp, interactPos, quat);
+						interact.name = interactName;
+						Interact funObj = new Interact (interact, updateTime);
+						interactableMatrix.Add (interactName, funObj);
+					}
+				} else {
+					(interactableMatrix [interactName] as Interact).creationTime = updateTime;
+				}
 				
 				if (!tileMatrix.ContainsKey (tilename)) {
-					// If the ramp wins, place a ramp tile else normal tile
-					if (coinFlip == 1) t = (GameObject) Instantiate(rampPlane, posZ, Quaternion.identity);
-					else if (coinFlip == 2) t = (GameObject) Instantiate(bigRampPlane, posZ, Quaternion.identity);
-					else t = (GameObject) Instantiate(groundPlane, posZ, Quaternion.identity);
+					t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);
 
 					t.name = tilename;
 					Tile tile = new Tile (t, updateTime);
@@ -119,6 +156,7 @@ public class GenerateInfinite : MonoBehaviour {
 				} else {
 					(tileMatrix [tilename] as Tile).creationTime = updateTime;
 				}
+					
 			}
 
 			// Because of the way that hashtables work in unity, we must create a new hashtable each time
@@ -135,8 +173,21 @@ public class GenerateInfinite : MonoBehaviour {
 				}
 			}
 
+			Hashtable newFunObjs = new Hashtable ();
+			foreach (Interact funObj in interactableMatrix.Values) {
+				// Check if the the time identity is correct
+				// if not, destroy it
+				// if so, add it to the new hashtable
+				if (funObj.creationTime != updateTime) {
+					Destroy (funObj.interactable);
+				} else {
+					newFunObjs.Add (funObj.interactable.name, funObj);
+				}
+			}
+
 			// Finally, assign the old matrix to the new matrix
 			tileMatrix = newRoad;
+			interactableMatrix = newFunObjs;
 
 			startPos = player.transform.position;
 		}

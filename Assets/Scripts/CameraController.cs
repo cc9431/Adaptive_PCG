@@ -2,22 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// --------------------------------------------------------------- //
-/* 
-	Ideas for car improvments:
-		- Camera has two main states
-			- Player.inAir
-				- Rotation to player is saved in it's spot the
-				  moment the player leaves the air. The camera
-				  rotation is then spherically lerped based on the 
-				  Vector3 of the player's momentum.
-			- !Player.inAir
-				- Simple follow
-		- Always have the distance from the player be proportional
-		  to the speed of the player.
-*/ 
-// --------------------------------------------------------------- //
-
 public class CameraController : MonoBehaviour {
 	private Transform player;
 	private Vector3 centerScreen;
@@ -41,9 +25,9 @@ public class CameraController : MonoBehaviour {
 
 	Quaternion CalculatePos(){
 		float desiredAngle;
-		// Vector2 localVel = new Vector2 (PlayerRB.velocity.x, PlayerRB.velocity.z);
-		if (carScript.inAir) desiredAngle = 0;
-		desiredAngle = player.transform.eulerAngles.y;
+		Vector2 localVel = new Vector2 (PlayerRB.velocity.normalized.x, PlayerRB.velocity.normalized.z);
+		if (carScript.inAir) desiredAngle = Mathf.Atan2(localVel.x, localVel.y) * Mathf.Rad2Deg;
+		else desiredAngle = player.transform.eulerAngles.y;
 
 		float currAngle = transform.eulerAngles.y;
 
