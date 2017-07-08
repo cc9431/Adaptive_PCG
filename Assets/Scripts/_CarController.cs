@@ -13,13 +13,14 @@ public class _CarController : MonoBehaviour {
 	private float HorsePower = 2500f;
 
 	void Awake(){
-		Physics.gravity = (Vector3.down * 17);
+		Physics.gravity = (Vector3.down * 25);
 		WheelColliders = gameObject.GetComponentsInChildren<WheelCollider> ();
 	}
 
 	void Start(){
 		PlayerRB = gameObject.GetComponent<Rigidbody> ();
-		PlayerRB.centerOfMass = new Vector3(0f, -0.1f, 0.04f);
+		//PlayerRB.centerOfMass = new Vector3(0f, -0.1f, 0.04f);
+		PlayerRB.centerOfMass = new Vector3(0f, 0f, 0f);
 	}
 
 	void FixedUpdate () {
@@ -51,7 +52,7 @@ public class _CarController : MonoBehaviour {
 		bool Spin = (Input.GetAxis ("Spin") != 0);
 
 		float steering = HighSteerAngle * Turn;
-		bool maxSpeed = RPMs > 3000;
+		bool maxSpeed = RPMs >= 3000;
 		float drive = 0;
 
 		WheelColliders [0].steerAngle = steering;

@@ -25,8 +25,11 @@ public class CameraController : MonoBehaviour {
 
 	Quaternion CalculatePos(){
 		float desiredAngle;
-		Vector2 localVel = new Vector2 (PlayerRB.velocity.normalized.x, PlayerRB.velocity.normalized.z);
-		if (carScript.inAir) desiredAngle = Mathf.Atan2(localVel.x, localVel.y) * Mathf.Rad2Deg;
+		Vector2 localVelNorm = new Vector2 (PlayerRB.velocity.normalized.x, PlayerRB.velocity.normalized.z);
+		Vector2 localVel = new Vector2 (Mathf.Abs(PlayerRB.velocity.x), Mathf.Abs(PlayerRB.velocity.z));
+
+		if (localVel.x < 5 && localVel.y < 5) desiredAngle = 0;
+		else if (carScript.inAir) desiredAngle = Mathf.Atan2(localVelNorm.x, localVelNorm.y) * Mathf.Rad2Deg;
 		else desiredAngle = player.transform.eulerAngles.y;
 
 		float currAngle = transform.eulerAngles.y;

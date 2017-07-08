@@ -1,14 +1,14 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GenerateInfinite.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Stabilize.cs">
     <Files>
-      <File FileName="../Unity Projects/Adaptive_PCG-Charlie/Assets/Scripts/TODO.txt" Line="11" Column="123" />
-      <File FileName="Assets/Scripts/_CarController.cs" Line="3" Column="19" />
-      <File FileName="Assets/Scripts/CameraController.cs" Line="27" Column="22" />
-      <File FileName="Assets/Scripts/GenerateInfinite.cs" Line="44" Column="28" />
+      <File FileName="Assets/Scripts/_CarController.cs" Line="16" Column="39" />
+      <File FileName="Assets/Scripts/CameraController.cs" Line="31" Column="41" />
+      <File FileName="Assets/Scripts/GenerateInfinite.cs" Line="136" Column="56" />
       <File FileName="Assets/Scripts/PerlinNoiseGround.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Speedometer.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Stabilize.cs" Line="1" Column="1" />
+      <File FileName="../Unity Projects/Adaptive_PCG-Charlie/Assets/Scripts/TODO.txt" Line="26" Column="2" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

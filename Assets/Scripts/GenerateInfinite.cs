@@ -78,7 +78,7 @@ public class GenerateInfinite : MonoBehaviour {
 			Vector3 tilePos = new Vector3(0, 0, tileLocation);
 			Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
 
-			string interactName = "Inter_" + ((int)(tilePos.z).ToString());
+			string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
 
 			// 10% chance to create ramp
 			bool coinFlip = Random.Range(0, 10) == 1 && (z == 9);
@@ -87,7 +87,7 @@ public class GenerateInfinite : MonoBehaviour {
 			if (coinFlip) {
 				interact = (GameObject)Instantiate (Interact_Ramp, interactPos, quat);
 				interact.name = interactName;
-				Interact funObj = new Interact (interact, updateTime+z);
+				Interact funObj = new Interact (interact, updateTime);
 				interactableMatrix.Add (interactName, funObj);
 			}
 
@@ -129,13 +129,13 @@ public class GenerateInfinite : MonoBehaviour {
 
 				Vector3 tilePos = new Vector3 (0, 0, tileLocation);
 				string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
-				string interactName = "Inter_" + ((int)(tilePos.z)).ToString ();
+				string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
 
 				if (!interactableMatrix.ContainsKey (interactName)) {
 					// 10% chance to create ramp
-					bool coinFlip = Random.Range(0, 2) == 1 && (z == 9);
+					bool coinFlip = Random.Range(0, 4) == 1 && (z == 9);
 
-					// If the ramp wins, place a ramp and add to hashmap
+					// If the ramp wins, place a ramp and add to 
 					if (coinFlip) {
 						Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
 						interact = (GameObject)Instantiate (Interact_Ramp, interactPos, quat);
@@ -174,14 +174,14 @@ public class GenerateInfinite : MonoBehaviour {
 			}
 
 			Hashtable newFunObjs = new Hashtable ();
-			foreach (Interact funObj in interactableMatrix.Values) {
+			foreach (Interact fun in interactableMatrix.Values) {
 				// Check if the the time identity is correct
 				// if not, destroy it
 				// if so, add it to the new hashtable
-				if (funObj.creationTime != updateTime) {
-					Destroy (funObj.interactable);
+				if (fun.creationTime != updateTime) {
+					Destroy (fun.interactable);
 				} else {
-					newFunObjs.Add (funObj.interactable.name, funObj);
+					newFunObjs.Add (fun.interactable.name, fun);
 				}
 			}
 
@@ -189,7 +189,10 @@ public class GenerateInfinite : MonoBehaviour {
 			tileMatrix = newRoad;
 			interactableMatrix = newFunObjs;
 
-			startPos = player.transform.position;
+			if (zMove >= 50)
+				startPos.z += 50;
+			else
+				startPos.z -= 50;
 		}
 	}
 }
