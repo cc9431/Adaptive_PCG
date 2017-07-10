@@ -5,22 +5,28 @@ using UnityEngine;
 public class _CarController : MonoBehaviour {
 	private WheelCollider[] WheelColliders;
 	private Rigidbody PlayerRB;
+	private MasterController Master;
 
 	public float RPMs;
 	public bool inAir;
+	public bool maxSpeed;
+	public bool boosting;
 
 	private float HighSteerAngle = 10f;
 	private float HorsePower = 2500f;
 
 	void Awake(){
-		Physics.gravity = (Vector3.down * 25);
-		WheelColliders = gameObject.GetComponentsInChildren<WheelCollider> ();
+		Physics.gravity = (Vector3.down * 25); 
 	}
 
 	void Start(){
 		PlayerRB = gameObject.GetComponent<Rigidbody> ();
-		//PlayerRB.centerOfMass = new Vector3(0f, -0.1f, 0.04f);
-		PlayerRB.centerOfMass = new Vector3(0f, 0f, 0f);
+		WheelColliders = gameObject.GetComponentsInChildren<WheelCollider> ();
+
+		Master = GameObject.FindGameObjectWithTag ("Master").GetComponent<MasterController> ();
+
+		PlayerRB.centerOfMass = new Vector3(0f, -0.1f, 0.04f);
+		//PlayerRB.centerOfMass = new Vector3(0f, 0f, 0f);
 	}
 
 	void FixedUpdate () {
@@ -34,7 +40,7 @@ public class _CarController : MonoBehaviour {
 		bool BRInAir = !WheelColliders[2] .isGrounded;
 		bool BLInAir = !WheelColliders[3] .isGrounded;
 
-		inAir =  FRInAir && FLInAir && BRInAir && BLInAir;
+		inAir =  FRInAir || FLInAir || BRInAir || BLInAir;
 
 		RPMs = 0;
 		foreach(WheelCollider wheel in WheelColliders) RPMs += wheel.rpm;
@@ -52,8 +58,10 @@ public class _CarController : MonoBehaviour {
 		bool Spin = (Input.GetAxis ("Spin") != 0);
 
 		float steering = HighSteerAngle * Turn;
-		bool maxSpeed = RPMs >= 3000;
 		float drive = 0;
+
+		maxSpeed = RPMs >= 3000;
+		boosting = Boost != 0;
 
 		WheelColliders [0].steerAngle = steering;
 		WheelColliders [1].steerAngle = steering;
@@ -61,7 +69,7 @@ public class _CarController : MonoBehaviour {
 		WheelColliders [2].brakeTorque = HorsePower * Brake;
 		WheelColliders [3].brakeTorque = HorsePower * Brake;
 
-		if (!maxSpeed) PlayerRB.AddForce (20000f * gameObject.transform.forward * Boost, ForceMode.Force);
+		if (!maxSpeed) PlayerRB.AddForce (30000f * gameObject.transform.forward * Boost, ForceMode.Force);
 
 		if (inAir) {
 			PlayerRB.drag = 0f;
@@ -80,7 +88,8 @@ public class _CarController : MonoBehaviour {
 
 				if (steering != 0) drive /= 2f;
 			}
-			PlayerRB.AddForce (6000f * gameObject.transform.up * Jump, ForceMode.Impulse);
+			PlayerRB.AddForce (4000f * gameObject.transform.up * Jump, ForceMode.Impulse);
+			if (Jump != 0) Master.PlayerJumps();
 		}
 
 		foreach (WheelCollider wheel in WheelColliders) {

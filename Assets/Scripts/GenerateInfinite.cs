@@ -2,19 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// --------------------------------------------------------------- //
-/* 
-	Ideas for Generation Improvements:
-		- Decision tree implementation?
-			- Build decision tree based off of test data that takes
-			  in player's stats -- refering to the numbers generated
-			  by the player's interaction with the objects. Allow
-			  game to classify player after set intervals. Use this
-			  classification to determine generation
-		- Random generation of position for interactables
-*/ 
-// --------------------------------------------------------------- //
-
 // Class for each block of road to be generated
 class Tile{
 	public GameObject gameTile;
@@ -30,11 +17,13 @@ class Tile{
 class Interact{
 	public GameObject interactable;
 	public float creationTime;
+	public string id;
 
 	// Instatiation
-	public Interact(GameObject i, float ctime){
+	public Interact(GameObject i, float ctime, string identify){
 		interactable = i;
 		creationTime = ctime;
+		id = identify;
 	}
 }
 
@@ -42,6 +31,14 @@ public class GenerateInfinite : MonoBehaviour {
 	public GameObject groundPlane;
 	public GameObject Interact_Ramp;
 	private GameObject player;
+
+	private string rampJump = "R";
+	private string speedStrip = "S";
+	private string spikeStrip = "K";
+
+	private string level0 = "0";
+	private string level1 = "1";
+	private string level2 = "2";
 
 	int groundPlaneSize = 10 * 5;
 	int tilesInFront = 10;
@@ -68,28 +65,11 @@ public class GenerateInfinite : MonoBehaviour {
 		for (int z = tilesBehind; z <= tilesInFront; z++){
 			// This will be our tile for each slot
 			GameObject t;
-			GameObject interact;
 
 			// Tile location
 			float tileLocation = (z * groundPlaneSize + startPos.z);
-			float randomLocation = Random.Range (-20f, 20f);
-			Quaternion quat = Quaternion.Euler (-90, 0, -90);
 
 			Vector3 tilePos = new Vector3(0, 0, tileLocation);
-			Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
-
-			string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
-
-			// 10% chance to create ramp
-			bool coinFlip = Random.Range(0, 10) == 1 && (z == 9);
-
-			// If the ramp wins, place a ramp and add to hashmap
-			if (coinFlip) {
-				interact = (GameObject)Instantiate (Interact_Ramp, interactPos, quat);
-				interact.name = interactName;
-				Interact funObj = new Interact (interact, updateTime);
-				interactableMatrix.Add (interactName, funObj);
-			}
 
 			t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);
 
@@ -131,16 +111,30 @@ public class GenerateInfinite : MonoBehaviour {
 				string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
 				string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
 
+				// TODO When the MasterController starts to make decisions about the generation here will be where I need
+				// to set the ID based on what is chosed. I should also have a way of instantiating the object simply,
+				// without having a bunch of if statements.
+				string identify = rampJump + level0;
+
 				if (!interactableMatrix.ContainsKey (interactName)) {
 					// 10% chance to create ramp
 					bool coinFlip = Random.Range(0, 4) == 1 && (z == 9);
 
 					// If the ramp wins, place a ramp and add to 
 					if (coinFlip) {
+						// To reduce computational draw, setting the position is done only if the coin flip works
 						Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
 						interact = (GameObject)Instantiate (Interact_Ramp, interactPos, quat);
+
+						// Set the name of our interactable object [mostly for debugging]
 						interact.name = interactName;
-						Interact funObj = new Interact (interact, updateTime);
+
+						// Set the id of our object based on what type and level it is [for communication with the master]
+						InteractController inter = interact.GetComponent<InteractController> ();
+						inter.setID (identify);
+
+						// Create an Interact objecta and add it to our 
+						Interact funObj = new Interact (interact, updateTime, identify);
 						interactableMatrix.Add (interactName, funObj);
 					}
 				} else {
@@ -189,10 +183,10 @@ public class GenerateInfinite : MonoBehaviour {
 			tileMatrix = newRoad;
 			interactableMatrix = newFunObjs;
 
-			if (zMove >= 50)
-				startPos.z += 50;
+			if (zMove >= groundPlaneSize)
+				startPos.z += groundPlaneSize;
 			else
-				startPos.z -= 50;
+				startPos.z -= groundPlaneSize;
 		}
 	}
 }
