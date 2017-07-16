@@ -8,18 +8,20 @@ public class _CarController : MonoBehaviour {
 	private MasterController Master;
 
 	public float RPMs;
+	public float speedGate;
 	public bool inAir;
 	public bool maxSpeed;
 	public bool boosting;
+	public bool bodyTouching;
+	public bool onBack;
 
-	private float HighSteerAngle = 10f;
+	private bool lastFrameJump;
+	private float Boost;
+	private float HighSteerAngle = 6f;
 	private float HorsePower = 2500f;
 
-	void Awake(){
-		Physics.gravity = (Vector3.down * 25); 
-	}
-
 	void Start(){
+		speedGate = 0;
 		PlayerRB = gameObject.GetComponent<Rigidbody> ();
 		WheelColliders = gameObject.GetComponentsInChildren<WheelCollider> ();
 
@@ -30,17 +32,19 @@ public class _CarController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		CheckInAirAndSpeed();
+		CheckCar();
 		MoveThatCar ();
 	}
 
-	void CheckInAirAndSpeed(){
+	void CheckCar(){
 		bool FRInAir = !WheelColliders[0] .isGrounded;
 		bool FLInAir = !WheelColliders[1] .isGrounded;
 		bool BRInAir = !WheelColliders[2] .isGrounded;
 		bool BLInAir = !WheelColliders[3] .isGrounded;
 
 		inAir =  FRInAir || FLInAir || BRInAir || BLInAir;
+
+		onBack = inAir && bodyTouching;
 
 		RPMs = 0;
 		foreach(WheelCollider wheel in WheelColliders) RPMs += wheel.rpm;
@@ -53,9 +57,25 @@ public class _CarController : MonoBehaviour {
 		float Accel = Input.GetAxis ("Drive");
 		float Reverse = Input.GetAxis ("Reverse");
 		float Brake = Input.GetAxis ("Brake");
-		float Boost = Input.GetAxis ("Boost");
 		float Jump = Input.GetAxis ("Jump");
 		bool Spin = (Input.GetAxis ("Spin") != 0);
+
+		/*if (Input.GetKey (KeyCode.A))
+			Turn = -1;
+		else if (Input.GetKey (KeyCode.D))
+			Turn = 1;
+		else
+			Turn = 0;
+		
+		if (Input.GetKey (KeyCode.W))
+			Accel = 1;
+		else
+			Accel = 0;*/
+		
+		if (speedGate > 0) {
+			Boost = 1.5f;
+			speedGate -= 0.1f;
+		} else Boost = Input.GetAxis ("Boost");
 
 		float steering = HighSteerAngle * Turn;
 		float drive = 0;
@@ -73,11 +93,11 @@ public class _CarController : MonoBehaviour {
 
 		if (inAir) {
 			PlayerRB.drag = 0f;
-			PlayerRB.angularDrag = 3.5f;
+			PlayerRB.angularDrag = 5f;
 
-			if (Spin) PlayerRB.AddRelativeTorque (0.5f * Vector3.back * Turn, ForceMode.VelocityChange);
-			else PlayerRB.AddRelativeTorque (0.5f * Vector3.up * Turn, ForceMode.VelocityChange);
-			PlayerRB.AddRelativeTorque (0.5f * Vector3.right * Pitch, ForceMode.VelocityChange);
+			if (Spin) PlayerRB.AddRelativeTorque (Vector3.back * Turn, ForceMode.VelocityChange);
+			else PlayerRB.AddRelativeTorque (0.93f * Vector3.up * Turn, ForceMode.VelocityChange);
+			PlayerRB.AddRelativeTorque (0.93f * Vector3.right * Pitch, ForceMode.VelocityChange);
 		} else {
 			PlayerRB.drag = 0.5f;
 			PlayerRB.angularDrag = 0.5f;
@@ -85,17 +105,19 @@ public class _CarController : MonoBehaviour {
 			if (!maxSpeed) {
 				if (Accel > 0) drive = HorsePower * (Accel - Brake);
 				if (Reverse < 0) drive = HorsePower * (Reverse - Brake);
-
-				if (steering != 0) drive /= 2f;
+			} 
+			if (Jump != 0 && !lastFrameJump) {
+				PlayerRB.AddForce (11000f * gameObject.transform.up * Jump, ForceMode.Impulse);
+				Master.PlayerJumped ();
 			}
-			PlayerRB.AddForce (4000f * gameObject.transform.up * Jump, ForceMode.Impulse);
-			if (Jump != 0) Master.PlayerJumps();
 		}
 
 		foreach (WheelCollider wheel in WheelColliders) {
 				wheel.motorTorque = drive;
-				FixMeshPositions(wheel);	
+				FixMeshPositions(wheel);
 		}
+
+		lastFrameJump = (Jump == 1);
 	}
 
 	void FixMeshPositions(WheelCollider collider){

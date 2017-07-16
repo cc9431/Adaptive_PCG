@@ -46,15 +46,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\BoostTrailBlazer.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\GenerateInfinite.cs" />
-     <Compile Include="Assets\Scripts\GenerationDev\GenerateInfiniteDev.cs" />
-     <Compile Include="Assets\Scripts\GenerationDev\Tile.cs" />
      <Compile Include="Assets\Scripts\InteractController.cs" />
      <Compile Include="Assets\Scripts\MasterController.cs" />
-     <Compile Include="Assets\Scripts\PerlinNoiseGround.cs" />
+     <Compile Include="Assets\Scripts\MaxSpeedTrail.cs" />
+     <Compile Include="Assets\Scripts\OrbController.cs" />
+     <Compile Include="Assets\Scripts\PlayerTriggerController.cs" />
+     <Compile Include="Assets\Scripts\Rotate.cs" />
+     <Compile Include="Assets\Scripts\SpeedGateController.cs" />
      <Compile Include="Assets\Scripts\Speedometer.cs" />
      <Compile Include="Assets\Scripts\Stabilize.cs" />
+     <Compile Include="Assets\Scripts\WallVisual.cs" />
      <Compile Include="Assets\Scripts\_CarController.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Volumes/Macintosh HD 2/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

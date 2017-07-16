@@ -30,10 +30,15 @@ class Interact{
 public class GenerateInfinite : MonoBehaviour {
 	public GameObject groundPlane;
 	public GameObject Interact_Ramp;
+	public GameObject Interact_Spikes;
+	public GameObject Interact_SpeedL0;
+	public GameObject Interact_SpeedL1;
+
 	private GameObject player;
+	private MasterController Master;
 
 	private string rampJump = "R";
-	private string speedStrip = "S";
+	private string speedPortal = "S";
 	private string spikeStrip = "K";
 
 	private string level0 = "0";
@@ -53,6 +58,7 @@ public class GenerateInfinite : MonoBehaviour {
 	void Start(){
 		// Get player from tag
 		player = GameObject.FindWithTag("Player");
+		Master = gameObject.GetComponent<MasterController> ();
 
 		// Set player and generator positions to zero
 		this.gameObject.transform.position = Vector3.zero;
@@ -105,7 +111,6 @@ public class GenerateInfinite : MonoBehaviour {
 				// For each tile - get the position by multiplying the iteration number by the plane size and the start position of the player (0)
 				float tileLocation = (z * groundPlaneSize + startPos.z);
 				float randomLocation = Random.Range (-20f, 20f);
-				Quaternion quat = Quaternion.Euler (-90, 0, -90);
 
 				Vector3 tilePos = new Vector3 (0, 0, tileLocation);
 				string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
@@ -114,24 +119,31 @@ public class GenerateInfinite : MonoBehaviour {
 				// TODO When the MasterController starts to make decisions about the generation here will be where I need
 				// to set the ID based on what is chosed. I should also have a way of instantiating the object simply,
 				// without having a bunch of if statements.
-				string identify = rampJump + level0;
-
 				if (!interactableMatrix.ContainsKey (interactName)) {
 					// 10% chance to create ramp
-					bool coinFlip = Random.Range(0, 4) == 1 && (z == 9);
+					bool coinFlip = (Random.Range(0, 2) == 0);
+					bool tileNine = (z == 9);
 
 					// If the ramp wins, place a ramp and add to 
-					if (coinFlip) {
+					if (coinFlip && tileNine) {
+						GameObject funObject;
+						string identify;
+
+						// call function that takes data from Master and decides which item should be generated
+						decideFunObj (out funObject, out identify);
+
 						// To reduce computational draw, setting the position is done only if the coin flip works
 						Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
-						interact = (GameObject)Instantiate (Interact_Ramp, interactPos, quat);
+						interact = (GameObject)Instantiate (funObject, interactPos, Quaternion.identity);
 
 						// Set the name of our interactable object [mostly for debugging]
 						interact.name = interactName;
 
 						// Set the id of our object based on what type and level it is [for communication with the master]
-						InteractController inter = interact.GetComponent<InteractController> ();
-						inter.setID (identify);
+						InteractController control = interact.GetComponent<InteractController>();
+
+						control.setID (identify);
+						control.setMaster (Master);
 
 						// Create an Interact objecta and add it to our 
 						Interact funObj = new Interact (interact, updateTime, identify);
@@ -187,6 +199,30 @@ public class GenerateInfinite : MonoBehaviour {
 				startPos.z += groundPlaneSize;
 			else
 				startPos.z -= groundPlaneSize;
+		}
+	}
+
+	private void decideFunObj(out GameObject funInteract, out string funID){
+		int RNGesus = Random.Range(0, 3);
+		//bool Spikes = (RNGesus == 0);
+		bool Ramp = (RNGesus == 1);
+		bool Speed = (RNGesus == 2);
+
+		if (Ramp) {
+			funInteract = Interact_Ramp;
+			funID = rampJump + level0;
+		} else if (Speed) {
+			int RNG = Random.Range (0, 2);
+			if (RNG == 1) {
+				funInteract = Interact_SpeedL0;
+				funID = speedPortal + level0;
+			} else {
+				funInteract = Interact_SpeedL1;
+				funID = speedPortal + level1;
+			}
+		} else {
+			funInteract = Interact_Spikes;
+			funID = spikeStrip + level0;
 		}
 	}
 }
