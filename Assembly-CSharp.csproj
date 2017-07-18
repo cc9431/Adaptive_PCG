@@ -53,6 +53,7 @@
      <Compile Include="Assets\Scripts\MasterController.cs" />
      <Compile Include="Assets\Scripts\MaxSpeedTrail.cs" />
      <Compile Include="Assets\Scripts\OrbController.cs" />
+     <Compile Include="Assets\Scripts\ParticleController.cs" />
      <Compile Include="Assets\Scripts\PlayerTriggerController.cs" />
      <Compile Include="Assets\Scripts\Rotate.cs" />
      <Compile Include="Assets\Scripts\SpeedGateController.cs" />

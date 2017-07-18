@@ -16,6 +16,7 @@ public class MasterController : MonoBehaviour {
 	private int framesInAir;		// Used to evaluate the engagement of the player
 	private int framesAtMax;
 	private int framesBoosting;
+	private int framesOnBack;
 
 	private int rampJumpTotal;		// How many times a player uses a ramp
 	private int rampL0;
@@ -40,20 +41,24 @@ public class MasterController : MonoBehaviour {
 
 	private GameObject player;
 	private _CarController carController;
-	private GenerateInfinite PCG;
+	private Rigidbody carRB;
 
+	private bool Paused;
 	private bool lastFramePrint;
 	private bool lastFrameCancel;
 	private bool TrickTracking;
 	private bool objectTouched;
 	private string lastObjectTouched;
 
-	private float Xspin;
+	private float Xspin;			// Track input from player to determine flips/spins/turns
 	private float Yspin;
 	private float Zspin;
+	
+	private float AvgSpeed;
+	private int qty;
 
 	void Start() {
-		// Start all trackers at 0
+		/* Start all trackers at 0
 		totalPoints = 0;
 
 		orbs = 0;
@@ -64,6 +69,7 @@ public class MasterController : MonoBehaviour {
 		framesAtMax = 0;
 		framesInAir = 0;
 		framesBoosting = 0;
+		framesOnBack = 0;
 
 		rampJumpTotal = 0;
 		rampL0 = 0;
@@ -88,26 +94,46 @@ public class MasterController : MonoBehaviour {
 
 		Xspin = 0;
 		Yspin = 0;
-		Zspin = 0;
+		Zspin = 0;*/
 
 		lastObjectTouched = "0";
+		TrickTracking = false;
+		objectTouched = false;
 
 		player = GameObject.FindGameObjectWithTag("Player");
 		carController = player.GetComponent<_CarController> ();
-		TrickTracking = false;
-		objectTouched = false;
+		carRB = player.GetComponent<Rigidbody> ();
 	}
 
 	void Update () {
+		// Where we check if the player pauses the game or not
+		bool Pause = Input.GetKeyDown(KeyCode.Space);
+
+		if (Pause) Paused = !Paused;
+
+		if (Paused) Time.timeScale = 0;
+		else Time.timeScale = 1;
+
+		// This will call TrackTricks for every frame that the car
+		// is in the air and the first frame that the car touched back down
+		// it also only tracks player input if the car is "freely flying"
+		// (meaning that none of the cars different colliders are touching anything)
 		if ((TrickTracking || carController.inAir) && (!carController.onBack)) TrackTricks ();
 
+		// Call this function to update the average speed
+		UpdateAverageSpeed(carRB.velocity.magnitude);
+
+		// Keep track of player engagement
 		if (carController.inAir) framesInAir++;
 		if (carController.maxSpeed) framesAtMax++;
 		if (carController.boosting) framesBoosting++;
+		if (carController.onBack) framesOnBack++;
 
-		bool Print = (Input.GetAxis ("Submit") != 0);			// Print out all of the relevant info [for debugging]
-		bool Cancel = (Input.GetAxis ("Cancel") != 0);
+		// Print out all of the relevant info [for debugging]
+		bool Print = (Input.GetAxis ("Submit") != 0);
+		bool Cancel = Input.GetKeyDown(KeyCode.Return);//(Input.GetAxis ("Cancel") != 0);
 
+		// printing functions to give myself information on the game
 		if (Print && !lastFramePrint) PrintStats ();
 		if (Cancel && !lastFrameCancel) PrintOrbStats ();
 
@@ -117,6 +143,11 @@ public class MasterController : MonoBehaviour {
 
 		// This is so we are always looking at the last frame
 		TrickTracking = carController.inAir;
+	}
+
+	private void UpdateAverageSpeed(float newSpeed){
+		++qty;
+		AvgSpeed += (newSpeed - AvgSpeed)/qty;
 	}
 
 	private void PrintStats (){
@@ -137,7 +168,7 @@ public class MasterController : MonoBehaviour {
 	}
 
 	public void PlayerInteracted(string objectID){
-		// Here we evaluate the ID sent from the interactable and assing points to the appropriate tracker
+		// Here we evaluate the ID sent from the interactable and increment to the appropriate tracker
 		if (objectID.StartsWith ("R")) {
 												rampJumpTotal++;
 			if (objectID.EndsWith ("0")) 		rampL0++;
@@ -157,6 +188,7 @@ public class MasterController : MonoBehaviour {
 			else if (objectID.EndsWith("2")) 	speedL2++;
 		}
 
+		// This is used to keep track of the first object touched after the player starts a trick
 		if (!objectTouched) {
 			lastObjectTouched = objectID;
 			objectTouched = true;

@@ -52,15 +52,15 @@ public class _CarController : MonoBehaviour {
 	}
 
 	void MoveThatCar(){
-		float Turn = Input.GetAxis ("Horizontal");
+		float Turn;// = Input.GetAxis ("Horizontal");
 		float Pitch = Input.GetAxis ("Vertical");
-		float Accel = Input.GetAxis ("Drive");
+		float Accel;// = Input.GetAxis ("Drive");
 		float Reverse = Input.GetAxis ("Reverse");
 		float Brake = Input.GetAxis ("Brake");
 		float Jump = Input.GetAxis ("Jump");
 		bool Spin = (Input.GetAxis ("Spin") != 0);
 
-		/*if (Input.GetKey (KeyCode.A))
+		if (Input.GetKey (KeyCode.A))
 			Turn = -1;
 		else if (Input.GetKey (KeyCode.D))
 			Turn = 1;
@@ -70,7 +70,7 @@ public class _CarController : MonoBehaviour {
 		if (Input.GetKey (KeyCode.W))
 			Accel = 1;
 		else
-			Accel = 0;*/
+			Accel = 0;
 		
 		if (speedGate > 0) {
 			Boost = 1.5f;
@@ -93,7 +93,7 @@ public class _CarController : MonoBehaviour {
 
 		if (inAir) {
 			PlayerRB.drag = 0f;
-			PlayerRB.angularDrag = 5f;
+			PlayerRB.angularDrag = 6f;
 
 			if (Spin) PlayerRB.AddRelativeTorque (Vector3.back * Turn, ForceMode.VelocityChange);
 			else PlayerRB.AddRelativeTorque (0.93f * Vector3.up * Turn, ForceMode.VelocityChange);

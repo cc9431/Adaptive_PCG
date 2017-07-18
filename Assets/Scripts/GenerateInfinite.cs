@@ -29,10 +29,19 @@ class Interact{
 
 public class GenerateInfinite : MonoBehaviour {
 	public GameObject groundPlane;
-	public GameObject Interact_Ramp;
-	public GameObject Interact_Spikes;
+	public GameObject groundSpike;
+
+	public GameObject Interact_RampL0;
+	public GameObject Interact_RampL1;
+	public GameObject Interact_RampL2;
+
+	public GameObject Interact_SpikesL0;
+	public GameObject Interact_SpikesL1;
+	public GameObject Interact_SpikesL2;
+
 	public GameObject Interact_SpeedL0;
 	public GameObject Interact_SpeedL1;
+	public GameObject Interact_SpeedL2;
 
 	private GameObject player;
 	private MasterController Master;
@@ -125,12 +134,17 @@ public class GenerateInfinite : MonoBehaviour {
 					bool tileNine = (z == 9);
 
 					// If the ramp wins, place a ramp and add to 
-					if (coinFlip && tileNine) {
+					if (tileNine) {
 						GameObject funObject;
 						string identify;
 
-						// call function that takes data from Master and decides which item should be generated
-						decideFunObj (out funObject, out identify);
+						if (coinFlip){
+							// call function that takes data from Master and decides which item should be generated
+							decideFunObj (out funObject, out identify);
+						} else {
+							funObject = groundSpike;
+							identify = level0 + level0;
+						}
 
 						// To reduce computational draw, setting the position is done only if the coin flip works
 						Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
@@ -141,11 +155,10 @@ public class GenerateInfinite : MonoBehaviour {
 
 						// Set the id of our object based on what type and level it is [for communication with the master]
 						InteractController control = interact.GetComponent<InteractController>();
-
 						control.setID (identify);
 						control.setMaster (Master);
 
-						// Create an Interact objecta and add it to our 
+						// Create an Interact class object and add it to our 
 						Interact funObj = new Interact (interact, updateTime, identify);
 						interactableMatrix.Add (interactName, funObj);
 					}
@@ -203,26 +216,48 @@ public class GenerateInfinite : MonoBehaviour {
 	}
 
 	private void decideFunObj(out GameObject funInteract, out string funID){
-		int RNGesus = Random.Range(0, 3);
-		//bool Spikes = (RNGesus == 0);
-		bool Ramp = (RNGesus == 1);
-		bool Speed = (RNGesus == 2);
+		int topLevelRNG = Random.Range(0, 3);
+		int bottomLevelRNG = Random.Range(0, 3);
+		
+		bool Ramp = (topLevelRNG == 0);
+		bool Speed = (topLevelRNG == 1);
+
+		bool L0 = (bottomLevelRNG == 0);
+		bool L1 = (bottomLevelRNG == 1);
 
 		if (Ramp) {
-			funInteract = Interact_Ramp;
-			funID = rampJump + level0;
+			if (L0) {
+				funInteract = Interact_RampL0;
+				funID = rampJump + level0;
+			} else if (L1) {
+				funInteract = Interact_RampL1;
+				funID = rampJump + level1;
+			} else {
+				funInteract = Interact_RampL2;
+				funID = rampJump + level2;
+			}
 		} else if (Speed) {
-			int RNG = Random.Range (0, 2);
-			if (RNG == 1) {
+			if (L0) {
 				funInteract = Interact_SpeedL0;
 				funID = speedPortal + level0;
-			} else {
+			} else if (L1) {
 				funInteract = Interact_SpeedL1;
 				funID = speedPortal + level1;
+			} else {
+				funInteract = Interact_SpeedL2;
+				funID = speedPortal + level2;
 			}
 		} else {
-			funInteract = Interact_Spikes;
-			funID = spikeStrip + level0;
+			if (L0) {
+				funInteract = Interact_SpikesL0;
+				funID = spikeStrip + level0;
+			} else if (L1) {
+				funInteract = Interact_SpikesL1;
+				funID = spikeStrip + level1;
+			} else {
+				funInteract = Interact_SpikesL2;
+				funID = spikeStrip + level2;
+			}
 		}
 	}
 }
