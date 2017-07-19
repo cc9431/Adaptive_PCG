@@ -182,6 +182,7 @@ public class _CarController : MonoBehaviour {
 			transform.rotation = Quaternion.identity;
 			transform.position = new Vector3 (0, 5, playerZ);
 
+			Master.PlayerReset ();
 			waitForReset = 0;
 		}
 	}

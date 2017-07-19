@@ -19,6 +19,7 @@ public class MasterController : MonoBehaviour {
 	private int framesBoosting;
 	private int framesOnBack;
 	private int framesDrifting;
+	private int timesReset;
 
 	private int rampJumpTotal;		// How many times a player uses a ramp
 	private int rampL0;
@@ -268,5 +269,9 @@ public class MasterController : MonoBehaviour {
 
 	public void PlayerJumped() {
 		jumps++;
+	}
+
+	public void PlayerReset(){
+		timesReset++;
 	}
 }
