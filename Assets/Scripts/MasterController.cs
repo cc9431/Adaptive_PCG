@@ -12,11 +12,13 @@ public class MasterController : MonoBehaviour {
 	private int rampPoints;			// The points are based on how many orbs are collected from each interactable
 	private int speedPoints;
 	private int spikePoints;
+	private int wallPoints;
 
 	private int framesInAir;		// Used to evaluate the engagement of the player
 	private int framesAtMax;
 	private int framesBoosting;
 	private int framesOnBack;
+	private int framesDrifting;
 
 	private int rampJumpTotal;		// How many times a player uses a ramp
 	private int rampL0;
@@ -33,6 +35,11 @@ public class MasterController : MonoBehaviour {
 	private int spikeL1;
 	private int spikeL2;
 
+	private int wallDestroyTotal;	// How many times a player runs through a wall
+	private int wallL0;
+	private int wallL1;
+	private int wallL2;
+
 	private int totalFlips;			// How many tricks the player does over all
 	private int totalTurns;
 	private int totalSpins;
@@ -44,8 +51,8 @@ public class MasterController : MonoBehaviour {
 	private Rigidbody carRB;
 
 	private bool Paused;
-	private bool lastFramePrint;
-	private bool lastFrameCancel;
+	private bool lastFrameCancel = false;
+	private bool lastFramePause = false;
 	private bool TrickTracking;
 	private bool objectTouched;
 	private string lastObjectTouched;
@@ -106,64 +113,76 @@ public class MasterController : MonoBehaviour {
 	}
 
 	void Update () {
-		// Where we check if the player pauses the game or not
-		bool Pause = Input.GetKeyDown(KeyCode.Space);
+		if (carController.Alive) {
+			// Where we check if the player pauses the game or not
+			bool Pause = (Input.GetAxis("Submit") != 0);
 
-		if (Pause) Paused = !Paused;
+			if (Pause && !lastFramePause) Paused = !Paused;
+			if (Paused) Time.timeScale = 0;
+			if (!Paused) Time.timeScale = 1;
 
-		if (Paused) Time.timeScale = 0;
-		else Time.timeScale = 1;
+			// This will call TrackTricks for every frame that the car
+			// is in the air and the first frame that the car touched back down
+			// it also only tracks player input if the car is "freely flying"
+			// (meaning that none of the cars different colliders are touching anything)
+			if ((TrickTracking || carController.inAir) && (!carController.onBack))
+				TrackTricks ();
 
-		// This will call TrackTricks for every frame that the car
-		// is in the air and the first frame that the car touched back down
-		// it also only tracks player input if the car is "freely flying"
-		// (meaning that none of the cars different colliders are touching anything)
-		if ((TrickTracking || carController.inAir) && (!carController.onBack)) TrackTricks ();
+			// Call this function to update the average speed
+			UpdateAverageSpeed (carRB.velocity.magnitude);
 
-		// Call this function to update the average speed
-		UpdateAverageSpeed(carRB.velocity.magnitude);
+			// Keep track of player engagement
+			if (carController.inAir)
+				framesInAir++;
+			if (carController.maxSpeed)
+				framesAtMax++;
+			if (carController.boosting)
+				framesBoosting++;
+			if (carController.onBack)
+				framesOnBack++;
+			if (carController.Brake)
+				framesDrifting++;
 
-		// Keep track of player engagement
-		if (carController.inAir) framesInAir++;
-		if (carController.maxSpeed) framesAtMax++;
-		if (carController.boosting) framesBoosting++;
-		if (carController.onBack) framesOnBack++;
+			bool Cancel = (Input.GetAxis ("Cancel") != 0);
 
-		// Print out all of the relevant info [for debugging]
-		bool Print = (Input.GetAxis ("Submit") != 0);
-		bool Cancel = Input.GetKeyDown(KeyCode.Return);//(Input.GetAxis ("Cancel") != 0);
+			// printing functions to give myself information on the game
+			if (Cancel && !lastFrameCancel) {
+				PrintStats ();
+				PrintPointStats ();
+			}
 
-		// printing functions to give myself information on the game
-		if (Print && !lastFramePrint) PrintStats ();
-		if (Cancel && !lastFrameCancel) PrintOrbStats ();
+			// This helps emulate the OnKey method that only reacts once per button press.
+			lastFrameCancel = Cancel;
+			lastFramePause = Pause;
 
-		// This helps emulate the OnKey method that only reacts once per button press.
-		lastFramePrint = Print;
-		lastFrameCancel = Cancel;
-
-		// This is so we are always looking at the last frame
-		TrickTracking = carController.inAir;
+			// This is so we are always looking at the last frame
+			TrickTracking = carController.inAir;
+		} else
+			Time.timeScale = 0.5f;
 	}
 
 	private void UpdateAverageSpeed(float newSpeed){
 		++qty;
 		AvgSpeed += (newSpeed - AvgSpeed)/qty;
+
+		if (qty % 1000 == 0) {
+			print ("AvgSpeed: " + AvgSpeed.ToString ());
+			print ("Current: " + newSpeed.ToString ());
+		}
 	}
 
 	private void PrintStats (){
 		print ("framesAtMax: " + framesAtMax.ToString());
 		print ("framesBoosting: " + framesBoosting.ToString());
 		print ("framesInAir: " + framesInAir.ToString());
-		print ("Ramps: " + rampJumpTotal.ToString());
-		print ("Spikes: " + spikeStripTotal.ToString());
-		print ("Portals: " + speedPortalTotal.ToString ());
-		print ("Jumps: " + jumps.ToString());
+		print ("framesDrifting: " + framesDrifting.ToString ());
 	}
 
-	private void PrintOrbStats (){
+	private void PrintPointStats (){
 		print ("Ramp Points: " + rampPoints.ToString());
 		print ("Spike Points: " + spikePoints.ToString());
 		print ("Speed Points: " + speedPoints.ToString());
+		print ("Wall Points: " + wallPoints.ToString ());
 		print ("Total Points: " + totalPoints.ToString ());
 	}
 

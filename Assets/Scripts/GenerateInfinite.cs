@@ -43,12 +43,17 @@ public class GenerateInfinite : MonoBehaviour {
 	public GameObject Interact_SpeedL1;
 	public GameObject Interact_SpeedL2;
 
+	public GameObject Interact_WallL0;
+	public GameObject Interact_WallL1;
+	public GameObject Interact_WallL2;
+
 	private GameObject player;
 	private MasterController Master;
 
 	private string rampJump = "R";
 	private string speedPortal = "S";
 	private string spikeStrip = "K";
+	private string wallDestroy = "W";
 
 	private string level0 = "0";
 	private string level1 = "1";
@@ -216,47 +221,63 @@ public class GenerateInfinite : MonoBehaviour {
 	}
 
 	private void decideFunObj(out GameObject funInteract, out string funID){
-		int topLevelRNG = Random.Range(0, 3);
+		int topLevelRNG = Random.Range(0, 4);
 		int bottomLevelRNG = Random.Range(0, 3);
 		
 		bool Ramp = (topLevelRNG == 0);
 		bool Speed = (topLevelRNG == 1);
+		bool Spike = (topLevelRNG == 2);
 
 		bool L0 = (bottomLevelRNG == 0);
 		bool L1 = (bottomLevelRNG == 1);
 
 		if (Ramp) {
+			funID = rampJump;
 			if (L0) {
 				funInteract = Interact_RampL0;
-				funID = rampJump + level0;
+				funID += level0;
 			} else if (L1) {
 				funInteract = Interact_RampL1;
-				funID = rampJump + level1;
+				funID += level1;
 			} else {
 				funInteract = Interact_RampL2;
-				funID = rampJump + level2;
+				funID += level2;
 			}
 		} else if (Speed) {
+			funID = speedPortal;
 			if (L0) {
 				funInteract = Interact_SpeedL0;
-				funID = speedPortal + level0;
+				funID += level0;
 			} else if (L1) {
 				funInteract = Interact_SpeedL1;
-				funID = speedPortal + level1;
+				funID += level1;
 			} else {
 				funInteract = Interact_SpeedL2;
-				funID = speedPortal + level2;
+				funID += level2;
 			}
-		} else {
+		} else if (Spike) {
+			funID = spikeStrip;
 			if (L0) {
 				funInteract = Interact_SpikesL0;
-				funID = spikeStrip + level0;
+				funID += level0;
 			} else if (L1) {
 				funInteract = Interact_SpikesL1;
-				funID = spikeStrip + level1;
+				funID += level1;
 			} else {
 				funInteract = Interact_SpikesL2;
-				funID = spikeStrip + level2;
+				funID += level2;
+			}
+		} else {
+			funID = wallDestroy;
+			if (L0) {
+				funInteract = Interact_WallL0;
+				funID += level0;
+			} else if (L1) {
+				funInteract = Interact_WallL1;
+				funID += level1;
+			} else {
+				funInteract = Interact_WallL2;
+				funID += level2;
 			}
 		}
 	}

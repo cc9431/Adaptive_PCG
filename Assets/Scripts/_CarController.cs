@@ -6,16 +6,24 @@ public class _CarController : MonoBehaviour {
 	private WheelCollider[] WheelColliders;
 	private Rigidbody PlayerRB;
 	private MasterController Master;
+	private WheelFrictionCurve drift;
+	private WheelFrictionCurve notDriftSideways;
+	private WheelFrictionCurve notDriftForward;
 
 	public float RPMs;
 	public float speedGate;
 	public bool inAir;
 	public bool maxSpeed;
 	public bool boosting;
+	public bool Brake;
 	public bool bodyTouching;
 	public bool onBack;
+	public bool Alive = true;
 
+	private bool GameEnd = false;
+	private bool lastFrameReset;
 	private bool lastFrameJump;
+	private float waitForReset;
 	private float Boost;
 	private float HighSteerAngle = 6f;
 	private float HorsePower = 2500f;
@@ -24,19 +32,37 @@ public class _CarController : MonoBehaviour {
 		speedGate = 0;
 		PlayerRB = gameObject.GetComponent<Rigidbody> ();
 		WheelColliders = gameObject.GetComponentsInChildren<WheelCollider> ();
+		notDriftSideways = WheelColliders [0].sidewaysFriction;
+		notDriftForward = WheelColliders [0].forwardFriction;
+
+		drift = notDriftSideways;
+		drift.stiffness = 0.5f;
+		drift.extremumValue = 1;
 
 		Master = GameObject.FindGameObjectWithTag ("Master").GetComponent<MasterController> ();
 
 		PlayerRB.centerOfMass = new Vector3(0f, -0.1f, 0.04f);
-		//PlayerRB.centerOfMass = new Vector3(0f, 0f, 0f);
 	}
 
 	void FixedUpdate () {
-		CheckCar();
-		MoveThatCar ();
+		if (Alive) {
+			if (waitForReset < 99)
+				waitForReset++;
+			ResetPosition ();
+			CheckThatCar ();
+			MoveThatCar ();
+		} else {
+			if (!GameEnd) {
+				foreach (WheelCollider wheel in WheelColliders) {
+					Destroy (wheel.transform.GetChild(0).gameObject);
+					Destroy (wheel);
+					GameEnd = true;
+				}
+			}
+		}
 	}
 
-	void CheckCar(){
+	void CheckThatCar(){
 		bool FRInAir = !WheelColliders[0] .isGrounded;
 		bool FLInAir = !WheelColliders[1] .isGrounded;
 		bool BRInAir = !WheelColliders[2] .isGrounded;
@@ -52,15 +78,15 @@ public class _CarController : MonoBehaviour {
 	}
 
 	void MoveThatCar(){
-		float Turn;// = Input.GetAxis ("Horizontal");
+		float Turn = Input.GetAxis ("Horizontal");
 		float Pitch = Input.GetAxis ("Vertical");
-		float Accel;// = Input.GetAxis ("Drive");
+		float Accel = Input.GetAxis ("Drive");
 		float Reverse = Input.GetAxis ("Reverse");
-		float Brake = Input.GetAxis ("Brake");
 		float Jump = Input.GetAxis ("Jump");
 		bool Spin = (Input.GetAxis ("Spin") != 0);
+		Brake = (Input.GetAxis ("Brake") != 0);
 
-		if (Input.GetKey (KeyCode.A))
+		/*if (Input.GetKey (KeyCode.A))
 			Turn = -1;
 		else if (Input.GetKey (KeyCode.D))
 			Turn = 1;
@@ -71,6 +97,9 @@ public class _CarController : MonoBehaviour {
 			Accel = 1;
 		else
 			Accel = 0;
+
+		if (Input.GetKey (KeyCode.LeftShift)) Jump = 1;
+		else Jump = 0;*/
 		
 		if (speedGate > 0) {
 			Boost = 1.5f;
@@ -86,14 +115,22 @@ public class _CarController : MonoBehaviour {
 		WheelColliders [0].steerAngle = steering;
 		WheelColliders [1].steerAngle = steering;
 
-		WheelColliders [2].brakeTorque = HorsePower * Brake;
-		WheelColliders [3].brakeTorque = HorsePower * Brake;
+		WheelFrictionCurve driftOrNotSideways = new WheelFrictionCurve ();
+		WheelFrictionCurve driftOrNotForward = new WheelFrictionCurve ();
+		if (Brake) {
+			driftOrNotForward = drift;
+			driftOrNotSideways = drift;
+		} else {
+			driftOrNotForward = notDriftForward;
+			driftOrNotSideways = notDriftSideways; 
+		}
+			
 
 		if (!maxSpeed) PlayerRB.AddForce (30000f * gameObject.transform.forward * Boost, ForceMode.Force);
 
 		if (inAir) {
 			PlayerRB.drag = 0f;
-			PlayerRB.angularDrag = 6f;
+			PlayerRB.angularDrag = 5f;
 
 			if (Spin) PlayerRB.AddRelativeTorque (Vector3.back * Turn, ForceMode.VelocityChange);
 			else PlayerRB.AddRelativeTorque (0.93f * Vector3.up * Turn, ForceMode.VelocityChange);
@@ -103,8 +140,9 @@ public class _CarController : MonoBehaviour {
 			PlayerRB.angularDrag = 0.5f;
 
 			if (!maxSpeed) {
-				if (Accel > 0) drive = HorsePower * (Accel - Brake);
-				if (Reverse < 0) drive = HorsePower * (Reverse - Brake);
+				if (Accel > 0)
+					drive = HorsePower * (Accel);// - Brake);
+				if (Reverse < 0) drive = HorsePower * (Reverse);// - Brake);
 			} 
 			if (Jump != 0 && !lastFrameJump) {
 				PlayerRB.AddForce (11000f * gameObject.transform.up * Jump, ForceMode.Impulse);
@@ -113,8 +151,11 @@ public class _CarController : MonoBehaviour {
 		}
 
 		foreach (WheelCollider wheel in WheelColliders) {
-				wheel.motorTorque = drive;
-				FixMeshPositions(wheel);
+			wheel.sidewaysFriction = driftOrNotSideways;
+			wheel.forwardFriction = driftOrNotForward;
+
+			wheel.motorTorque = drive;
+			FixMeshPositions(wheel);
 		}
 
 		lastFrameJump = (Jump == 1);
@@ -130,4 +171,18 @@ public class _CarController : MonoBehaviour {
         visualWheel.transform.position = position;
         visualWheel.transform.rotation = rotation;
     }
+
+	void ResetPosition() {
+		bool Reset = (Input.GetAxis ("Reset") != 0);
+
+		if (waitForReset == 99 && Reset) {
+			float playerZ = transform.position.z;
+
+			PlayerRB.velocity = Vector3.zero;
+			transform.rotation = Quaternion.identity;
+			transform.position = new Vector3 (0, 5, playerZ);
+
+			waitForReset = 0;
+		}
+	}
 }

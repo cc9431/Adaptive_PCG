@@ -56,10 +56,11 @@
      <Compile Include="Assets\Scripts\ParticleController.cs" />
      <Compile Include="Assets\Scripts\PlayerTriggerController.cs" />
      <Compile Include="Assets\Scripts\Rotate.cs" />
+     <Compile Include="Assets\Scripts\SideWallVisual.cs" />
      <Compile Include="Assets\Scripts\SpeedGateController.cs" />
      <Compile Include="Assets\Scripts\Speedometer.cs" />
      <Compile Include="Assets\Scripts\Stabilize.cs" />
-     <Compile Include="Assets\Scripts\WallVisual.cs" />
+     <Compile Include="Assets\Scripts\WallController.cs" />
      <Compile Include="Assets\Scripts\_CarController.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Volumes/Macintosh HD 2/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
