@@ -8,7 +8,6 @@ public class BoostTrailBlazer : MonoBehaviour {
 	private _CarController car;
 	private float trailTime;
 
-	// Use this for initialization
 	void Awake() {
 		car = GameObject.FindGameObjectWithTag ("Player").GetComponent<_CarController> ();
 		speedTrail = gameObject.GetComponent<TrailRenderer> ();
@@ -17,8 +16,7 @@ public class BoostTrailBlazer : MonoBehaviour {
 		speedTrail.time = 0;
 		point.enabled = false;
 	}
-
-	// Update is called once per frame
+		
 	void Update () {
 		if (car.boosting) {
 			point.enabled = true;

@@ -8,13 +8,11 @@ public class OrbController : MonoBehaviour {
 	private MasterController Master;
 	public float speed;
 
-	// Use this for initialization
 	void Start () {
 		id = GetComponentInParent<InteractController> ().getID();
 		Master = GetComponentInParent<InteractController> ().getMaster ();
 	}
-	
-	// Update is called once per frame
+
 	void LateUpdate () {
 		transform.Rotate (spin * Time.deltaTime * speed);
 	}

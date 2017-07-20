@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MasterController : MonoBehaviour {
-	//private int spikesTouched;
-	//private int timesFallen;
-
 	private int totalPoints;		// Total points based on tricks and orbs collected
 
 	private int orbs;
@@ -116,7 +113,7 @@ public class MasterController : MonoBehaviour {
 	void Update () {
 		if (carController.Alive) {
 			// Where we check if the player pauses the game or not
-			bool Pause = (Input.GetAxis("Submit") != 0);
+			bool Pause = Input.GetKeyDown(KeyCode.Space); // (Input.GetAxis("Submit") != 0);
 
 			if (Pause && !lastFramePause) Paused = !Paused;
 			if (Paused) Time.timeScale = 0;

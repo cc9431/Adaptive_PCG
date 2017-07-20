@@ -8,7 +8,6 @@ public class WallController : MonoBehaviour {
 	private bool killCubes;
 	private int countDown;
 
-	// Use this for initialization
 	void Start () {
 		killCubes = false;
 		countDown = 100;

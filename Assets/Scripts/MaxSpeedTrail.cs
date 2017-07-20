@@ -8,7 +8,6 @@ public class MaxSpeedTrail : MonoBehaviour {
 	private Rigidbody carRB;
 	private Color trailColor;
 
-	// Use this for initialization
 	void Awake() {
 		carRB = GameObject.FindGameObjectWithTag ("Player").GetComponent<Rigidbody> ();
 		speedTrail = gameObject.GetComponent<TrailRenderer> ();
@@ -17,8 +16,7 @@ public class MaxSpeedTrail : MonoBehaviour {
 		trailColor = speedTrail.startColor;
 		point.enabled = false;
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
 		if (carRB.velocity.magnitude > 50) {
 			point.enabled = true;

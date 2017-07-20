@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// This script is to allow the player to control the car (while they are still alive)
-// The player can accelerate, reverse, drift/handbrake, boost, jump, and rotate in the air on three axes.
-// This script keeps track of data about the player's interaction with the game and sends it to the
-// master controller.
+	// This script is to allow the player to control the car (while they are still alive)
+	// The player can accelerate, reverse, drift/handbrake, boost, jump, and rotate in the air on three axes.
+	// This script keeps track of data about the player's interaction with the game and sends it to the
+	// master controller.
 
 public class _CarController : MonoBehaviour {
 	private WheelCollider[] WheelColliders;
@@ -17,6 +17,7 @@ public class _CarController : MonoBehaviour {
 
 	public float RPMs;
 	public float speedGate;
+	public float highestPoint;
 	public bool inAir;
 	public bool maxSpeed;
 	public bool boosting;
@@ -80,18 +81,21 @@ public class _CarController : MonoBehaviour {
 		RPMs = 0;
 		foreach(WheelCollider wheel in WheelColliders) RPMs += wheel.rpm;
 		RPMs = RPMs/4;
+
+		if (PlayerRB.position.y > highestPoint)
+			highestPoint = PlayerRB.position.y;
 	}
 
 	void MoveThatCar(){
-		float Turn = Input.GetAxis ("Horizontal");
+		float Turn;// = Input.GetAxis ("Horizontal");
 		float Pitch = Input.GetAxis ("Vertical");
-		float Accel = Input.GetAxis ("Drive");
+		float Accel;// = Input.GetAxis ("Drive");
 		float Reverse = Input.GetAxis ("Reverse");
-		float Jump = Input.GetAxis ("Jump");
+		float Jump;// = Input.GetAxis ("Jump");
 		bool Spin = (Input.GetAxis ("Spin") != 0);
 		Brake = (Input.GetAxis ("Brake") != 0);
 
-		/*if (Input.GetKey (KeyCode.A))
+		if (Input.GetKey (KeyCode.A))
 			Turn = -1;
 		else if (Input.GetKey (KeyCode.D))
 			Turn = 1;
@@ -104,7 +108,7 @@ public class _CarController : MonoBehaviour {
 			Accel = 0;
 
 		if (Input.GetKey (KeyCode.LeftShift)) Jump = 1;
-		else Jump = 0;*/
+		else Jump = 0;
 		
 		if (speedGate > 0) {
 			Boost = 1.5f;

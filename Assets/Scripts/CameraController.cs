@@ -8,10 +8,12 @@ public class CameraController : MonoBehaviour {
 	private Vector3 offset;
 	private Vector3 lookUp;
 	private Rigidbody PlayerRB;
+	private Camera cam;
 
 	void Start () {
 		player = GameObject.FindGameObjectWithTag("Player").transform;
 		PlayerRB = player.GetComponent<Rigidbody> ();
+		cam = gameObject.GetComponent<Camera> ();
 		offset = transform.position - player.transform.position; // Gets distance from player to camera
 		centerScreen = Vector3.up * 2; // Don't want the camera to look directly at player, it feels weird
 	}
@@ -19,6 +21,14 @@ public class CameraController : MonoBehaviour {
 	void LateUpdate() {
 		transform.position = player.transform.position + (CalculatePos() * offset); // Reset the position based on the player movement and Mouse X input
 		transform.LookAt (player.position + centerScreen); // Turn the camera towards the player, but don't look directly down at player
+
+		if (PlayerRB.velocity.magnitude > 65) {
+			float fov = Mathf.Lerp (cam.fieldOfView, 80, Time.deltaTime);
+			cam.fieldOfView = fov;
+		} else if (PlayerRB.velocity.magnitude < 50) {
+			float fov = Mathf.Lerp (cam.fieldOfView, 60, Time.deltaTime);
+			cam.fieldOfView = fov;
+		}
 	}
 
 	Quaternion CalculatePos(){
