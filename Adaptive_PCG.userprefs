@@ -1,6 +1,6 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Editor/FBXMeshExtractor.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/_CarController.cs">
     <Files>
       <File FileName="../Unity Projects/Adaptive_PCG-Charlie/Assets/Scripts/TODO.txt" Line="15" Column="1" />
       <File FileName="Assets/Scripts/MasterController.cs" Line="47" Column="28" />
@@ -15,8 +15,7 @@
       <File FileName="Assets/Scripts/ParticleController.cs" Line="41" Column="27" />
       <File FileName="Assets/Scripts/Stabilize.cs" Line="6" Column="75" />
       <File FileName="Assets/Scripts/WallController.cs" Line="23" Column="3" />
-      <File FileName="Assets/Scripts/InteractController.cs" Line="20" Column="2" />
-      <File FileName="Assets/Editor/FBXMeshExtractor.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/InteractController.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

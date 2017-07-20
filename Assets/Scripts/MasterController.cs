@@ -163,10 +163,10 @@ public class MasterController : MonoBehaviour {
 		++qty;
 		AvgSpeed += (newSpeed - AvgSpeed)/qty;
 
-		if (qty % 1000 == 0) {
+		/*if (qty % 1000 == 0) {
 			print ("AvgSpeed: " + AvgSpeed.ToString ());
 			print ("Current: " + newSpeed.ToString ());
-		}
+		}*/
 	}
 
 	private void PrintStats (){
