@@ -9,8 +9,8 @@ public class OrbController : MonoBehaviour {
 	public float speed;
 
 	void Start () {
-		id = GetComponentInParent<InteractController> ().getID();
-		Master = GetComponentInParent<InteractController> ().getMaster ();
+		id = GetComponentInParent<InteractController>().getID();
+		Master = GetComponentInParent<InteractController>().getMaster();
 	}
 
 	void LateUpdate () {

@@ -10,10 +10,8 @@ public class PlayerTriggerController : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other){
-		if (other.tag == "Ground")
-			car.bodyTouching = true;
-		else if (other.tag == "Spike")
-			car.Alive = false;
+		if (other.tag == "Ground") car.bodyTouching = true;
+		if (other.tag == "Spike") car.Alive = false;
 	}
 
 	void OnTriggerExit(Collider other){

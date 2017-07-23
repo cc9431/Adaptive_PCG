@@ -113,18 +113,18 @@ public class MasterController : MonoBehaviour {
 	void Update () {
 		if (carController.Alive) {
 			// Where we check if the player pauses the game or not
-			bool Pause = Input.GetKeyDown(KeyCode.Space); // (Input.GetAxis("Submit") != 0);
+			bool Pause = (Input.GetAxis("Submit") != 0); // = Input.GetKeyDown(KeyCode.Space);
 
 			if (Pause && !lastFramePause) Paused = !Paused;
-			if (Paused) Time.timeScale = 0;
+
+			if (Paused) Time.timeScale = 0.01f;
 			if (!Paused) Time.timeScale = 1;
 
 			// This will call TrackTricks for every frame that the car
 			// is in the air and the first frame that the car touched back down
 			// it also only tracks player input if the car is "freely flying"
 			// (meaning that none of the cars different colliders are touching anything)
-			if ((TrickTracking || carController.inAir) && (!carController.onBack))
-				TrackTricks ();
+			if ((TrickTracking || carController.inAir) && (!carController.onBack)) TrackTricks ();
 
 			// Call this function to update the average speed
 			UpdateAverageSpeed (carRB.velocity.magnitude);
@@ -162,11 +162,6 @@ public class MasterController : MonoBehaviour {
 	private void UpdateAverageSpeed(float newSpeed){
 		++qty;
 		AvgSpeed += (newSpeed - AvgSpeed)/qty;
-
-		/*if (qty % 1000 == 0) {
-			print ("AvgSpeed: " + AvgSpeed.ToString ());
-			print ("Current: " + newSpeed.ToString ());
-		}*/
 	}
 
 	private void PrintStats (){
@@ -270,5 +265,9 @@ public class MasterController : MonoBehaviour {
 
 	public void PlayerReset(){
 		timesReset++;
+	}
+
+	private void Generation(){
+		
 	}
 }

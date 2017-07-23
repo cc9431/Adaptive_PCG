@@ -27,7 +27,6 @@ public class _CarController : MonoBehaviour {
 	public bool Alive = true;
 
 	private bool GameEnd = false;
-	private bool lastFrameReset;
 	private bool lastFrameJump;
 	private float waitForReset;
 	private float Boost;
@@ -36,28 +35,30 @@ public class _CarController : MonoBehaviour {
 
 	void Start(){
 		speedGate = 0;
+		
 		PlayerRB = gameObject.GetComponent<Rigidbody> ();
+		PlayerRB.centerOfMass = new Vector3(0f, -0.1f, 0.04f);
+
 		WheelColliders = gameObject.GetComponentsInChildren<WheelCollider> ();
 		notDriftSideways = WheelColliders [0].sidewaysFriction;
 		notDriftForward = WheelColliders [0].forwardFriction;
 
 		drift = notDriftSideways;
-		drift.stiffness = 0.5f;
-		drift.extremumValue = 1;
+		drift.extremumValue = 0.1f;
+		drift.asymptoteValue = 0.1f;
 
 		Master = GameObject.FindGameObjectWithTag ("Master").GetComponent<MasterController> ();
-
-		PlayerRB.centerOfMass = new Vector3(0f, -0.1f, 0.04f);
 	}
 
 	void FixedUpdate () {
 		if (Alive) {
 			if (waitForReset < 99) waitForReset++;
-
-			ResetPosition ();
-			CheckThatCar ();
-			MoveThatCar ();
+				ResetPosition ();
+				CheckThatCar ();
+				MoveThatCar ();
 		} else {
+			// TODO set all possible booleans to false
+			// TODO deathscreen and setup ability to restart
 			if (!GameEnd) {
 				foreach (WheelCollider wheel in WheelColliders) {
 					Destroy (wheel.transform.GetChild(0).gameObject);
@@ -69,12 +70,12 @@ public class _CarController : MonoBehaviour {
 	}
 
 	void CheckThatCar(){
-		bool FRInAir = !WheelColliders[0] .isGrounded;
-		bool FLInAir = !WheelColliders[1] .isGrounded;
-		bool BRInAir = !WheelColliders[2] .isGrounded;
-		bool BLInAir = !WheelColliders[3] .isGrounded;
+		bool FRInAir = !WheelColliders[0].isGrounded;
+		bool FLInAir = !WheelColliders[1].isGrounded;
+		bool BRInAir = !WheelColliders[2].isGrounded;
+		bool BLInAir = !WheelColliders[3].isGrounded;
 
-		inAir =  FRInAir || FLInAir || BRInAir || BLInAir;
+		inAir =  (FRInAir || FLInAir || BRInAir || BLInAir);
 
 		onBack = inAir && bodyTouching;
 
@@ -87,15 +88,16 @@ public class _CarController : MonoBehaviour {
 	}
 
 	void MoveThatCar(){
-		float Turn;// = Input.GetAxis ("Horizontal");
+		float Turn = Input.GetAxis ("Horizontal");
 		float Pitch = Input.GetAxis ("Vertical");
-		float Accel;// = Input.GetAxis ("Drive");
+		float Accel = Input.GetAxis ("Drive");
 		float Reverse = Input.GetAxis ("Reverse");
-		float Jump;// = Input.GetAxis ("Jump");
+		float Jump = Input.GetAxis ("Jump");
 		bool Spin = (Input.GetAxis ("Spin") != 0);
-		Brake = (Input.GetAxis ("Brake") != 0);
+		if (!inAir) Brake = (Input.GetAxis ("Brake") != 0);
+		else Brake = false;
 
-		if (Input.GetKey (KeyCode.A))
+		/*if (Input.GetKey (KeyCode.A))
 			Turn = -1;
 		else if (Input.GetKey (KeyCode.D))
 			Turn = 1;
@@ -108,7 +110,7 @@ public class _CarController : MonoBehaviour {
 			Accel = 0;
 
 		if (Input.GetKey (KeyCode.LeftShift)) Jump = 1;
-		else Jump = 0;
+		else Jump = 0;*/
 		
 		if (speedGate > 0) {
 			Boost = 1.5f;
@@ -126,6 +128,7 @@ public class _CarController : MonoBehaviour {
 
 		WheelFrictionCurve driftOrNotSideways = new WheelFrictionCurve ();
 		WheelFrictionCurve driftOrNotForward = new WheelFrictionCurve ();
+
 		if (Brake) {
 			driftOrNotForward = drift;
 			driftOrNotSideways = drift;
@@ -137,16 +140,22 @@ public class _CarController : MonoBehaviour {
 
 		if (!maxSpeed) PlayerRB.AddForce (30000f * gameObject.transform.forward * Boost, ForceMode.Force);
 
-		if (inAir) {
+		if (inAir || Brake) {
 			PlayerRB.drag = 0f;
 			PlayerRB.angularDrag = 5f;
 
 			if (Spin) PlayerRB.AddRelativeTorque (Vector3.back * Turn, ForceMode.VelocityChange);
 			else PlayerRB.AddRelativeTorque (0.93f * Vector3.up * Turn, ForceMode.VelocityChange);
+
 			PlayerRB.AddRelativeTorque (0.93f * Vector3.right * Pitch, ForceMode.VelocityChange);
-		} else {
-			PlayerRB.drag = 0.5f;
-			PlayerRB.angularDrag = 0.5f;
+		}
+
+		if (!inAir) {
+			if (Brake) PlayerRB.angularDrag = 5f;
+			else {
+				PlayerRB.drag = 0.5f;
+				PlayerRB.angularDrag = 0.5f;
+			}
 
 			if (!maxSpeed) {
 				if (Accel > 0)
@@ -156,6 +165,7 @@ public class _CarController : MonoBehaviour {
 			if (Jump != 0 && !lastFrameJump) {
 				PlayerRB.AddForce (11000f * gameObject.transform.up * Jump, ForceMode.Impulse);
 				Master.PlayerJumped ();
+				print (inAir.ToString ());
 			}
 		}
 
