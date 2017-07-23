@@ -46,13 +46,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Packages\UnityFBXExporter\FBXExporter.cs" />
-     <Compile Include="Assets\Packages\UnityFBXExporter\FBXUnityMaterialGetter.cs" />
-     <Compile Include="Assets\Packages\UnityFBXExporter\FBXUnityMeshGetter.cs" />
      <Compile Include="Assets\Scripts\BoostTrailBlazer.cs" />
      <Compile Include="Assets\Scripts\ButtonController.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
-     <Compile Include="Assets\Scripts\GenerateInfinite.cs" />
      <Compile Include="Assets\Scripts\GenerateInfiniteFull.cs" />
      <Compile Include="Assets\Scripts\InteractController.cs" />
      <Compile Include="Assets\Scripts\MasterController.cs" />
