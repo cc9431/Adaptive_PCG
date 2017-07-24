@@ -10,7 +10,6 @@ public class ButtonController : MonoBehaviour {
 	public GameObject selectedObject;
 
 	void Start(){
-		Scene scene = SceneManager.GetActiveScene();
 		eventSystem.SetSelectedGameObject(selectedObject);
 	}
 
@@ -36,6 +35,9 @@ public class ButtonController : MonoBehaviour {
 		else SceneManager.LoadScene("InfiniteL0");
 	}
 
+	public void FreePlayButton(){
+		SceneManager.LoadScene("Generate_Infinite");	
+	}
 
 	public void QuitGame(){
 		Application.Quit();

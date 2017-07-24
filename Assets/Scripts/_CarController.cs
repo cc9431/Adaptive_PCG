@@ -94,23 +94,24 @@ public class _CarController : MonoBehaviour {
 		float Reverse = Input.GetAxis ("Reverse");
 		float Jump = Input.GetAxis ("Jump");
 		bool Spin = (Input.GetAxis ("Spin") != 0);
-		if (!inAir) Brake = (Input.GetAxis ("Brake") != 0);
-		else Brake = false;
 
-		/*if (Input.GetKey (KeyCode.A))
-			Turn = -1;
-		else if (Input.GetKey (KeyCode.D))
-			Turn = 1;
-		else
-			Turn = 0;
-		
-		if (Input.GetKey (KeyCode.W))
-			Accel = 1;
-		else
-			Accel = 0;
+		/*
+		if (InputMethod = Keyboard){
+			if (Input.GetKey (KeyCode.A))
+				Turn = -1;
+			else if (Input.GetKey (KeyCode.D))
+				Turn = 1;
+			else
+				Turn = 0;
+			
+			if (Input.GetKey (KeyCode.W))
+				Accel = 1;
+			else
+				Accel = 0;
 
-		if (Input.GetKey (KeyCode.LeftShift)) Jump = 1;
-		else Jump = 0;*/
+			if (Input.GetKey (KeyCode.LeftShift)) Jump = 1;
+			else Jump = 0;
+		}*/
 		
 		if (speedGate > 0) {
 			Boost = 1.5f;
@@ -130,17 +131,19 @@ public class _CarController : MonoBehaviour {
 		WheelFrictionCurve driftOrNotForward = new WheelFrictionCurve ();
 
 		if (Brake) {
-			driftOrNotForward = drift;
-			driftOrNotSideways = drift;
+			
 		} else {
-			driftOrNotForward = notDriftForward;
-			driftOrNotSideways = notDriftSideways; 
+			
 		}
 			
 
 		if (!maxSpeed) PlayerRB.AddForce (30000f * gameObject.transform.forward * Boost, ForceMode.Force);
 
-		if (inAir || Brake) {
+		if (inAir) {
+			Brake = false;
+			driftOrNotForward = notDriftForward;
+			driftOrNotSideways = notDriftSideways; 
+
 			PlayerRB.drag = 0f;
 			PlayerRB.angularDrag = 5f;
 
@@ -148,10 +151,15 @@ public class _CarController : MonoBehaviour {
 			else PlayerRB.AddRelativeTorque (0.93f * Vector3.up * Turn, ForceMode.VelocityChange);
 
 			PlayerRB.AddRelativeTorque (0.93f * Vector3.right * Pitch, ForceMode.VelocityChange);
-		}
+		} else {
+			Brake = (Input.GetAxis ("Brake") != 0);
 
-		if (!inAir) {
-			if (Brake) PlayerRB.angularDrag = 5f;
+			if (Brake) {
+				PlayerRB.angularDrag = 5f;
+
+				driftOrNotForward = drift;
+				driftOrNotSideways = drift;
+			}
 			else {
 				PlayerRB.drag = 0.5f;
 				PlayerRB.angularDrag = 0.5f;
@@ -159,8 +167,8 @@ public class _CarController : MonoBehaviour {
 
 			if (!maxSpeed) {
 				if (Accel > 0)
-					drive = HorsePower * (Accel);// - Brake);
-				if (Reverse < 0) drive = HorsePower * (Reverse);// - Brake);
+					drive = HorsePower * (Accel);
+				if (Reverse < 0) drive = HorsePower * (Reverse);
 			} 
 			if (Jump != 0 && !lastFrameJump) {
 				PlayerRB.AddForce (11000f * gameObject.transform.up * Jump, ForceMode.Impulse);

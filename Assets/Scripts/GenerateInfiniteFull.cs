@@ -130,43 +130,36 @@ public class GenerateInfiniteFull: MonoBehaviour {
 				string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
 				string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
 
-				// TODO When the MasterController starts to make decisions about the generation here will be where I need
-				// to set the ID based on what is chosed. I should also have a way of instantiating the object simply,
-				// without having a bunch of if statements.
-				if (!interactableMatrix.ContainsKey (interactName)) {
-					// 10% chance to create ramp
+				bool ninthTile = (z == 9);
+
+				if (!interactableMatrix.ContainsKey (interactName) && ninthTile) {
 					bool coinFlip = (Random.Range(0, 2) == 0);
-					bool tileNine = (z == 9);
 
-					// If the ramp wins, place a ramp and add to 
-					if (tileNine) {
-						GameObject funObject;
-						string identify;
-
-						if (coinFlip){
-							// call function that takes data from Master and decides which item should be generated
-							decideFunObj (out funObject, out identify);
-						} else {
-							funObject = groundSpike;
-							identify = level0 + level0;
-						}
-
-						// To reduce computational draw, setting the position is done only if the coin flip works
-						Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
-						interact = (GameObject)Instantiate (funObject, interactPos, Quaternion.identity);
-
-						// Set the name of our interactable object [mostly for debugging]
-						interact.name = interactName;
-
-						// Set the id of our object based on what type and level it is [for communication with the master]
-						InteractController control = interact.GetComponent<InteractController>();
-						control.setID (identify);
-						control.setMaster (Master);
-
-						// Create an Interact class object and add it to our 
-						Interact funObj = new Interact (interact, updateTime, identify);
-						interactableMatrix.Add (interactName, funObj);
+					GameObject funObject;
+					string identify;
+					// To reduce computational draw, setting the position is done only if the coin flip works
+					if (coinFlip){
+						// call function that takes data from Master and decides which item should be generated
+						decideFunObj (out funObject, out identify);
+					} else {
+						funObject = groundSpike;
+						identify = level0 + level0;
 					}
+
+					Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
+					interact = (GameObject)Instantiate (funObject, interactPos, Quaternion.identity);
+
+					// Set the name of our interactable object [mostly for debugging]
+					interact.name = interactName;
+
+					// Set the id of our object based on what type and level it is [for communication with the master]
+					InteractController control = interact.GetComponent<InteractController>();
+					control.setID (identify);
+					control.setMaster (Master);
+
+					// Create an Interact class object and add it to our 
+					Interact funObj = new Interact (interact, updateTime, identify);
+					interactableMatrix.Add (interactName, funObj);
 				} else {
 					(interactableMatrix [interactName] as Interact).creationTime = updateTime;
 				}
