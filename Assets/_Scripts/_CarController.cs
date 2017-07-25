@@ -24,7 +24,7 @@ public class _CarController : MonoBehaviour {
 	public bool Drift;
 	public bool bodyTouching;
 	public bool onBack;
-	public bool Alive = true;
+	public bool Alive;
 
 	private bool GameEnd = false;
 	private bool lastFrameJump;
@@ -32,6 +32,9 @@ public class _CarController : MonoBehaviour {
 	private float Boost;
 	private float HighSteerAngle = 6f;
 	private float HorsePower = 2500f;
+	void Awake(){
+		Alive = true;
+	}
 
 	void Start(){
 		speedGate = 0;

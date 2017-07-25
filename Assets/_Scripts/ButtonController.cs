@@ -7,14 +7,14 @@ using UnityEngine.EventSystems;
 public class ButtonController : MonoBehaviour {
 	private bool buttonSelected;
 	private bool lastFramePause = false;
-	private bool Paused;
+	public bool Paused;
 	private _CarController carController;
 	public EventSystem eventSystem;
 	public GameObject selectedObject;
 	public GameObject PauseScreen;
 
 	void Awake(){
-		PauseScreen.SetActive(false);
+		if (PauseScreen != null) PauseScreen.SetActive(false);
 	}
 
 	void Start(){
@@ -29,7 +29,7 @@ public class ButtonController : MonoBehaviour {
 
 			if (Pause && !lastFramePause) Paused = !Paused;
 
-			PauseScreen.SetActive(Paused);
+			if (PauseScreen != null) PauseScreen.SetActive(Paused);
 
 			if (Paused)	Time.timeScale = 0.01f;
 			if (!Paused) Time.timeScale = 1;
