@@ -9,7 +9,7 @@ public class MasterController : MonoBehaviour {
 	private int orbs;
 	private int rampPoints;			// The points are based on how many orbs are collected from each interactable
 	private int speedPoints;
-	private int spikePoints;	//TODO: split each of these into L0, L1, and L2
+	private int spikePoints;
 	private int wallPoints;
 
 	private int framesInAir;		// Used to evaluate the engagement of the player

@@ -51,7 +51,6 @@ public class UIController : MonoBehaviour {
 			// This helps emulate the OnKey method that only reacts once per button press.
 			lastFramePause = Pause;
 		} else {
-			//TODO: setup death screen and allow player to reset game (within scene)
 			if (DeathScreen != null) {
 				DeathScreen.SetActive(true);
 				selectedObject = DeathScreen.GetComponentInChildren<Slider>().gameObject;
