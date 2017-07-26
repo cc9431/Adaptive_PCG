@@ -46,8 +46,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\_Scripts\AddPoints.cs" />
+     <Compile Include="Assets\_Scripts\AddPointsController.cs" />
      <Compile Include="Assets\_Scripts\BoostTrailBlazer.cs" />
-     <Compile Include="Assets\_Scripts\ButtonController.cs" />
      <Compile Include="Assets\_Scripts\CameraController.cs" />
      <Compile Include="Assets\_Scripts\GenerateInfiniteFull.cs" />
      <Compile Include="Assets\_Scripts\InteractController.cs" />
@@ -61,6 +62,7 @@
      <Compile Include="Assets\_Scripts\SpeedGateController.cs" />
      <Compile Include="Assets\_Scripts\Speedometer.cs" />
      <Compile Include="Assets\_Scripts\Stabilize.cs" />
+     <Compile Include="Assets\_Scripts\UIController.cs" />
      <Compile Include="Assets\_Scripts\WallController.cs" />
      <Compile Include="Assets\_Scripts\_CarController.cs" />
  <Reference Include="UnityEngine.UI">

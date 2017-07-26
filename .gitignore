@@ -122,3 +122,11 @@ build/
 
 #NDK
 obj/
+
+*.meta
+
+*.meta
+
+Assets/Prefabs/Interactables/WallL1 1.prefab.meta
+
+*.log

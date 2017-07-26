@@ -61,8 +61,7 @@ public class _CarController : MonoBehaviour {
 			CheckThatCar ();
 			MoveThatCar ();
 		} else {
-			// TODO set all possible booleans to false
-			// TODO deathscreen and setup ability to restart
+			// TODO: set all possible booleans to false
 			if (!GameEnd) {
 				foreach (WheelCollider wheel in WheelColliders) {
 					Destroy (wheel.transform.GetChild(0).gameObject);

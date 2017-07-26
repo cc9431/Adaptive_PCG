@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class MasterController : MonoBehaviour {
@@ -8,7 +9,7 @@ public class MasterController : MonoBehaviour {
 	private int orbs;
 	private int rampPoints;			// The points are based on how many orbs are collected from each interactable
 	private int speedPoints;
-	private int spikePoints;	//TODO split these into L0, L1, and L2
+	private int spikePoints;	//TODO: split each of these into L0, L1, and L2
 	private int wallPoints;
 
 	private int framesInAir;		// Used to evaluate the engagement of the player
@@ -58,46 +59,10 @@ public class MasterController : MonoBehaviour {
 	
 	private float AvgSpeed;
 	private int qty;
+	
+	public Text PointDisplay;
 
 	void Start() {
-		/* Start all trackers at 0
-		totalPoints = 0;
-
-		orbs = 0;
-		rampPoints = 0;
-		speedPoints = 0;
-		spikePoints = 0;
-
-		framesAtMax = 0;
-		framesInAir = 0;
-		framesBoosting = 0;
-		framesOnBack = 0;
-
-		rampJumpTotal = 0;
-		rampL0 = 0;
-		rampL1 = 0;
-		rampL2 = 0;
-
-		speedPortalTotal = 0;
-		speedL0 = 0;
-		speedL1 = 0;
-		speedL2 = 0;
-
-		spikeStripTotal = 0;
-		spikeL0 = 0;
-		spikeL1 = 0;
-		spikeL2 = 0;
-
-		totalFlips = 0;
-		totalTurns = 0;
-		totalSpins = 0;
-
-		jumps = 0;
-
-		Xspin = 0;
-		Yspin = 0;
-		Zspin = 0;*/
-
 		lastObjectTouched = "0";
 		TrickTracking = false;
 		objectTouched = false;
@@ -105,6 +70,8 @@ public class MasterController : MonoBehaviour {
 		player = GameObject.FindGameObjectWithTag("Player");
 		carController = player.GetComponent<_CarController> ();
 		carRB = player.GetComponent<Rigidbody> ();
+
+		AddPointsController.Initialize();
 	}
 
 	void Update () {
@@ -143,6 +110,8 @@ public class MasterController : MonoBehaviour {
 
 			// This is so we are always looking at the last frame
 			TrickTracking = carController.inAir;
+
+			if (PointDisplay != null) PointDisplay.text = totalPoints.ToString();
 		} else
 			Time.timeScale = 0.5f;
 	}
@@ -186,6 +155,11 @@ public class MasterController : MonoBehaviour {
 			if (objectID.EndsWith("0"))			speedL0++;
 			else if (objectID.EndsWith("1"))	speedL1++;
 			else if (objectID.EndsWith("2")) 	speedL2++;
+		} else if (objectID.StartsWith("W")) {
+												wallDestroyTotal++;
+			if (objectID.EndsWith("0"))			wallL0++;
+			else if (objectID.EndsWith("1"))	wallL1++;
+			else if (objectID.EndsWith("2")) 	wallL2++;
 		}
 
 		// This is used to keep track of the first object touched after the player starts a trick
@@ -217,11 +191,14 @@ public class MasterController : MonoBehaviour {
 		totalTurns += trn;
 		totalSpins += spn;
 
-		if (lastObjectTouched.StartsWith ("R")) rampPoints += ((12 * flp) + (10 * trn) + (15 * spn));
-		else if (lastObjectTouched.StartsWith ("K")) spikePoints += ((12 * flp) + (10 * trn) + (15 * spn));
-		else if (lastObjectTouched.StartsWith ("S")) speedPoints += ((12 * flp) + (10 * trn) + (15 * spn));
+		int addedPoints = ((12 * flp) + (10 * trn) + (15 * spn));
 
-		totalPoints += ((12 * flp) + (10 * trn) + (15 * spn));
+		if (lastObjectTouched.StartsWith ("R")) PointsAdded(ref rampPoints, addedPoints);
+		else if (lastObjectTouched.StartsWith ("K")) PointsAdded(ref spikePoints, addedPoints);
+		else if (lastObjectTouched.StartsWith ("S")) PointsAdded(ref speedPoints, addedPoints);
+		else if (lastObjectTouched.StartsWith ("W")) PointsAdded(ref wallPoints, addedPoints);
+
+		PointsAdded(ref totalPoints, addedPoints);
 
 		TrickTracking = false;
 		objectTouched = false;
@@ -233,18 +210,31 @@ public class MasterController : MonoBehaviour {
 	}
 
 	public void OrbCollected(string OrbID){
+		int addedPoints = 0;
 		orbs++;
 
 		if (OrbID.StartsWith ("R")) {
-			totalPoints += 10;
-			rampPoints += 10;
+			addedPoints = 10;
+			PointsAdded(ref rampPoints, addedPoints);
 		} else if (OrbID.StartsWith ("K")) {
-			totalPoints += 15;
-			spikePoints += 15;
+			addedPoints = 15;
+			PointsAdded(ref spikePoints, addedPoints);
 		} else if (OrbID.StartsWith ("S")) {
-			totalPoints += 20;
-			speedPoints += 20;
+			addedPoints = 20;
+			PointsAdded(ref spikePoints, addedPoints);
+		} else if (OrbID.StartsWith ("W")) {
+			addedPoints = 25;
+			PointsAdded(ref wallPoints, addedPoints);
 		}
+
+		PointsAdded(ref totalPoints, addedPoints);
+	}
+
+	void PointsAdded(ref int pointAllocation, int newPoints){
+		if (pointAllocation.Equals(totalPoints) && newPoints > 0)
+			AddPointsController.CreateText(newPoints.ToString(), PointDisplay.transform);
+
+		pointAllocation = pointAllocation + newPoints;
 	}
 
 	public void PlayerJumped() {

@@ -7,6 +7,7 @@ public class Speedometer : MonoBehaviour{
 	public Rigidbody PlayerRB;
 	private float maxSpeed = 88f;
 	private Image speedometer;
+	private float prevFillAmount;
 
 	void Start(){
 		speedometer = GetComponent<Image>();
@@ -14,6 +15,10 @@ public class Speedometer : MonoBehaviour{
 
 	void Update(){
 		Vector2 localVel = new Vector2 (PlayerRB.velocity.x, PlayerRB.velocity.z);
-		speedometer.fillAmount = (localVel.magnitude)/maxSpeed;
+		float newFillAmount = (localVel.magnitude/maxSpeed);
+
+		speedometer.fillAmount = Mathf.Lerp(prevFillAmount, newFillAmount, Time.deltaTime);
+
+		prevFillAmount = newFillAmount;
 	}
 }
