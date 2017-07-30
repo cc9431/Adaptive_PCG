@@ -9,15 +9,19 @@ public class UIController : MonoBehaviour {
 	private bool buttonSelected;
 	private bool lastFramePause = false;
 	public bool Paused;
+	private bool lastFrameAlive;
 	private _CarController carController;
 	public EventSystem eventSystem;
 	public GameObject selectedObject;
 	public GameObject PauseScreen;
 	public GameObject DeathScreen;
+	public GameObject DeathScreenSelectedObject;
 
 	void Awake(){
 		if (PauseScreen != null) PauseScreen.SetActive(false);
 		if (DeathScreen != null) DeathScreen.SetActive(false);
+
+		Cursor.visible = false;
 	}
 
 	void Start(){
@@ -39,24 +43,28 @@ public class UIController : MonoBehaviour {
 
 		if (carController.Alive) {
 			// Where we check if the player pauses the game or not
-			bool Pause = (Input.GetAxisRaw("Submit") != 0); // = Input.GetKeyDown(KeyCode.Space);
+			bool Pause = (Input.GetAxisRaw("Submit") != 0);
 
-			if (Pause && !lastFramePause) Paused = !Paused;
+			if (Pause && !lastFramePause) {
+				Paused = !Paused;
+				if (PauseScreen != null) PauseScreen.SetActive(Paused);
+			}
 
-			if (PauseScreen != null) PauseScreen.SetActive(Paused);
-
-			if (Paused)	Time.timeScale = 0;
+			if (Paused) Time.timeScale = 0;
 			if (!Paused) Time.timeScale = 1;
 
 			// This helps emulate the OnKey method that only reacts once per button press.
 			lastFramePause = Pause;
 		} else {
-			if (DeathScreen != null) {
+			if (lastFrameAlive && DeathScreen != null) {
 				DeathScreen.SetActive(true);
-				selectedObject = DeathScreen.GetComponentInChildren<Slider>().gameObject;
-				Time.timeScale = 0.5f;
+				selectedObject = DeathScreenSelectedObject;
+				Time.timeScale = 0.3f;
+				buttonSelected = false;
 			}
 		}
+
+		lastFrameAlive = carController.Alive;
 	}
 
 	void OnDisable(){
@@ -79,6 +87,19 @@ public class UIController : MonoBehaviour {
 
 	public void QuitGame(){
 		Application.Quit();
+	}
+
+	public void Finish(){
+		SceneManager.LoadScene("StartScene");
+	}
+
+	public void Restart(){
+		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+	}
+
+	public void Resume(){
+		Paused = false;
+		PauseScreen.SetActive(false);
 	}
 
 }

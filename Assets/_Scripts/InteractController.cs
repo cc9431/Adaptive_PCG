@@ -6,15 +6,31 @@ public class InteractController : MonoBehaviour {
 	private MasterController Master;
 	private string id;
 	private bool playerTouched;
+	private bool inObject;
+	private bool lastFrameinObject;
 
 	void Start(){
 		playerTouched = false;
 	}
 
-	void OnTriggerExit(Collider other){
+	void Update(){
+		MasterController.inObject = (inObject || lastFrameinObject);
+		lastFrameinObject = inObject;
+		
+		if (inObject) print ("Interact inObject: " + inObject.ToString());
+	}
+
+	void OnTriggerEnter(Collider other){
 		if (other.CompareTag ("PlayerTrigger") && !playerTouched) {
-			Master.PlayerInteracted (id);
+			inObject = true;
 			playerTouched = true;
+			Master.PlayerInteracted (id);
+		}
+	}
+
+	void OnTriggerExit(Collider other){
+		if (other.CompareTag("PlayerTrigger")){
+			inObject = false;
 		}
 	}
 

@@ -65,6 +65,7 @@
      <Compile Include="Assets\_Scripts\UIController.cs" />
      <Compile Include="Assets\_Scripts\WallController.cs" />
      <Compile Include="Assets\_Scripts\_CarController.cs" />
+     <None Include="Assets\_Scripts\TODO.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Volumes/Macintosh HD 2/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

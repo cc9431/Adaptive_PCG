@@ -26,8 +26,8 @@ public class _CarController : MonoBehaviour {
 	public bool onBack;
 	public bool Alive;
 
-	private bool GameEnd = false;
 	private bool lastFrameJump;
+	private bool lastFrameAlive;
 	private float waitForReset;
 	private float Boost;
 	private float HighSteerAngle = 6f;
@@ -62,14 +62,15 @@ public class _CarController : MonoBehaviour {
 			MoveThatCar ();
 		} else {
 			// TODO: set all possible booleans to false
-			if (!GameEnd) {
+			if (lastFrameAlive) {
 				foreach (WheelCollider wheel in WheelColliders) {
 					Destroy (wheel.transform.GetChild(0).gameObject);
 					Destroy (wheel);
-					GameEnd = true;
 				}
 			}
 		}
+
+		lastFrameAlive = Alive;
 	}
 
 	void CheckThatCar(){
