@@ -17,7 +17,7 @@ public class InteractController : MonoBehaviour {
 		MasterController.inObject = (inObject || lastFrameinObject);
 		lastFrameinObject = inObject;
 		
-		if (inObject) print ("Interact inObject: " + inObject.ToString());
+		//if (inObject) print ("Interact inObject: " + inObject.ToString());
 	}
 
 	void OnTriggerEnter(Collider other){

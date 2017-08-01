@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
@@ -48,7 +49,7 @@ public class MasterController : MonoBehaviour {
 	private int framesBoosting;
 	private int framesOnBack;
 	private int framesDrifting;
-	private int timesReset;
+	public static int timesReset;
 
 	private int rampJumpTotal;		// How many times a player uses a ramp
 	private int rampL0;
@@ -74,12 +75,13 @@ public class MasterController : MonoBehaviour {
 	private int totalTurns;
 	private int totalSpins;
 
-	private int jumps;				// How many times a player jumps
+	public static int jumps;				// How many times a player jumps
 
 	private GameObject player;
 	private _CarController carController;
 	private Rigidbody carRB;
 	private bool lastFrameCancel = false;
+	private bool lastFrameAlive;
 	private bool StatTracking;
 	private bool objectTouched;
 	private string lastObjectTouched;
@@ -96,6 +98,7 @@ public class MasterController : MonoBehaviour {
 	private float AvgSpeed;
 	private int qty;
 	public static bool inObject;
+	public static int seed;
 	
 	public Text PointDisplay;
 
@@ -107,6 +110,8 @@ public class MasterController : MonoBehaviour {
 		player = GameObject.FindGameObjectWithTag("Player");
 		carController = player.GetComponent<_CarController> ();
 		carRB = player.GetComponent<Rigidbody> ();
+
+		print(seed);
 
 		AddPointsController.Initialize();
 	}
@@ -134,7 +139,7 @@ public class MasterController : MonoBehaviour {
 			if (carController.Drift)
 				framesDrifting++;
 
-			bool Cancel = Input.GetKeyDown(KeyCode.L);//(Input.GetAxis ("Cancel") != 0);
+			bool Cancel = (Input.GetAxis ("Cancel") != 0);
 
 			// printing functions to give myself information on the game
 			if (Cancel && !lastFrameCancel) {
@@ -149,8 +154,12 @@ public class MasterController : MonoBehaviour {
 			StatTracking = carController.inAir;
 
 			if (PointDisplay != null) PointDisplay.text = totalPoints.ToString();
-		} else
+		} else{
 			Time.timeScale = 0.5f;
+			if (lastFrameAlive) PrintDeath();
+		}
+
+		lastFrameAlive = carController.Alive;
 	}
 
 	private void UpdateAverageSpeed(float newSpeed){
@@ -171,6 +180,25 @@ public class MasterController : MonoBehaviour {
 		print ("Speed Points: " + speedPoints.ToString());
 		print ("Wall Points: " + wallPoints.ToString ());
 		print ("Total Points: " + totalPoints.ToString ());
+	}
+
+	private void PrintDeath(){
+		string fileName = "Logs/DataLog" + seed.ToString() + ".txt";
+		
+        StreamWriter sw = File.CreateText(fileName);
+		for (int i = 0; i < speedAir.Count; i++){
+			sw.WriteLine ("speedAir {0}", speedAir[i]);
+		}
+		for (int i = 0; i < rampAir.Count; i++){
+        	sw.WriteLine ("rampAir {0}", rampAir[i]);
+		}
+		for (int i = 0; i < spikeAir.Count; i++){
+        	sw.WriteLine ("spikeAir {0}", spikeAir[i]);
+		}
+		for (int i = 0; i < wallAir.Count; i++){
+        	sw.WriteLine ("wallAir {0}", wallAir[i]);
+		}
+        sw.Close();
 	}
 
 	public void PlayerInteracted(string objectID){
@@ -201,8 +229,8 @@ public class MasterController : MonoBehaviour {
 
 		// This is used to keep track of the first object touched after the player starts a trick
 		if (!objectTouched) {
-			print ("Interact " + objectID);
-			print ("Master inObject " + inObject.ToString());
+			//print ("Interact " + objectID);
+			//print ("Master inObject " + inObject.ToString());
 			lastObjectTouched = objectID;
 			objectTouched = true;
 			PostObjectPoints = 0;
@@ -227,9 +255,11 @@ public class MasterController : MonoBehaviour {
 	}
 
 	private void SendInfo (float x, float y, float z, int air, int back, int max){
-		int flp = Mathf.Abs((int) (x / 31));
-		int trn = Mathf.Abs((int) (y / 31));
-		int spn = Mathf.Abs((int) (z / 31));
+		int flp = Mathf.Abs((int) (x / 25));
+		int trn = Mathf.Abs((int) (y / 25));
+		int spn = Mathf.Abs((int) (z / 25));
+
+		//print(z.ToString());
 
 		totalFlips += flp;
 		totalTurns += trn;
@@ -391,7 +421,7 @@ public class MasterController : MonoBehaviour {
 				PointsAdded(ref speedPointsL2, addedPoints);
 				
 		} else if (OrbID.StartsWith ("W")) {
-			addedPoints = 35;
+			addedPoints = 25;
 			wallPoints += addedPoints;
 
 			if (OrbID.EndsWith ("0"))
@@ -409,13 +439,10 @@ public class MasterController : MonoBehaviour {
 		if (newPoints > 0){
 			if (carController.inAir || inObject){
 				PostObjectPoints += newPoints;
-				print("newPoints: " + newPoints.ToString());
-				print("PostObjectPoints: " + PostObjectPoints.ToString());
 			} else {
-				print("previousPoints: " + pointAllocation.ToString());
 				pointAllocation += PostObjectPoints;
-				print("nextPoints: " + pointAllocation.ToString());
 				PostObjectPoints = 0;
+				//AIMonitorPlayer();
 			}
 		}
 	}
@@ -427,15 +454,7 @@ public class MasterController : MonoBehaviour {
 		}
 	}
 
-	public void PlayerJumped() {
-		jumps++;
-	}
+	private void AIMonitorPlayer(){
 
-	public void PlayerReset(){
-		timesReset++;
-	}
-
-	private void Generation(){
-		
 	}
 }

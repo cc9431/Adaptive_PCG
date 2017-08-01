@@ -69,6 +69,11 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	Hashtable tileMatrix = new Hashtable();
 	Hashtable interactableMatrix = new Hashtable();
 
+	void Awake(){
+		MasterController.seed = Mathf.Abs(System.Environment.TickCount);
+		Random.InitState(MasterController.seed);
+	}
+
 	void Start(){
 		// Get player from tag
 		player = GameObject.FindWithTag("Player");

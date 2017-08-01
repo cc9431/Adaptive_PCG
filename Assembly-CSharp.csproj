@@ -62,6 +62,7 @@
      <Compile Include="Assets\_Scripts\SpeedGateController.cs" />
      <Compile Include="Assets\_Scripts\Speedometer.cs" />
      <Compile Include="Assets\_Scripts\Stabilize.cs" />
+     <Compile Include="Assets\_Scripts\SunMoon.cs" />
      <Compile Include="Assets\_Scripts\UIController.cs" />
      <Compile Include="Assets\_Scripts\WallController.cs" />
      <Compile Include="Assets\_Scripts\_CarController.cs" />

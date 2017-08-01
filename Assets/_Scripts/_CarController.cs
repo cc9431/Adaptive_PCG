@@ -10,7 +10,6 @@ using UnityEngine;
 public class _CarController : MonoBehaviour {
 	private WheelCollider[] WheelColliders;
 	private Rigidbody PlayerRB;
-	private MasterController Master;
 	private WheelFrictionCurve drift;
 	private WheelFrictionCurve notDriftSideways;
 	private WheelFrictionCurve notDriftForward;
@@ -49,8 +48,6 @@ public class _CarController : MonoBehaviour {
 		drift = notDriftSideways;
 		drift.extremumValue = 0.1f;
 		drift.asymptoteValue = 0.1f;
-
-		Master = GameObject.FindGameObjectWithTag ("Master").GetComponent<MasterController> ();
 	}
 
 	void FixedUpdate () {
@@ -61,7 +58,7 @@ public class _CarController : MonoBehaviour {
 			CheckThatCar ();
 			MoveThatCar ();
 		} else {
-			// TODO: set all possible booleans to false
+			// TODO: set all possible booleans to false?
 			if (lastFrameAlive) {
 				foreach (WheelCollider wheel in WheelColliders) {
 					Destroy (wheel.transform.GetChild(0).gameObject);
@@ -168,7 +165,7 @@ public class _CarController : MonoBehaviour {
 			} 
 			if (Jump != 0 && !lastFrameJump) {
 				PlayerRB.AddForce (11000f * gameObject.transform.up * Jump, ForceMode.Impulse);
-				Master.PlayerJumped ();
+				MasterController.jumps++;
 			}
 		}
 
@@ -204,7 +201,7 @@ public class _CarController : MonoBehaviour {
 			transform.rotation = Quaternion.identity;
 			transform.position = new Vector3 (0, 5, playerZ);
 
-			Master.PlayerReset ();
+			MasterController.timesReset++;
 			waitForReset = 0;
 		}
 	}

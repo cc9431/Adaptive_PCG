@@ -2,13 +2,22 @@ TODO:
 Reset should stay within the current scene, not reload it.
 
 TODO:
-TrackStats() needs to keep track of frames inAir, onBack, Boosting, AtMax
-after each interactable and keep an average of these stats for each interactable and level
+Create moon light and write script to rotate sun and moon
+Finish UI buttons
 
 TODO:
-Create moon light and write script to rotate sun and moon
+Blend two mars meshes into each other
+Write up why each category is equal across the levels
+
 
 FIXME:
-While player is in the air or touching an interactable, the points they get are locally stored,
-when the player leaves object or touches ground, the points they racked up are then given to the
-lastObjectTouched.
+Jasmine's Notes
+
+minimum time?
+maximum time?
+unitil minimum time is up, restart automatically upon death
+after minimum time ends, offer option to continue or quit
+how long are you going to tell the test takers that this test will take?
+    make this total time much longer than the minimum playing time
+ask people why they stopped (bored, have somewhere to be, died, frustrated, etc.)
+survey question: how often do you play games? do you like video games? etc.
