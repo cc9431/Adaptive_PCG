@@ -50,6 +50,12 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	private GameObject player;
 	private MasterController Master;
 
+	public static int RampPrefMax = 25;
+	public static int SpeedPrefMax = 50;
+	public static int SpikePrefMax = 75;
+	public static int WallPrefMax = 100;
+	public static bool Restart;
+
 	private string rampJump = "R";
 	private string speedPortal = "S";
 	private string spikeStrip = "K";
@@ -70,164 +76,157 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	Hashtable interactableMatrix = new Hashtable();
 
 	void Awake(){
-		MasterController.seed = Mathf.Abs(System.Environment.TickCount);
+		//MasterController.seed = Mathf.Abs(System.Environment.TickCount);
+		MasterController.seed = 5;
 		Random.InitState(MasterController.seed);
 	}
 
 	void Start(){
 		// Get player from tag
 		player = GameObject.FindWithTag("Player");
-		Master = gameObject.GetComponent<MasterController> ();
+		Master = GetComponent<MasterController> ();
 
-		// Set player and generator positions to zero
-		this.gameObject.transform.position = Vector3.zero;
-		startPos = Vector3.zero;
-
-		// Get the time so that we can name the tils
-		float updateTime = Time.realtimeSinceStartup;
-
-		// Loop from -tiles to tiles to create a grid centered on the player
-		for (int z = tilesBehind; z <= tilesInFront; z++){
-			// This will be our tile for each slot
-			GameObject t;
-
-			// Tile location
-			float tileLocation = (z * groundPlaneSize + startPos.z);
-
-			Vector3 tilePos = new Vector3(0, 0, tileLocation);
-
-			t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);
-
-			// This name scheme is mostly for debugging in the future when tiles have ramps on them
-			string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
-			t.name = tilename;
-
-
-
-			// Create tile and add it to the hashtable
-			Tile tile = new Tile(t, updateTime);
-			tileMatrix.Add(tilename, tile);
-		}
+		StartFunction();
 	}
 
 	void FixedUpdate(){
-
-		// This is where we check the position of the player and update our hashtable based on that
-		int zMove = (int)(player.transform.position.z - startPos.z);
-
-		// Check if the player has moved a tile size distance
-		if (Mathf.Abs (zMove) >= groundPlaneSize) {
-			float updateTime = Time.realtimeSinceStartup;
-
-			// Loop through every tile space that should exist for the new position and check if this tile already exists
-			// If so, update the time identity
-			// If not, create the new tile and add it to the matrix
-			for (int z = tilesBehind; z <= tilesInFront; z++) {
-				// This will be our tile for each slot
-				GameObject t;
-				GameObject interact;
-
-				// For each tile - get the position by multiplying the iteration number by the plane size and the start position of the player (0)
-				float tileLocation = (z * groundPlaneSize + startPos.z);
-				float randomLocation = Random.Range (-20f, 20f);
-
-				Vector3 tilePos = new Vector3 (0, 0, tileLocation);
-				string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
-				string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
-
-				bool ninthTile = (z == 9);
-
-				if (!interactableMatrix.ContainsKey (interactName) && ninthTile) {
-					bool coinFlip = (Random.Range(0, 4) != 0);
-
-					GameObject funObject;
-					string identify;
-					// To reduce computational draw, setting the position is done only if the coin flip works
-					if (coinFlip){
-						// call function that takes data from Master and decides which item should be generated
-						decideFunObj (out funObject, out identify);
-					} else {
-						funObject = groundSpike;
-						identify = level0 + level0;
-					}
-
-					Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
-					interact = (GameObject)Instantiate (funObject, interactPos, Quaternion.identity);
-
-					// Set the name of our interactable object [mostly for debugging]
-					interact.name = interactName;
-
-					// Set the id of our object based on what type and level it is [for communication with the master]
-					InteractController control = interact.GetComponent<InteractController>();
-					control.setID (identify);
-					control.setMaster (Master);
-
-					// Create an Interact class object and add it to our 
-					Interact funObj = new Interact (interact, updateTime, identify);
-					interactableMatrix.Add (interactName, funObj);
-				} else if (interactableMatrix.ContainsKey (interactName)) {
-					(interactableMatrix [interactName] as Interact).creationTime = updateTime;
-				}
-				
-				if (!tileMatrix.ContainsKey (tilename)) {
-					t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);
-
-					t.name = tilename;
-					Tile tile = new Tile (t, updateTime);
-					tileMatrix.Add (tilename, tile);
-				} else {
-					(tileMatrix [tilename] as Tile).creationTime = updateTime;
-				}
-					
-			}
-
-			// Because of the way that hashtables work in unity, we must create a new hashtable each time
-			// This is because hash tables cannot delete values, they would simply keep the values forever
-			Hashtable newRoad = new Hashtable ();
+		if (Restart){
+			
 			foreach (Tile tls in tileMatrix.Values) {
-				// Check if the the time identity is correct
-				// if not, destroy it
-				// if so, add it to the new hashtable
-				if (tls.creationTime != updateTime) {
-					Destroy (tls.gameTile);
-				} else {
-					newRoad.Add (tls.gameTile.name, tls);
-				}
+				Destroy (tls.gameTile);
 			}
-
-			Hashtable newFunObjs = new Hashtable ();
 			foreach (Interact fun in interactableMatrix.Values) {
-				// Check if the the time identity is correct
-				// if not, destroy it
-				// if so, add it to the new hashtable
-				if (fun.creationTime != updateTime) {
-					Destroy (fun.interactable);
-				} else {
-					newFunObjs.Add (fun.interactable.name, fun);
-				}
+				Destroy (fun.interactable);
 			}
 
-			// Finally, assign the old matrix to the new matrix
-			tileMatrix = newRoad;
-			interactableMatrix = newFunObjs;
+			tileMatrix = new Hashtable();
+			interactableMatrix = new Hashtable();
+			StartFunction();
+			Restart = false;
 
-			if (zMove >= groundPlaneSize)
-				startPos.z += groundPlaneSize;
-			else
-				startPos.z -= groundPlaneSize;
+		} else {
+			// This is where we check the position of the player and update our hashtable based on that
+			int zMove = (int)(player.transform.position.z - startPos.z);
+
+			// Check if the player has moved a tile size distance
+			if (Mathf.Abs (zMove) >= groundPlaneSize) {
+				float updateTime = Time.realtimeSinceStartup;
+
+				// Loop through every tile space that should exist for the new position and check if this tile already exists
+				// If so, update the time identity
+				// If not, create the new tile and add it to the matrix
+				for (int z = tilesBehind; z <= tilesInFront; z++) {
+					// This will be our tile for each slot
+					GameObject t;
+					GameObject interact;
+
+					// For each tile - get the position by multiplying the iteration number by the plane size and the start position of the player (0)
+					float tileLocation = (z * groundPlaneSize + startPos.z);
+					float randomLocation = Random.Range (-20f, 20f);
+
+					Vector3 tilePos = new Vector3 (0, 0, tileLocation);
+					string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
+					string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
+
+					bool coinFlip = Random.Range(0, 2) == 1;
+					bool ninthTile = (z == 9);
+					bool spawnNewFunObj = (!interactableMatrix.ContainsKey (interactName) && ninthTile && coinFlip);
+
+					if (spawnNewFunObj) {
+						bool SpikeOrFun = (Random.Range(0, 5) != 0);
+
+						GameObject funObject;
+						string identify;
+						// To reduce computational draw, setting the position is done only if the coin flip works
+						if (SpikeOrFun){
+							// call function that takes data from Master and decides which item should be generated
+							decideFunObj (out funObject, out identify);
+						} else {
+							interactName = "Spike_" + ((int)(tilePos.z)).ToString();
+							funObject = groundSpike;
+							identify = level0 + level0;
+						}
+
+						Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
+						interact = (GameObject)Instantiate (funObject, interactPos, Quaternion.identity);
+
+						// Set the name of our interactable object [mostly for debugging]
+						interact.name = interactName;
+
+						// Set the id of our object based on what type and level it is [for communication with the master]
+						InteractController control = interact.GetComponent<InteractController>();
+						control.setID (identify);
+						control.setMaster (Master);
+
+						// Create an Interact class object and add it to our 
+						Interact funObj = new Interact (interact, updateTime, identify);
+						interactableMatrix.Add (interactName, funObj);
+					} else if (interactableMatrix.ContainsKey (interactName)) {
+						(interactableMatrix [interactName] as Interact).creationTime = updateTime;
+					}
+					
+					if (!tileMatrix.ContainsKey (tilename)) {
+						t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);
+
+						t.name = tilename;
+						Tile tile = new Tile (t, updateTime);
+						tileMatrix.Add (tilename, tile);
+					} else {
+						(tileMatrix [tilename] as Tile).creationTime = updateTime;
+					}
+						
+				}
+
+				// Because of the way that hashtables work in unity, we must create a new hashtable each time
+				// This is because hash tables cannot delete values, they would simply keep the values forever
+				Hashtable newRoad = new Hashtable ();
+				foreach (Tile tls in tileMatrix.Values) {
+					// Check if the the time identity is correct
+					// if not, destroy it
+					// if so, add it to the new hashtable
+					if (tls.creationTime != updateTime) {
+						Destroy (tls.gameTile);
+					} else {
+						newRoad.Add (tls.gameTile.name, tls);
+					}
+				}
+
+				Hashtable newFunObjs = new Hashtable ();
+				foreach (Interact fun in interactableMatrix.Values) {
+					// Check if the the time identity is correct
+					// if not, destroy it
+					// if so, add it to the new hashtable
+					if (fun.creationTime != updateTime) {
+						Destroy (fun.interactable);
+					} else {
+						newFunObjs.Add (fun.interactable.name, fun);
+					}
+				}
+
+				// Finally, assign the old matrix to the new matrix
+				tileMatrix = newRoad;
+				interactableMatrix = newFunObjs;
+
+				if (zMove >= groundPlaneSize)
+					startPos.z += groundPlaneSize;
+				else
+					startPos.z -= groundPlaneSize;
+			}
 		}
 	}
 
 	private void decideFunObj(out GameObject funInteract, out string funID){
-		int topLevelRNG = Random.Range(0, 4);
-		int bottomLevelRNG = Random.Range(0, 3);
+		int topLevelRNG = Random.Range(0, 100);
+		int bottomLevelRNG = Random.Range(0, 33);
 		
-		bool Ramp = (topLevelRNG == 0);
-		bool Speed = (topLevelRNG == 1);
-		bool Spike = (topLevelRNG == 2);
+		bool Ramp = (topLevelRNG >= 0 && topLevelRNG < RampPrefMax);
+		bool Speed = (topLevelRNG >= RampPrefMax && topLevelRNG < SpeedPrefMax);
+		bool Spike = (topLevelRNG >= SpeedPrefMax && topLevelRNG < SpikePrefMax);
+		//bool Wall = (topLevelRNG >= SpeedPrefMax && topLevelRNG <= WallPrefMax);
+		
 
-		bool L0 = (bottomLevelRNG == 0);
-		bool L1 = (bottomLevelRNG == 1);
+		bool L0 = (bottomLevelRNG < 11);
+		bool L1 = (bottomLevelRNG >= 11 && bottomLevelRNG < 22);
 
 		if (Ramp) {
 			funID = rampJump;
@@ -277,6 +276,38 @@ public class GenerateInfiniteFull: MonoBehaviour {
 				funInteract = Interact_WallL2;
 				funID += level2;
 			}
+		}
+	}
+
+	void StartFunction(){
+		// Set generator position to zero
+		transform.position = Vector3.zero;
+		startPos = Vector3.zero;
+
+		// Get the time so that we can name the tils
+		float updateTime = Time.realtimeSinceStartup;
+
+		// Loop from -tiles to tiles to create a grid centered on the player
+		for (int z = tilesBehind; z <= tilesInFront; z++){
+			// This will be our tile for each slot
+			GameObject t;
+
+			// Tile location
+			float tileLocation = (z * groundPlaneSize + startPos.z);
+
+			Vector3 tilePos = new Vector3(0, 0, tileLocation);
+
+			t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);
+
+			// This name scheme is mostly for debugging in the future when tiles have ramps on them
+			string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
+			t.name = tilename;
+
+
+
+			// Create tile and add it to the hashtable
+			Tile tile = new Tile(t, updateTime);
+			tileMatrix.Add(tilename, tile);
 		}
 	}
 }

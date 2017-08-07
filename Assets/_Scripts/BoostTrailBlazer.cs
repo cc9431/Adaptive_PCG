@@ -5,11 +5,9 @@ using UnityEngine;
 public class BoostTrailBlazer : MonoBehaviour {
 	private TrailRenderer speedTrail;
 	private Light point;
-	private _CarController car;
 	private float trailTime;
 
 	void Awake() {
-		car = GameObject.FindGameObjectWithTag ("Player").GetComponent<_CarController> ();
 		speedTrail = gameObject.GetComponent<TrailRenderer> ();
 		point = gameObject.GetComponent<Light> ();
 		trailTime = speedTrail.time;
@@ -18,7 +16,7 @@ public class BoostTrailBlazer : MonoBehaviour {
 	}
 		
 	void Update () {
-		if (car.boosting) {
+		if (_CarController.boosting) {
 			point.enabled = true;
 			speedTrail.time = trailTime;
 		} else if (speedTrail.time > 0) {

@@ -12,43 +12,43 @@ public class MasterController : MonoBehaviour {
 	private int rampPointsL0;
 	private int rampPointsL1;
 	private int rampPointsL2;
-	private List<int> rampAir = new List<int>();
-	private List<int> rampAirL0 = new List<int>();
-	private List<int> rampAirL1 = new List<int>();
-	private List<int> rampAirL2 = new List<int>();
+	private List<int> rampStats = new List<int>();
+	private List<int> rampStatsL0 = new List<int>();
+	private List<int> rampStatsL1 = new List<int>();
+	private List<int> rampStatsL2 = new List<int>();
 
 	private int speedPoints;
 	private int speedPointsL0;
 	private int speedPointsL1;
 	private int speedPointsL2;
-	private List<int> speedAir = new List<int>();
-	private List<int>speedAirL0 = new List<int>();
-	private List<int> speedAirL1 = new List<int>();
-	private List<int> speedAirL2 = new List<int>();
+	private List<int> speedStats = new List<int>();
+	private List<int>speedStatsL0 = new List<int>();
+	private List<int> speedStatsL1 = new List<int>();
+	private List<int> speedStatsL2 = new List<int>();
 
 	private int spikePoints;
 	private int spikePointsL0;
 	private int spikePointsL1;
 	private int spikePointsL2;
-	private List<int> spikeAir = new List<int>();
-	private List<int> spikeAirL0 = new List<int>();
-	private List<int> spikeAirL1 = new List<int>();
-	private List<int> spikeAirL2 = new List<int>();
+	private List<int> spikeStats = new List<int>();
+	private List<int> spikeStatsL0 = new List<int>();
+	private List<int> spikeStatsL1 = new List<int>();
+	private List<int> spikeStatsL2 = new List<int>();
 
 	private int wallPoints;
 	private int wallPointsL0;
 	private int wallPointsL1;
 	private int wallPointsL2;
-	private List<int> wallAir = new List<int>();
-	private List<int> wallAirL0 = new List<int>();
-	private List<int> wallAirL1 = new List<int>();
-	private List<int> wallAirL2 = new List<int>();
+	private List<int> wallStats = new List<int>();
+	private List<int> wallStatsL0 = new List<int>();
+	private List<int> wallStatsL1 = new List<int>();
+	private List<int> wallStatsL2 = new List<int>();
 
-	private int framesInAir;		// Used to evaluate the engagement of the player
-	private int framesAtMax;
-	private int framesBoosting;
-	private int framesOnBack;
-	private int framesDrifting;
+	public static int framesInAir;		// Used to evaluate the engagement of the player
+	public static int framesAtMax;
+	public static int framesBoosting;
+	public static int framesOnBack;
+	public static int framesDrifting;
 	public static int timesReset;
 
 	private int rampJumpTotal;		// How many times a player uses a ramp
@@ -78,10 +78,9 @@ public class MasterController : MonoBehaviour {
 	public static int jumps;				// How many times a player jumps
 
 	private GameObject player;
-	private _CarController carController;
 	private Rigidbody carRB;
 	private bool lastFrameCancel = false;
-	private bool lastFrameAlive;
+	private bool loggedDeath = false;
 	private bool StatTracking;
 	private bool objectTouched;
 	private string lastObjectTouched;
@@ -103,63 +102,51 @@ public class MasterController : MonoBehaviour {
 	public Text PointDisplay;
 
 	void Start() {
-		lastObjectTouched = "0";
+		lastObjectTouched = "FALSE";
 		StatTracking = false;
 		objectTouched = false;
 
 		player = GameObject.FindGameObjectWithTag("Player");
-		carController = player.GetComponent<_CarController> ();
 		carRB = player.GetComponent<Rigidbody> ();
 
-		print(seed);
+		//print(seed);
 
 		AddPointsController.Initialize();
 	}
 
-	void Update () {
-		if (carController.Alive) {
+	void FixedUpdate () {
+		if (_CarController.Alive) {
 			// This will call TrackTricks for every frame that the car
 			// is in the air and the first frame that the car touched back down
 			// it also only tracks player input if the car is "freely flying"
 			// (meaning that none of the cars different colliders are touching anything)
-			if ((StatTracking || carController.inAir || inObject) && (!carController.onBack)) TrackStats ();
+			if (StatTracking || _CarController.inAir || inObject) TrackStats ();
 
 			// Call this function to update the average speed
 			UpdateAverageSpeed (carRB.velocity.magnitude);
-
-			// Keep track of player engagement
-			if (carController.inAir)
-				framesInAir++;
-			if (carController.maxSpeed)
-				framesAtMax++;
-			if (carController.boosting)
-				framesBoosting++;
-			if (carController.onBack)
-				framesOnBack++;
-			if (carController.Drift)
-				framesDrifting++;
 
 			bool Cancel = (Input.GetAxis ("Cancel") != 0);
 
 			// printing functions to give myself information on the game
 			if (Cancel && !lastFrameCancel) {
 				PrintStats ();
-				PrintPointStats ();
+				//PrintPointStats ();
 			}
 
 			// This helps emulate the OnKey method that only reacts once per button press.
 			lastFrameCancel = Cancel;
 
 			// This is so we are always looking at the last frame
-			StatTracking = carController.inAir;
+			StatTracking = _CarController.inAir;
 
 			if (PointDisplay != null) PointDisplay.text = totalPoints.ToString();
 		} else{
 			Time.timeScale = 0.5f;
-			if (lastFrameAlive) PrintDeath();
+			if (!loggedDeath){
+				LogDeath();
+				loggedDeath = true;
+			}
 		}
-
-		lastFrameAlive = carController.Alive;
 	}
 
 	private void UpdateAverageSpeed(float newSpeed){
@@ -172,6 +159,7 @@ public class MasterController : MonoBehaviour {
 		print ("framesBoosting: " + framesBoosting.ToString());
 		print ("framesInAir: " + framesInAir.ToString());
 		print ("framesDrifting: " + framesDrifting.ToString ());
+		print ("framesOnBack: " + framesOnBack.ToString ());
 	}
 
 	private void PrintPointStats (){
@@ -180,25 +168,6 @@ public class MasterController : MonoBehaviour {
 		print ("Speed Points: " + speedPoints.ToString());
 		print ("Wall Points: " + wallPoints.ToString ());
 		print ("Total Points: " + totalPoints.ToString ());
-	}
-
-	private void PrintDeath(){
-		string fileName = "Logs/DataLog" + seed.ToString() + ".txt";
-		
-        StreamWriter sw = File.CreateText(fileName);
-		for (int i = 0; i < speedAir.Count; i++){
-			sw.WriteLine ("speedAir {0}", speedAir[i]);
-		}
-		for (int i = 0; i < rampAir.Count; i++){
-        	sw.WriteLine ("rampAir {0}", rampAir[i]);
-		}
-		for (int i = 0; i < spikeAir.Count; i++){
-        	sw.WriteLine ("spikeAir {0}", spikeAir[i]);
-		}
-		for (int i = 0; i < wallAir.Count; i++){
-        	sw.WriteLine ("wallAir {0}", wallAir[i]);
-		}
-        sw.Close();
 	}
 
 	public void PlayerInteracted(string objectID){
@@ -238,213 +207,146 @@ public class MasterController : MonoBehaviour {
 	}
 
 	private void TrackStats(){
-		if (carController.inAir || inObject) {
+		if (_CarController.inAir || inObject) {
 			float X = Input.GetAxis ("Vertical");
 			float Y = Input.GetAxis ("Horizontal");
 			bool Z = (Input.GetAxis ("Spin") != 0);
 
-			if (carController.inAir) PostObjectAir++;
-			if (carController.onBack) PostObjectBack++;
-			if (carController.maxSpeed) PostObjectMax++;
+			if (_CarController.inAir) PostObjectAir++;
+			if (_CarController.onBack) PostObjectBack++;
+			if (_CarController.maxSpeed) PostObjectMax++;
 
 			Xspin += X;
 			if (!Z) Yspin += Y;
 			else Zspin += Y;
+		} else {
+			int flp = Mathf.Abs((int) (Xspin / 25));
+			int trn = Mathf.Abs((int) (Yspin / 25));
+			int spn = Mathf.Abs((int) (Zspin / 25));
 
-		} else SendInfo (Xspin, Yspin, Zspin, PostObjectAir, PostObjectBack, PostObjectMax);
+			totalFlips += flp;
+			totalTurns += trn;
+			totalSpins += spn;
+
+			int addedPoints = ((12 * flp) + (10 * trn) + (15 * spn));
+			//print("SendInfoPoints: " + addedPoints.ToString() + " inAir: " + _CarController.inAir.ToString());
+			InteractPoints(false, addedPoints, lastObjectTouched, PostObjectAir, PostObjectBack, PostObjectMax);
+		}
 	}
 
-	private void SendInfo (float x, float y, float z, int air, int back, int max){
-		int flp = Mathf.Abs((int) (x / 25));
-		int trn = Mathf.Abs((int) (y / 25));
-		int spn = Mathf.Abs((int) (z / 25));
-
-		//print(z.ToString());
-
-		totalFlips += flp;
-		totalTurns += trn;
-		totalSpins += spn;
-
-		int addedPoints = ((12 * flp) + (10 * trn) + (15 * spn));
-
-		if (lastObjectTouched.StartsWith ("R")) {
-			rampPoints += addedPoints;
-			rampAir.Add(air);
-			rampAir.Add(back);
-			rampAir.Add(max);
-			
-			if (lastObjectTouched.EndsWith ("0")){
-				PointsAdded(ref rampPointsL0, addedPoints);
-				rampAirL0.Add(air);
-				rampAirL0.Add(back);
-				rampAirL0.Add(max);
-			}
-			else if (lastObjectTouched.EndsWith ("1")){
-				PointsAdded(ref rampPointsL1, addedPoints);
-				rampAirL1.Add(air);
-				rampAirL1.Add(back);
-				rampAirL1.Add(max);
-			}
-			else if (lastObjectTouched.EndsWith("2")){
-				PointsAdded(ref rampPointsL2, addedPoints);
-				rampAirL2.Add(air);
-				rampAirL2.Add(back);
-				rampAirL2.Add(max);
-			}
-		} else if (lastObjectTouched.StartsWith ("K")) {
-			spikePoints += addedPoints;
-			spikeAir.Add(air);
-			spikeAir.Add(back);
-			spikeAir.Add(max);
-
-			if (lastObjectTouched.EndsWith ("0")){
-				PointsAdded(ref spikePointsL0, addedPoints);
-				spikeAirL0.Add(air);
-				spikeAirL0.Add(back);
-				spikeAirL0.Add(max);
-			}
-			else if (lastObjectTouched.EndsWith ("1")){
-				PointsAdded(ref spikePointsL1, addedPoints);
-				spikeAirL1.Add(air);
-				spikeAirL1.Add(back);
-				spikeAirL1.Add(max);
-			}
-			else if (lastObjectTouched.EndsWith("2")){
-				PointsAdded(ref spikePointsL2, addedPoints);
-				spikeAirL2.Add(air);
-				spikeAirL2.Add(back);
-				spikeAirL2.Add(max);
-			}
-
-		} else if (lastObjectTouched.StartsWith ("S")) {
-			speedPoints += addedPoints;
-			speedAir.Add(air);
-			speedAir.Add(back);
-			speedAir.Add(max);
-
-			if (lastObjectTouched.EndsWith ("0")){
-				PointsAdded(ref speedPointsL0, addedPoints);
-				speedAirL0.Add(air);
-				speedAirL0.Add(back);
-				speedAirL0.Add(max);
-			}
-			else if (lastObjectTouched.EndsWith ("1")){
-				PointsAdded(ref speedPointsL1, addedPoints);
-				speedAirL1.Add(air);
-				speedAirL1.Add(back);
-				speedAirL1.Add(max);
-			}
-			else if (lastObjectTouched.EndsWith("2")){
-				PointsAdded(ref speedPointsL2, addedPoints);
-				speedAirL2.Add(air);
-				speedAirL2.Add(back);
-				speedAirL2.Add(max);
-			}
-				
-		} else if (lastObjectTouched.StartsWith ("W")) {
-			wallPoints += addedPoints;
-			wallAir.Add(air);
-			wallAir.Add(back);
-			wallAir.Add(max);
-
-			if (lastObjectTouched.EndsWith ("0")){
-				PointsAdded(ref wallPointsL0, addedPoints);
-				wallAirL0.Add(air);
-				wallAirL0.Add(back);
-				wallAirL0.Add(max);
-			}
-			else if (lastObjectTouched.EndsWith ("1")){
-				PointsAdded(ref wallPointsL1, addedPoints);
-				wallAirL1.Add(air);
-				wallAirL1.Add(back);
-				wallAirL1.Add(max);
-			}
-			else if (lastObjectTouched.EndsWith("2")){
-				PointsAdded(ref wallPointsL2, addedPoints);
-				wallAirL2.Add(air);
-				wallAirL2.Add(back);
-				wallAirL2.Add(max);
-			}
+	public void InteractPoints(bool orb, int addedPoints, string inputID = "FALSE", int air = 0, int back = 0, int max = 0){ 
+		if (orb) {
+			orbs++;
+			inputID = lastObjectTouched;
 		}
 
-		TotalPoints(addedPoints);
+		//print("InteractPoints: " + addedPoints.ToString() + inputID);
 
-		StatTracking = false;
-		objectTouched = false;
-
-		Xspin = 0;
-		Yspin = 0;
-		Zspin = 0;
-
-		PostObjectAir = 0;
-		PostObjectBack = 0;
-		PostObjectMax = 0;
-
-		lastObjectTouched = "0";
-	}
-
-	public void OrbCollected(string OrbID){
-		int addedPoints = 0;
-		orbs++;
-
-		if (OrbID.StartsWith ("R")) {
-			addedPoints = 10;
+		if (inputID.StartsWith ("R")) {
 			rampPoints += addedPoints;
 			
-			if (OrbID.EndsWith ("0"))
-				PointsAdded(ref rampPointsL0, addedPoints);
-			else if (OrbID.EndsWith ("1"))
-				PointsAdded(ref rampPointsL1, addedPoints);
-			else if (OrbID.EndsWith("2"))
-				PointsAdded(ref rampPointsL2, addedPoints);
-
-		} else if (OrbID.StartsWith ("K")) {
-			addedPoints = 15;
+			if (inputID.EndsWith ("0")){
+				PointsAdded(ref rampPointsL0, ref rampStatsL0, ref rampStats,
+					addedPoints, air, back, max);
+			}
+			else if (inputID.EndsWith ("1")){
+				PointsAdded(ref rampPointsL1, ref rampStatsL1, ref rampStats,
+					addedPoints, air, back, max);
+			}
+			else if (inputID.EndsWith("2")){
+				PointsAdded(ref rampPointsL2, ref rampStatsL2, ref rampStats,
+					addedPoints, air, back, max);
+			}
+		} else if (inputID.StartsWith ("K")) {
 			spikePoints += addedPoints;
 
-			if (OrbID.EndsWith ("0"))
-				PointsAdded(ref spikePointsL0, addedPoints);
-			else if (OrbID.EndsWith ("1"))
-				PointsAdded(ref spikePointsL1, addedPoints);
-			else if (OrbID.EndsWith("2"))
-				PointsAdded(ref spikePointsL2, addedPoints);
+			if (inputID.EndsWith ("0")){
+				PointsAdded(ref spikePointsL0, ref spikeStatsL0, ref spikeStats,
+					addedPoints, air, back, max);
+			}
+			else if (inputID.EndsWith ("1")){
+				PointsAdded(ref spikePointsL1, ref spikeStatsL1, ref spikeStats,
+					addedPoints, air, back, max);
+			}
+			else if (inputID.EndsWith("2")){
+				PointsAdded(ref spikePointsL2, ref spikeStatsL2, ref spikeStats,
+					addedPoints, air, back, max);
+			}
 
-		} else if (OrbID.StartsWith ("S")) {
-			addedPoints = 20;
+		} else if (inputID.StartsWith ("S")) {
 			speedPoints += addedPoints;
 
-			if (OrbID.EndsWith ("0"))
-				PointsAdded(ref speedPointsL0, addedPoints);
-			else if (OrbID.EndsWith ("1"))
-				PointsAdded(ref speedPointsL1, addedPoints);
-			else if (OrbID.EndsWith("2"))
-				PointsAdded(ref speedPointsL2, addedPoints);
+			if (inputID.EndsWith ("0")){
+				PointsAdded(ref speedPointsL0, ref speedStatsL0, ref speedStats,
+					addedPoints, air, back, max);
+			}
+			else if (inputID.EndsWith ("1")){
+				PointsAdded(ref speedPointsL1, ref speedStatsL1, ref speedStats,
+					addedPoints, air, back, max);
+			}
+			else if (inputID.EndsWith("2")){
+				PointsAdded(ref speedPointsL2, ref speedStatsL2, ref speedStats,
+					addedPoints, air, back, max);
+			}
 				
-		} else if (OrbID.StartsWith ("W")) {
-			addedPoints = 25;
+		} else if (inputID.StartsWith ("W")) {
 			wallPoints += addedPoints;
 
-			if (OrbID.EndsWith ("0"))
-				PointsAdded(ref wallPointsL0, addedPoints);
-			else if (OrbID.EndsWith ("1"))
-				PointsAdded(ref wallPointsL1, addedPoints);
-			else if (OrbID.EndsWith("2"))
-				PointsAdded(ref wallPointsL2, addedPoints);
+			if (inputID.EndsWith ("0")){
+				PointsAdded(ref wallPointsL0, ref wallStatsL0, ref wallStats,
+					addedPoints, air, back, max);
+			}
+			else if (inputID.EndsWith ("1")){
+				PointsAdded(ref wallPointsL1, ref wallStatsL1, ref wallStats,
+					addedPoints, air, back, max);
+			}
+			else if (inputID.EndsWith("2")){
+				PointsAdded(ref wallPointsL2, ref wallStatsL2, ref wallStats,
+					addedPoints, air, back, max);
+			}
 		}
 
 		TotalPoints(addedPoints);
 	}
 
-	void PointsAdded(ref int pointAllocation, int newPoints){
-		if (newPoints > 0){
-			if (carController.inAir || inObject){
-				PostObjectPoints += newPoints;
-			} else {
-				pointAllocation += PostObjectPoints;
-				PostObjectPoints = 0;
-				//AIMonitorPlayer();
-			}
+	void PointsAdded(ref int pointAllocation, ref List<int> statAllocation, ref List<int> statTotalAllocation,
+						int newPoints, int air, int back, int max){	
+		if (_CarController.inAir || inObject) {
+			PostObjectPoints += newPoints;
+		} else {
+			PostObjectPoints += newPoints;
+			pointAllocation += PostObjectPoints;
+
+			statAllocation.Add(air);
+			statAllocation.Add(back);
+			statAllocation.Add(max);
+			statAllocation.Add(PostObjectPoints);
+
+			statTotalAllocation.Add(air);
+			statTotalAllocation.Add(back);
+			statTotalAllocation.Add(max);
+			statTotalAllocation.Add(PostObjectPoints);
+
+			//AIMonitorPlayer(PostObjectAir, PostObjectBack, PostObjectMax, PostObjectPoints);
+
+			// Zero out all tracking variables
+			StatTracking = false;
+			objectTouched = false;
+
+			Xspin = 0;
+			Yspin = 0;
+			Zspin = 0;
+
+			PostObjectAir = 0;
+			PostObjectBack = 0;
+			PostObjectMax = 0;
+			PostObjectPoints = 0;
+
+			lastObjectTouched = "FALSE";
 		}
+
+		//print("PostObjectPoints: " + PostObjectPoints.ToString());
+		//print("inAir or inObject: " + (_CarController.inAir || inObject).ToString());
 	}
 
 	void TotalPoints(int newPoints){
@@ -454,7 +356,47 @@ public class MasterController : MonoBehaviour {
 		}
 	}
 
-	private void AIMonitorPlayer(){
+	private void AIMonitorPlayer(int air, int back, int max, int points){
+		/*
+		GenerateInfiniteFull.RampPrefMax;
+		GenerateInfiniteFull.SpeedPrefMax;
+		GenerateInfiniteFull.SpikePrefMax;
+		GenerateInfiniteFull.WallPrefMax;
 
+		for(int i = 0; i < rampStats.Count; i++){
+
+		}
+		for(int i = 0; i < spikeStats.Count; i++){
+
+		}
+		for(int i = 0; i < speedStats.Count; i++){
+
+		}
+		for(int i = 0; i < wallStats.Count; i++){
+
+		}
+		*/
+	}
+
+	private void LogDeath(){
+		string fileName = string.Format("Logs/DataLog{0}.txt", seed);
+		
+        StreamWriter sw = File.CreateText(fileName);
+		for (int i = 0; i < rampStats.Count; i++){
+        	sw.WriteLine ("rampStats:{0}", rampStats[i]);
+		}
+		sw.WriteLine();
+		for (int i = 0; i < speedStats.Count; i++){
+        	sw.WriteLine ("speedStats:{0}", speedStats[i]);
+		}
+		sw.WriteLine();
+		for (int i = 0; i < spikeStats.Count; i++){
+        	sw.WriteLine ("spikeStats:{0}", spikeStats[i]);
+		}
+		sw.WriteLine();
+		for (int i = 0; i < wallStats.Count; i++){
+        	sw.WriteLine ("wallStats:{0}", wallStats[i]);
+		}
+        sw.Close();
 	}
 }

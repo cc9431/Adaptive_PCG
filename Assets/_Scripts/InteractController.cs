@@ -7,15 +7,13 @@ public class InteractController : MonoBehaviour {
 	private string id;
 	private bool playerTouched;
 	private bool inObject;
-	private bool lastFrameinObject;
 
 	void Start(){
 		playerTouched = false;
 	}
 
 	void Update(){
-		MasterController.inObject = (inObject || lastFrameinObject);
-		lastFrameinObject = inObject;
+		MasterController.inObject = inObject;
 		
 		//if (inObject) print ("Interact inObject: " + inObject.ToString());
 	}

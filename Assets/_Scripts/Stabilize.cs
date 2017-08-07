@@ -9,14 +9,9 @@ public class Stabilize : MonoBehaviour{
     public WheelCollider WheelL;
     public WheelCollider WheelR;
     public float AntiRoll;
-	private _CarController car;
-
-	void Start() {
-		car = GetComponentInParent<_CarController> ();
-	}
  
     public void FixedUpdate(){
-		if (car.Alive) {
+		if (_CarController.Alive) {
 			WheelHit hit;
 			float travelL = 1.0f;
 			float travelR = 1.0f;

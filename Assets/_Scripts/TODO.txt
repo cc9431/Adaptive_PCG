@@ -1,16 +1,18 @@
-TODO:
-Reset should stay within the current scene, not reload it.
+bigdeal:
+Finish Data Logging: log all raw data every 30 seconds and upon death
+Player Matching: algorithm that takes in "post object data" and uses this to change generation rates
 
-TODO:
-Create moon light and write script to rotate sun and moon
+note:
+Generation: Only level 1 at the beginning. Player must gain some required points with any type, then that type can generate higher levels
+// Done? Reset should stay within the current scene, not reload it
+
+smalldeal:
 Finish UI buttons
-
-TODO:
 Blend two mars meshes into each other
-Write up why each category is equal across the levels
 
 
-FIXME:
+
+===============================================================================================
 Jasmine's Notes
 
 minimum time?
@@ -21,3 +23,4 @@ how long are you going to tell the test takers that this test will take?
     make this total time much longer than the minimum playing time
 ask people why they stopped (bored, have somewhere to be, died, frustrated, etc.)
 survey question: how often do you play games? do you like video games? etc.
+===============================================================================================

@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class OrbController : MonoBehaviour {
-	private string id;
 	private Vector3 spin = new Vector3 (0, 40, 0);
 	private MasterController Master;
 	public float speed;
+	public int points;
 
 	void Start () {
-		id = GetComponentInParent<InteractController>().getID();
 		Master = GetComponentInParent<InteractController>().getMaster();
 	}
 
@@ -19,7 +18,7 @@ public class OrbController : MonoBehaviour {
 
 	void OnTriggerEnter(Collider other){
 		if (other.CompareTag ("PlayerTrigger")) {
-			Master.OrbCollected (id);
+			Master.InteractPoints (true, points);
 			Destroy(gameObject);
 		}
 	}

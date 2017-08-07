@@ -17,13 +17,13 @@ public class _CarController : MonoBehaviour {
 	public float RPMs;
 	public float speedGate;
 	public float highestPoint;
-	public bool inAir;
-	public bool maxSpeed;
-	public bool boosting;
-	public bool Drift;
-	public bool bodyTouching;
-	public bool onBack;
-	public bool Alive;
+	public static bool inAir;
+	public static bool maxSpeed;
+	public static bool boosting;
+	public static bool Drift;
+	public static bool bodyTouching;
+	public static bool onBack;
+	public static bool Alive;
 
 	private bool lastFrameJump;
 	private bool lastFrameAlive;
@@ -52,17 +52,29 @@ public class _CarController : MonoBehaviour {
 
 	void FixedUpdate () {
 		if (Alive) {
+			if (!lastFrameAlive){
+				foreach (WheelCollider wheel in WheelColliders) {
+					wheel.gameObject.SetActive(true);
+				}
+			}
 			if (waitForReset < 99) waitForReset++;
 			
 			ResetPosition ();
 			CheckThatCar ();
 			MoveThatCar ();
+
+			if (inAir) MasterController.framesInAir++;
+			if (maxSpeed) MasterController.framesAtMax++;
+			if (boosting) MasterController.framesBoosting++;
+			if (onBack) MasterController.framesOnBack++;
+			if (Drift) MasterController.framesDrifting++;
+
+
 		} else {
 			// TODO: set all possible booleans to false?
 			if (lastFrameAlive) {
 				foreach (WheelCollider wheel in WheelColliders) {
-					Destroy (wheel.transform.GetChild(0).gameObject);
-					Destroy (wheel);
+					wheel.gameObject.SetActive(false);
 				}
 			}
 		}

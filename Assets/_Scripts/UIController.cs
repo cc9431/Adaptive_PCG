@@ -8,9 +8,10 @@ using UnityEngine.EventSystems;
 public class UIController : MonoBehaviour {
 	private bool buttonSelected;
 	private bool lastFramePause = false;
-	public bool Paused;
 	private bool lastFrameAlive;
-	private _CarController carController;
+	private Transform car;
+
+	public bool Paused;
 	public EventSystem eventSystem;
 	public GameObject selectedObject;
 	public GameObject PauseScreen;
@@ -25,7 +26,7 @@ public class UIController : MonoBehaviour {
 	}
 
 	void Start(){
-		carController = GameObject.FindGameObjectWithTag("Player").GetComponent<_CarController>();
+		car = GameObject.FindGameObjectWithTag("Player").transform;
 		eventSystem.SetSelectedGameObject(selectedObject);
 	}
 
@@ -41,7 +42,7 @@ public class UIController : MonoBehaviour {
 			ExecuteEvents.Execute(button, pointer, ExecuteEvents.pointerClickHandler);
 		}
 
-		if (carController.Alive) {
+		if (_CarController.Alive) {
 			// Where we check if the player pauses the game or not
 			bool Pause = (Input.GetAxisRaw("Submit") != 0);
 
@@ -64,7 +65,7 @@ public class UIController : MonoBehaviour {
 			}
 		}
 
-		lastFrameAlive = carController.Alive;
+		lastFrameAlive = _CarController.Alive;
 	}
 
 	void OnDisable(){
@@ -94,7 +95,12 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void Restart(){
-		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+		GenerateInfiniteFull.Restart = true;
+		_CarController.Alive = true;
+		car.position = new Vector3(0, 11, 0);
+		car.rotation = Quaternion.identity;
+		DeathScreen.SetActive(false);
+		Time.timeScale = 1f;
 	}
 
 	public void Resume(){
