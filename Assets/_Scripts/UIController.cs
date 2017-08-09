@@ -17,6 +17,7 @@ public class UIController : MonoBehaviour {
 	public GameObject PauseScreen;
 	public GameObject DeathScreen;
 	public GameObject DeathScreenSelectedObject;
+	public GameObject PauseScreenSelectedObject;
 
 	void Awake(){
 		if (PauseScreen != null) PauseScreen.SetActive(false);
@@ -91,16 +92,24 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void Finish(){
+		MasterController.LogDeath();
 		SceneManager.LoadScene("StartScene");
 	}
 
 	public void Restart(){
+		Time.timeScale = 0f;
+
 		GenerateInfiniteFull.Restart = true;
-		_CarController.Alive = true;
+		
 		car.position = new Vector3(0, 11, 0);
 		car.rotation = Quaternion.identity;
+		_CarController.Alive = true;
+
 		DeathScreen.SetActive(false);
+		selectedObject = PauseScreenSelectedObject;
+		
 		Time.timeScale = 1f;
+		buttonSelected = false;
 	}
 
 	public void Resume(){

@@ -50,10 +50,6 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	private GameObject player;
 	private MasterController Master;
 
-	public static int RampPrefMax = 25;
-	public static int SpeedPrefMax = 50;
-	public static int SpikePrefMax = 75;
-	public static int WallPrefMax = 100;
 	public static bool Restart;
 
 	private string rampJump = "R";
@@ -128,12 +124,12 @@ public class GenerateInfiniteFull: MonoBehaviour {
 					string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
 					string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
 
-					bool coinFlip = Random.Range(0, 2) == 1;
+					bool coinFlip = Random.Range(0, 4) != 1;
 					bool ninthTile = (z == 9);
 					bool spawnNewFunObj = (!interactableMatrix.ContainsKey (interactName) && ninthTile && coinFlip);
 
 					if (spawnNewFunObj) {
-						bool SpikeOrFun = (Random.Range(0, 5) != 0);
+						bool SpikeOrFun = (Random.Range(0, 5) != 1);
 
 						GameObject funObject;
 						string identify;
@@ -142,7 +138,6 @@ public class GenerateInfiniteFull: MonoBehaviour {
 							// call function that takes data from Master and decides which item should be generated
 							decideFunObj (out funObject, out identify);
 						} else {
-							interactName = "Spike_" + ((int)(tilePos.z)).ToString();
 							funObject = groundSpike;
 							identify = level0 + level0;
 						}
@@ -219,45 +214,52 @@ public class GenerateInfiniteFull: MonoBehaviour {
 		int topLevelRNG = Random.Range(0, 100);
 		int bottomLevelRNG = Random.Range(0, 33);
 		
-		bool Ramp = (topLevelRNG >= 0 && topLevelRNG < RampPrefMax);
-		bool Speed = (topLevelRNG >= RampPrefMax && topLevelRNG < SpeedPrefMax);
-		bool Spike = (topLevelRNG >= SpeedPrefMax && topLevelRNG < SpikePrefMax);
-		//bool Wall = (topLevelRNG >= SpeedPrefMax && topLevelRNG <= WallPrefMax);
+		bool R = (topLevelRNG >= 0 && topLevelRNG < MasterController.Ramp.Preference);
+		bool S = (topLevelRNG >= MasterController.Ramp.Preference && topLevelRNG < MasterController.Speed.Preference);
+		bool K = (topLevelRNG >= MasterController.Speed.Preference && topLevelRNG < MasterController.Spike.Preference);
+
+		bool RL0 = (bottomLevelRNG < MasterController.Ramp.L0.preference);
+		bool RL1 = (!RL0 && bottomLevelRNG < MasterController.Ramp.L1.preference);
+
+		bool SL0 = (bottomLevelRNG < MasterController.Speed.L0.preference);
+		bool SL1 = (!SL0 && bottomLevelRNG < MasterController.Speed.L1.preference);
 		
+		bool KL0 = (bottomLevelRNG < MasterController.Spike.L0.preference);
+		bool KL1 = (!KL0 && bottomLevelRNG < MasterController.Spike.L1.preference);
+		
+		bool WL0 = (bottomLevelRNG < MasterController.Wall.L0.preference);
+		bool WL1 = (!WL0 && bottomLevelRNG < MasterController.Wall.L1.preference);
 
-		bool L0 = (bottomLevelRNG < 11);
-		bool L1 = (bottomLevelRNG >= 11 && bottomLevelRNG < 22);
-
-		if (Ramp) {
+		if (R) {
 			funID = rampJump;
-			if (L0) {
+			if (RL0) {
 				funInteract = Interact_RampL0;
 				funID += level0;
-			} else if (L1) {
+			} else if (RL1) {
 				funInteract = Interact_RampL1;
 				funID += level1;
 			} else {
 				funInteract = Interact_RampL2;
 				funID += level2;
 			}
-		} else if (Speed) {
+		} else if (S) {
 			funID = speedPortal;
-			if (L0) {
+			if (SL0) {
 				funInteract = Interact_SpeedL0;
 				funID += level0;
-			} else if (L1) {
+			} else if (SL1) {
 				funInteract = Interact_SpeedL1;
 				funID += level1;
 			} else {
 				funInteract = Interact_SpeedL2;
 				funID += level2;
 			}
-		} else if (Spike) {
+		} else if (K) {
 			funID = spikeStrip;
-			if (L0) {
+			if (KL0) {
 				funInteract = Interact_SpikesL0;
 				funID += level0;
-			} else if (L1) {
+			} else if (KL1) {
 				funInteract = Interact_SpikesL1;
 				funID += level1;
 			} else {
@@ -266,10 +268,10 @@ public class GenerateInfiniteFull: MonoBehaviour {
 			}
 		} else {
 			funID = wallDestroy;
-			if (L0) {
+			if (WL0) {
 				funInteract = Interact_WallL0;
 				funID += level0;
-			} else if (L1) {
+			} else if (WL1) {
 				funInteract = Interact_WallL1;
 				funID += level1;
 			} else {

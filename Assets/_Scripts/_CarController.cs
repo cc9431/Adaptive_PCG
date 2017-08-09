@@ -71,8 +71,8 @@ public class _CarController : MonoBehaviour {
 
 
 		} else {
-			// TODO: set all possible booleans to false?
 			if (lastFrameAlive) {
+				MasterController.deaths++;
 				foreach (WheelCollider wheel in WheelColliders) {
 					wheel.gameObject.SetActive(false);
 				}
