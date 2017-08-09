@@ -74,9 +74,10 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void NewGameButton(){
-		bool coinFlip = (Random.Range(0, 2) == 0);
-		if (coinFlip) SceneManager.LoadScene("Generate_Infinite");
-		else SceneManager.LoadScene("GenerateL0");
+		//bool coinFlip = (Random.Range(0, 2) == 0);
+		//if (coinFlip) SceneManager.LoadScene("RANDOM");
+		//else SceneManager.LoadScene("PLAYERMATCH");
+		SceneManager.LoadScene("Generate_Infinite");
 	}
 
 	public void SliderControl(){
@@ -84,7 +85,7 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void FreePlayButton(){
-		SceneManager.LoadScene("Generate_Infinite");	
+		SceneManager.LoadScene("FreePlay");
 	}
 
 	public void QuitGame(){

@@ -28,6 +28,7 @@ class Interact{
 }
 
 public class GenerateInfiniteFull: MonoBehaviour {
+	public bool FreePlay;
 	public GameObject groundPlane;
 	public GameObject groundSpike;
 
@@ -72,8 +73,9 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	Hashtable interactableMatrix = new Hashtable();
 
 	void Awake(){
-		//MasterController.seed = Mathf.Abs(System.Environment.TickCount);
-		MasterController.seed = 5;
+		if (FreePlay) MasterController.seed = 5;
+		else MasterController.seed = Mathf.Abs(System.Environment.TickCount);
+		
 		Random.InitState(MasterController.seed);
 	}
 
@@ -217,18 +219,39 @@ public class GenerateInfiniteFull: MonoBehaviour {
 		bool R = (topLevelRNG >= 0 && topLevelRNG < MasterController.Ramp.Preference);
 		bool S = (topLevelRNG >= MasterController.Ramp.Preference && topLevelRNG < MasterController.Speed.Preference);
 		bool K = (topLevelRNG >= MasterController.Speed.Preference && topLevelRNG < MasterController.Spike.Preference);
-
-		bool RL0 = (bottomLevelRNG < MasterController.Ramp.L0.preference);
-		bool RL1 = (!RL0 && bottomLevelRNG < MasterController.Ramp.L1.preference);
-
-		bool SL0 = (bottomLevelRNG < MasterController.Speed.L0.preference);
-		bool SL1 = (!SL0 && bottomLevelRNG < MasterController.Speed.L1.preference);
 		
-		bool KL0 = (bottomLevelRNG < MasterController.Spike.L0.preference);
-		bool KL1 = (!KL0 && bottomLevelRNG < MasterController.Spike.L1.preference);
-		
-		bool WL0 = (bottomLevelRNG < MasterController.Wall.L0.preference);
-		bool WL1 = (!WL0 && bottomLevelRNG < MasterController.Wall.L1.preference);
+		bool RL0;
+		bool SL0;
+		bool KL0;
+		bool WL0;
+		bool RL1;
+		bool SL1;
+		bool KL1;
+		bool WL1;
+
+		if (!FreePlay){
+			RL0 = (bottomLevelRNG < MasterController.Ramp.L0.preference);
+			RL1 = (!RL0 && bottomLevelRNG < MasterController.Ramp.L1.preference);
+
+			SL0 = (bottomLevelRNG < MasterController.Speed.L0.preference);
+			SL1 = (!SL0 && bottomLevelRNG < MasterController.Speed.L1.preference);
+			
+			KL0 = (bottomLevelRNG < MasterController.Spike.L0.preference);
+			KL1 = (!KL0 && bottomLevelRNG < MasterController.Spike.L1.preference);
+			
+			WL0 = (bottomLevelRNG < MasterController.Wall.L0.preference);
+			WL1 = (!WL0 && bottomLevelRNG < MasterController.Wall.L1.preference);
+		} else {
+			RL0 = true;
+			SL0 = true;
+			KL0 = true;
+			WL0 = true;
+
+			RL1 = false;
+			SL1 = false;
+			KL1 = false;
+			WL1 = false;
+		}
 
 		if (R) {
 			funID = rampJump;
