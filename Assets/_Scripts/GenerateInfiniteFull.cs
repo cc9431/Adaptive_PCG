@@ -28,7 +28,7 @@ class Interact{
 }
 
 public class GenerateInfiniteFull: MonoBehaviour {
-	public bool FreePlay;
+	public static bool intro = true;
 	public GameObject groundPlane;
 	public GameObject groundSpike;
 
@@ -65,6 +65,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	int groundPlaneSize = 10 * 5;
 	int tilesInFront = 10;
 	int tilesBehind = -3;
+	int intCount = 0;
 
 	Vector3 startPos;
 
@@ -73,8 +74,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	Hashtable interactableMatrix = new Hashtable();
 
 	void Awake(){
-		if (FreePlay) MasterController.seed = 5;
-		else MasterController.seed = Mathf.Abs(System.Environment.TickCount);
+		MasterController.seed = Mathf.Abs(System.Environment.TickCount);
 		
 		Random.InitState(MasterController.seed);
 	}
@@ -89,7 +89,6 @@ public class GenerateInfiniteFull: MonoBehaviour {
 
 	void FixedUpdate(){
 		if (Restart){
-			
 			foreach (Tile tls in tileMatrix.Values) {
 				Destroy (tls.gameTile);
 			}
@@ -126,7 +125,10 @@ public class GenerateInfiniteFull: MonoBehaviour {
 					string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
 					string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
 
-					bool coinFlip = Random.Range(0, 4) != 1;
+					bool coinFlip;
+					if (intro) coinFlip = (intCount == 1);
+					else coinFlip = (Random.Range(0, 3) != 1);
+
 					bool ninthTile = (z == 9);
 					bool spawnNewFunObj = (!interactableMatrix.ContainsKey (interactName) && ninthTile && coinFlip);
 
@@ -161,6 +163,8 @@ public class GenerateInfiniteFull: MonoBehaviour {
 					} else if (interactableMatrix.ContainsKey (interactName)) {
 						(interactableMatrix [interactName] as Interact).creationTime = updateTime;
 					}
+
+					intCount = (intCount + 1) % 5;
 					
 					if (!tileMatrix.ContainsKey (tilename)) {
 						t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);
@@ -224,24 +228,13 @@ public class GenerateInfiniteFull: MonoBehaviour {
 		bool SL0;
 		bool KL0;
 		bool WL0;
+		
 		bool RL1;
 		bool SL1;
 		bool KL1;
 		bool WL1;
 
-		if (!FreePlay){
-			RL0 = (bottomLevelRNG < MasterController.Ramp.L0.preference);
-			RL1 = (!RL0 && bottomLevelRNG < MasterController.Ramp.L1.preference);
-
-			SL0 = (bottomLevelRNG < MasterController.Speed.L0.preference);
-			SL1 = (!SL0 && bottomLevelRNG < MasterController.Speed.L1.preference);
-			
-			KL0 = (bottomLevelRNG < MasterController.Spike.L0.preference);
-			KL1 = (!KL0 && bottomLevelRNG < MasterController.Spike.L1.preference);
-			
-			WL0 = (bottomLevelRNG < MasterController.Wall.L0.preference);
-			WL1 = (!WL0 && bottomLevelRNG < MasterController.Wall.L1.preference);
-		} else {
+		if (intro){
 			RL0 = true;
 			SL0 = true;
 			KL0 = true;
@@ -251,6 +244,18 @@ public class GenerateInfiniteFull: MonoBehaviour {
 			SL1 = false;
 			KL1 = false;
 			WL1 = false;
+		} else {
+			RL0 = (bottomLevelRNG < MasterController.Ramp.L0.Preference);
+			RL1 = (!RL0 && bottomLevelRNG < MasterController.Ramp.L1.Preference);
+
+			SL0 = (bottomLevelRNG < MasterController.Speed.L0.Preference);
+			SL1 = (!SL0 && bottomLevelRNG < MasterController.Speed.L1.Preference);
+			
+			KL0 = (bottomLevelRNG < MasterController.Spike.L0.Preference);
+			KL1 = (!KL0 && bottomLevelRNG < MasterController.Spike.L1.Preference);
+			
+			WL0 = (bottomLevelRNG < MasterController.Wall.L0.Preference);
+			WL1 = (!WL0 && bottomLevelRNG < MasterController.Wall.L1.Preference);
 		}
 
 		if (R) {

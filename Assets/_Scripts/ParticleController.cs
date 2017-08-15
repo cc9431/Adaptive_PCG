@@ -8,50 +8,24 @@ using UnityEngine;
 	// the particle trails' length will decay to 0
 
 public class ParticleController : MonoBehaviour {
-	private Transform cam;
 	private Rigidbody carRB;
 	private ParticleSystem PS;
-	private ParticleSystem.TrailModule trail; 
-	ParticleSystem.MinMaxCurve rate;
-	private float maxSpeed = 800f;
-	private float origSpeed = 5f;
 
 	void Start () {
-		cam = GameObject.FindGameObjectWithTag ("MainCamera").transform;
 		carRB = GameObject.FindGameObjectWithTag ("Player").GetComponent<Rigidbody> ();
-		PS = GetComponent<ParticleSystem> ();
-
-		rate = new ParticleSystem.MinMaxCurve ();
-
-		trail = PS.trails;
-		trail.enabled = true;
+		PS = GetComponent<ParticleSystem>();
 	}
 
 	void FixedUpdate () {
 		var main = PS.main;
-		Quaternion camRotation = new Quaternion ();
-		camRotation.y = cam.rotation.y;
 
-		gameObject.transform.rotation = camRotation;
-
-		if (carRB.velocity.magnitude > 70) {
-			
-			main.startSpeed = maxSpeed;
-
-			rate.constantMax = 0.08f;
-			rate.constantMin = 0.01f;
-			trail.lifetime = rate;
-		} else if (carRB.velocity.magnitude < 60) {
-			
-			main.startSpeed = origSpeed;
-
-			rate.constantMin = 0;
-			trail.lifetime = rate;
-			if (trail.lifetime.constantMax > 0) {
-				// float lerpRate = Mathf.Lerp (rate.constantMax, 0, Time.deltaTime);
-				// rate.constantMax = lerpRate;
-				rate.constantMax -= 0.008f;
-			}
-		}
+		Vector3 rot = transform.rotation.eulerAngles;
+		rot.x = 0;
+		Quaternion qrot = Quaternion.Euler(rot);
+		transform.rotation = qrot;
+		
+		if (carRB.velocity.magnitude > 80) main.startLifetime = 0.5f;
+		else main.startLifetime = 0;
+		//else if (carRB.velocity.magnitude < 65) gameObject.SetActive(false);
 	}
 }

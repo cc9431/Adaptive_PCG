@@ -18,12 +18,14 @@ public class UIController : MonoBehaviour {
 	public GameObject DeathScreen;
 	public GameObject DeathScreenSelectedObject;
 	public GameObject PauseScreenSelectedObject;
+	private Slider slider;
 
 	void Awake(){
 		if (PauseScreen != null) PauseScreen.SetActive(false);
 		if (DeathScreen != null) DeathScreen.SetActive(false);
 
 		Cursor.visible = false;
+		Cursor.lockState = CursorLockMode.Confined;
 	}
 
 	void Start(){
@@ -37,7 +39,7 @@ public class UIController : MonoBehaviour {
 			buttonSelected = true;
 		}
 
-		if (Input.GetAxisRaw("Jump") != 0){
+		if (Input.GetAxisRaw("Jump") != 0 || Input.GetKeyDown(KeyCode.Space)){
 			GameObject button = eventSystem.currentSelectedGameObject;
 			PointerEventData pointer = new PointerEventData(EventSystem.current);
 			ExecuteEvents.Execute(button, pointer, ExecuteEvents.pointerClickHandler);
@@ -50,6 +52,7 @@ public class UIController : MonoBehaviour {
 			if (Pause && !lastFramePause) {
 				Paused = !Paused;
 				if (PauseScreen != null) PauseScreen.SetActive(Paused);
+				Cursor.visible = Paused;
 			}
 
 			if (Paused) Time.timeScale = 0;
@@ -59,10 +62,13 @@ public class UIController : MonoBehaviour {
 			lastFramePause = Pause;
 		} else {
 			if (lastFrameAlive && DeathScreen != null) {
-				DeathScreen.SetActive(true);
-				selectedObject = DeathScreenSelectedObject;
-				Time.timeScale = 0.3f;
-				buttonSelected = false;
+				if (Time.timeSinceLevelLoad < 300f) Restart();
+				else {
+					DeathScreen.SetActive(true);
+					selectedObject = DeathScreenSelectedObject;
+					Time.timeScale = 0.3f;
+					buttonSelected = false;
+				}
 			}
 		}
 
@@ -74,14 +80,14 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void NewGameButton(){
-		//bool coinFlip = (Random.Range(0, 2) == 0);
-		//if (coinFlip) SceneManager.LoadScene("RANDOM");
-		//else SceneManager.LoadScene("PLAYERMATCH");
 		SceneManager.LoadScene("Generate_Infinite");
 	}
 
-	public void SliderControl(){
+	public void OnValueChange(){
+		slider = eventSystem.currentSelectedGameObject.GetComponent<Slider>();
+		_CarController.Keyboard = (slider.value == 1);
 
+		print(_CarController.Keyboard.ToString());
 	}
 
 	public void FreePlayButton(){
@@ -98,8 +104,6 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void Restart(){
-		Time.timeScale = 0f;
-
 		GenerateInfiniteFull.Restart = true;
 		
 		car.position = new Vector3(0, 11, 0);

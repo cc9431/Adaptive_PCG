@@ -19,8 +19,8 @@ public class OrbController : MonoBehaviour {
 	void OnTriggerEnter(Collider other){
 		if (other.CompareTag ("PlayerTrigger")) {
 			MasterController.orbs++;
-			if(Master.objectTouched) Master.PointsAdded(points);
-			Master.TotalPoints(points);
+			if(MasterController.objectTouched) Master.PointsAdded(points);
+			Master.DisplayPoints(points);
 			Destroy(gameObject);
 		}
 	}

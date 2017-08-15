@@ -24,11 +24,12 @@ public class _CarController : MonoBehaviour {
 	public static bool bodyTouching;
 	public static bool onBack;
 	public static bool Alive;
+	public static bool Keyboard;
 
 	private bool lastFrameJump;
 	private bool lastFrameAlive;
 	private float waitForReset;
-	private float Boost;
+	public float Boost;
 	private float HighSteerAngle = 6f;
 	private float HorsePower = 2500f;
 	void Awake(){
@@ -69,12 +70,11 @@ public class _CarController : MonoBehaviour {
 			if (onBack) MasterController.framesOnBack++;
 			if (Drift) MasterController.framesDrifting++;
 
-
 		} else {
 			if (lastFrameAlive) {
 				MasterController.deaths++;
 				foreach (WheelCollider wheel in WheelColliders) {
-					wheel.gameObject.SetActive(false);
+						wheel.gameObject.SetActive(false);
 				}
 			}
 		}
@@ -109,24 +109,20 @@ public class _CarController : MonoBehaviour {
 		bool Spin = (Input.GetAxis ("Spin") != 0);
 		Drift = (Input.GetAxis ("Brake") != 0);
 
-		/*
-		if (InputMethod = Keyboard){
-			if (Input.GetKey (KeyCode.A))
-				Turn = -1;
-			else if (Input.GetKey (KeyCode.D))
-				Turn = 1;
-			else
-				Turn = 0;
+		if (Keyboard){
+			if (Input.GetKey (KeyCode.A))		Turn = -1;
+			else if (Input.GetKey (KeyCode.D))	Turn = 1;
+			else								Turn = 0;
 			
-			if (Input.GetKey (KeyCode.W))
-				Accel = 1;
-			else
-				Accel = 0;
+			if (Input.GetKey (KeyCode.W))		Accel = 1;
+			else								Accel = 0;
 
-			if (Input.GetKey (KeyCode.LeftShift)) Jump = 1;
-			else Jump = 0;
-		}*/
-		
+			if (Input.GetKey(KeyCode.S)) 		Reverse = -1;
+			else 								Reverse = 0;
+			if (Input.GetKey (KeyCode.Space)) 	Jump = 1;
+			else 								Jump = 0;
+		}
+
 		if (speedGate > 0) {
 			Boost = 1.5f;
 			speedGate -= 0.1f;
@@ -176,7 +172,7 @@ public class _CarController : MonoBehaviour {
 				if (Reverse < 0) drive = HorsePower * (Reverse);
 			} 
 			if (Jump != 0 && !lastFrameJump) {
-				PlayerRB.AddForce (11000f * gameObject.transform.up * Jump, ForceMode.Impulse);
+				PlayerRB.AddForce (13000f * gameObject.transform.up * Jump, ForceMode.Impulse);
 				MasterController.jumps++;
 			}
 		}

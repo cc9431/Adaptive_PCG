@@ -19,14 +19,17 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void LateUpdate() {
+		float target = cam.fieldOfView;;
 		transform.position = player.transform.position + (CalculatePos() * offset); // Reset the position based on the player movement and Mouse X input
 		transform.LookAt (player.position + centerScreen); // Turn the camera towards the player, but don't look directly down at player
 
-		if (PlayerRB.velocity.magnitude > 65) {
-			float fov = Mathf.Lerp (cam.fieldOfView, 80, Time.deltaTime);
-			cam.fieldOfView = fov;
-		} else if (PlayerRB.velocity.magnitude < 50) {
-			float fov = Mathf.Lerp (cam.fieldOfView, 60, Time.deltaTime);
+		if (PlayerRB.velocity.magnitude > 65 && PlayerRB.velocity.magnitude < 80) target = 90;
+		else if (PlayerRB.velocity.magnitude > 80) target = 105;
+		else if (PlayerRB.velocity.magnitude < 50) target = 60;
+		if (_CarController.boosting) target += 25;
+
+		if (target != cam.fieldOfView){
+			float fov = Mathf.Lerp (cam.fieldOfView, target, Time.deltaTime * 2f);
 			cam.fieldOfView = fov;
 		}
 	}
