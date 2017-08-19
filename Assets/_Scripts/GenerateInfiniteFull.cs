@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // Class for each block of road to be generated
 class Tile{
@@ -72,6 +73,19 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	// Hashtable of every tile and its creation time
 	Hashtable tileMatrix = new Hashtable();
 	Hashtable interactableMatrix = new Hashtable();
+
+	void OnEnable() {
+		SceneManager.sceneLoaded += OnSceneLoaded;
+	}
+
+	void OnDisable() {
+		SceneManager.sceneLoaded -= OnSceneLoaded;
+	}
+
+	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+		intro = true;
+		Restart = false;
+	}
 
 	void Awake(){
 		MasterController.seed = Mathf.Abs(System.Environment.TickCount);
@@ -164,7 +178,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 						(interactableMatrix [interactName] as Interact).creationTime = updateTime;
 					}
 
-					intCount = (intCount + 1) % 5;
+					intCount = (intCount + 1) % 3;
 					
 					if (!tileMatrix.ContainsKey (tilename)) {
 						t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);

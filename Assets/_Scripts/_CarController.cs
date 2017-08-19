@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 	// This script is to allow the player to control the car (while they are still alive)
 	// The player can accelerate, reverse, drift/handbrake, boost, jump, and rotate in the air on three axes.
@@ -31,7 +32,7 @@ public class _CarController : MonoBehaviour {
 	private float waitForReset;
 	public float Boost;
 	private float HighSteerAngle = 6f;
-	private float HorsePower = 2500f;
+	public float HorsePower = 1700f;
 	void Awake(){
 		Alive = true;
 	}
@@ -72,6 +73,8 @@ public class _CarController : MonoBehaviour {
 
 		} else {
 			if (lastFrameAlive) {
+				speedGate = 0;
+
 				MasterController.deaths++;
 				foreach (WheelCollider wheel in WheelColliders) {
 						wheel.gameObject.SetActive(false);

@@ -20,6 +20,19 @@ public class UIController : MonoBehaviour {
 	public GameObject PauseScreenSelectedObject;
 	private Slider slider;
 
+	void OnEnable() {
+		//SceneManager.sceneLoaded += OnSceneLoaded;
+	}
+
+	void OnDisable() {
+		buttonSelected = false;
+		//SceneManager.sceneLoaded -= OnSceneLoaded;
+	}
+
+	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+		
+	}
+
 	void Awake(){
 		if (PauseScreen != null) PauseScreen.SetActive(false);
 		if (DeathScreen != null) DeathScreen.SetActive(false);
@@ -75,10 +88,6 @@ public class UIController : MonoBehaviour {
 		lastFrameAlive = _CarController.Alive;
 	}
 
-	void OnDisable(){
-		buttonSelected = false;
-	}
-
 	public void NewGameButton(){
 		SceneManager.LoadScene("Generate_Infinite");
 	}
@@ -104,10 +113,13 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void Restart(){
+		Rigidbody carRB = car.gameObject.GetComponent<Rigidbody> ();
+
 		GenerateInfiniteFull.Restart = true;
 		
 		car.position = new Vector3(0, 11, 0);
 		car.rotation = Quaternion.identity;
+		carRB.velocity = Vector3.zero;
 		_CarController.Alive = true;
 
 		DeathScreen.SetActive(false);

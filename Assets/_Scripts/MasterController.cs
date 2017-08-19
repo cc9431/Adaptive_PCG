@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Level {
 	public int Points;
@@ -74,9 +75,9 @@ public class StatTracker {
 	public int getPoints(){
 		int sum = 0;
 
-		for(int i = 0; i < Levels.Count; i++){
-			sum += Levels[i].Points;
-		}
+		sum = Levels[0].Points;
+		sum += Levels[1].Points;
+		sum += Levels[2].Points;
 
 		Points = sum;
 		return Points;
@@ -121,6 +122,7 @@ public class MasterController : MonoBehaviour {
 	public static int jumps;				// How many times a player jumps
 	public static int deaths;
 
+	private _CarController carController;
 	private GameObject player;
 	private Rigidbody carRB;
 	private bool lastFrameCancel = false;
@@ -148,6 +150,46 @@ public class MasterController : MonoBehaviour {
 	
 	public Text PointDisplay;
 
+	void OnEnable() {	
+		SceneManager.sceneLoaded += OnSceneLoaded;
+	}
+
+	void OnDisable() {
+		SceneManager.sceneLoaded -= OnSceneLoaded;
+	}
+
+	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+		orbs = 0;
+		framesInAir = 0;
+		framesAtMax = 0;
+		framesBoosting = 0;
+		framesOnBack = 0;
+		framesDrifting = 0;
+		timesReset = 0;
+		inObject = false;
+		objectTouched = false;
+		jumps = 0;
+		deaths = 0;
+
+		Ramp = new StatTracker("R", 25);
+		Speed = new StatTracker("S", 50);
+		Spike = new StatTracker("K", 75);
+		Wall = new StatTracker("W", 100);
+
+		Trackers = new List<StatTracker>();
+
+		Trackers.Add(Ramp);
+		Trackers.Add(Speed);
+		Trackers.Add(Spike);
+		Trackers.Add(Wall);
+
+		for (int i = 0; i < Trackers.Count; i++){
+			Trackers[i].Levels.Add(Trackers[i].L0);
+			Trackers[i].Levels.Add(Trackers[i].L1);
+			Trackers[i].Levels.Add(Trackers[i].L2);
+		}
+	}
+
 	void Start() {
 		StatTracking = false;
 		objectTouched = false;
@@ -159,6 +201,7 @@ public class MasterController : MonoBehaviour {
 
 		player = GameObject.FindGameObjectWithTag("Player");
 		carRB = player.GetComponent<Rigidbody> ();
+		carController = player.GetComponent<_CarController>();
 
 		Trackers.Add(Ramp);
 		Trackers.Add(Speed);
@@ -245,7 +288,7 @@ public class MasterController : MonoBehaviour {
 		Weights[2] = 0.4f;
 		Weights[3] = 0.8f;
 
-		//print(seed);
+		print(seed);
 
 		AddPointsController.Initialize();
 	}
@@ -367,16 +410,17 @@ public class MasterController : MonoBehaviour {
 		if (!(_CarController.inAir || inObject)) {
 			int preObjectPoints = currentTracker.getPoints();
 			currentLevel.Points += PostObjectPoints;
+			//print(currentTracker.ID + " " + currentTracker.getPoints());
 
 			currentLevel.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, air));
 			currentLevel.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, back));
 			currentLevel.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, speed));
 			currentLevel.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, PostObjectPoints));
 
-			currentTracker.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, air));
+			/*currentTracker.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, air));
 			currentTracker.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, back));
 			currentTracker.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, speed));
-			currentTracker.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, PostObjectPoints));
+			currentTracker.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, PostObjectPoints));*/
 
 			bool state1 = (preObjectPoints <= 200 && currentTracker.getPoints() >= 200);
 			bool state2 = (preObjectPoints <= 300 && currentTracker.getPoints() >= 300);
@@ -385,6 +429,7 @@ public class MasterController : MonoBehaviour {
 				print("State1: " + currentTracker.ID);
 				currentTracker.L0.Preference = 16;
 				GenerateInfiniteFull.intro = false;
+				carController.HorsePower = 2500f;
 			}
 			if (state2) {
 				print("State2: " + currentTracker.ID);
@@ -412,19 +457,16 @@ public class MasterController : MonoBehaviour {
 
 	private void AIMonitorPlayer(){
 		// TODO: All avgs should be summed then compared to the total, then preferences are changed based on that.
-		string s;
-
+		//string s;
 		currentLevel.AverageStats();
-		for (int i = 0; i < currentTracker.Levels.Count; i++){
+		/*for (int i = 0; i < currentTracker.Levels.Count; i++){
 			if (currentTracker.Levels[i].numTotal > 0) {
 				for (int j = 0; j < currentLevel.avgStats.Length; j++){
 					s = string.Format("{0}{1} {2}:{3}", currentTracker.ID, i, statList[j], currentTracker.Levels[i].avgStats[j]);
 					print(s);
 				}
 			}
-		}
-
-
+		}*/
 	}
 
 	public static void LogDeath(){
