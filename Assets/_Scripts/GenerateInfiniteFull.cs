@@ -54,14 +54,14 @@ public class GenerateInfiniteFull: MonoBehaviour {
 
 	public static bool Restart;
 
-	private string rampJump = "R";
-	private string speedPortal = "S";
-	private string spikeStrip = "K";
-	private string wallDestroy = "W";
+	private int rampJump = 0;
+	private int speedPortal = 1;
+	private int spikeStrip = 2;
+	private int wallDestroy = 3;
 
-	private string level0 = "0";
-	private string level1 = "1";
-	private string level2 = "2";
+	private int level0 = 0;
+	private int level1 = 1;
+	private int level2 = 2;
 
 	int groundPlaneSize = 10 * 5;
 	int tilesInFront = 10;
@@ -150,14 +150,16 @@ public class GenerateInfiniteFull: MonoBehaviour {
 						bool SpikeOrFun = (Random.Range(0, 5) != 1);
 
 						GameObject funObject;
-						string identify;
+						int identifyTrack;
+						int identifyLev;
 						// To reduce computational draw, setting the position is done only if the coin flip works
 						if (SpikeOrFun){
 							// call function that takes data from Master and decides which item should be generated
-							decideFunObj (out funObject, out identify);
+							decideFunObj (out funObject, out identifyTrack, out identifyLev);
 						} else {
 							funObject = groundSpike;
-							identify = level0 + level0;
+							identifyTrack = level0;
+							identifyLev = level0;
 						}
 
 						Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
@@ -168,7 +170,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 
 						// Set the id of our object based on what type and level it is [for communication with the master]
 						InteractController control = interact.GetComponent<InteractController>();
-						control.setID (identify);
+						control.setID (identifyTrack, identifyLev);
 						control.setMaster (Master);
 
 						// Create an Interact class object and add it to our 
@@ -230,7 +232,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 		}
 	}
 
-	private void decideFunObj(out GameObject funInteract, out string funID){
+	private void decideFunObj(out GameObject funInteract, out int funIDTrack, out int funID){
 		int topLevelRNG = Random.Range(0, 100);
 		int bottomLevelRNG = Random.Range(0, 33);
 		
@@ -273,52 +275,52 @@ public class GenerateInfiniteFull: MonoBehaviour {
 		}
 
 		if (R) {
-			funID = rampJump;
+			funIDTrack = rampJump;
 			if (RL0) {
 				funInteract = Interact_RampL0;
-				funID += level0;
+				funID = level0;
 			} else if (RL1) {
 				funInteract = Interact_RampL1;
-				funID += level1;
+				funID = level1;
 			} else {
 				funInteract = Interact_RampL2;
-				funID += level2;
+				funID = level2;
 			}
 		} else if (S) {
-			funID = speedPortal;
+			funIDTrack = speedPortal;
 			if (SL0) {
 				funInteract = Interact_SpeedL0;
-				funID += level0;
+				funID = level0;
 			} else if (SL1) {
 				funInteract = Interact_SpeedL1;
-				funID += level1;
+				funID = level1;
 			} else {
 				funInteract = Interact_SpeedL2;
-				funID += level2;
+				funID = level2;
 			}
 		} else if (K) {
-			funID = spikeStrip;
+			funIDTrack = spikeStrip;
 			if (KL0) {
 				funInteract = Interact_SpikesL0;
-				funID += level0;
+				funID = level0;
 			} else if (KL1) {
 				funInteract = Interact_SpikesL1;
-				funID += level1;
+				funID = level1;
 			} else {
 				funInteract = Interact_SpikesL2;
-				funID += level2;
+				funID = level2;
 			}
 		} else {
-			funID = wallDestroy;
+			funIDTrack = wallDestroy;
 			if (WL0) {
 				funInteract = Interact_WallL0;
-				funID += level0;
+				funID = level0;
 			} else if (WL1) {
 				funInteract = Interact_WallL1;
-				funID += level1;
+				funID = level1;
 			} else {
 				funInteract = Interact_WallL2;
-				funID += level2;
+				funID = level2;
 			}
 		}
 	}

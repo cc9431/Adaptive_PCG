@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class InteractController : MonoBehaviour {
 	private MasterController Master;
-	private string id;
+	private int idTrack;
+	private int idLev;
 	private bool playerTouched;
 
 	void Start(){
@@ -15,7 +16,7 @@ public class InteractController : MonoBehaviour {
 		if (other.CompareTag ("PlayerTrigger") && !playerTouched) {
 			MasterController.inObject = true;
 			playerTouched = true;
-			Master.PlayerInteracted (id);
+			Master.PlayerInteracted (idTrack, idLev);
 		}
 	}
 
@@ -23,8 +24,9 @@ public class InteractController : MonoBehaviour {
 		if (other.CompareTag ("PlayerTrigger")) MasterController.inObject = false;
 	}
 
-	public void setID(string setid){
-		id = setid;
+	public void setID(int setidTrack, int setidLev){
+		idTrack = setidTrack;
+		idLev = setidLev;
 	}
 
 	public void setMaster(MasterController m){

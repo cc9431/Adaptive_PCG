@@ -10,10 +10,10 @@ public class Level {
 	public List<KeyValuePair<float, int>> Stats = new List<KeyValuePair<float, int>>();
 	public float[] avgStats = new float[4];
 	public int numTotal;
-	public string ID;
+	public int ID;
 	public int Preference;
 
-	public Level(string id, int pref){
+	public Level(int id, int pref){
 		ID = id;
 		Preference = pref;
 	}
@@ -39,16 +39,16 @@ public class StatTracker {
 	public List<KeyValuePair<float, int>> Stats = new List<KeyValuePair<float, int>>();
 	public float[] avgStats = new float[4];
 	public int numTotal;
-	public string ID;
+	public int ID;
 	public int Preference;
 
 	public List<Level> Levels = new List<Level>();
-	public Level L0 = new Level("0", 33);
-	public Level L1 = new Level("1", 33);
-	public Level L2 = new Level("2", 33);
+	public Level L0 = new Level(0, 33);
+	public Level L1 = new Level(1, 33);
+	public Level L2 = new Level(2, 33);
 
 
-	public StatTracker(string id, int pref){
+	public StatTracker(int id, int pref){
 		ID = id;
 		Preference = pref;
 	}
@@ -100,10 +100,10 @@ public class MasterController : MonoBehaviour {
 	public static int orbs;
 
 	public static List<StatTracker> Trackers = new List<StatTracker>();
-	public static StatTracker Ramp = new StatTracker("R", 25);
-	public static StatTracker Speed = new StatTracker("S", 50);
-	public static StatTracker Spike = new StatTracker("K", 75);
-	public static StatTracker Wall = new StatTracker("W", 100);
+	public static StatTracker Ramp = new StatTracker(0, 25);
+	public static StatTracker Speed = new StatTracker(1, 50);
+	public static StatTracker Spike = new StatTracker(2, 75);
+	public static StatTracker Wall = new StatTracker(3, 100);
 
 	public static int framesInAir;		// Used to evaluate the engagement of the player
 	public static int framesAtMax;
@@ -117,8 +117,14 @@ public class MasterController : MonoBehaviour {
 	private int totalSpins;
 
 	private float[,,] ExpectedValues = new float[4,3,4];
+	private float[,] statSum = new float[4,3];
 	private float[] Weights = new float[4];
-
+	private float[] TrackerSums = new float[4];
+	private float[] LevelSums = new float[3];
+	private float TotalSum;
+	
+	private int qty;
+	private float AvgSpeed;
 	public static int jumps;				// How many times a player jumps
 	public static int deaths;
 
@@ -140,17 +146,13 @@ public class MasterController : MonoBehaviour {
 
 	private StatTracker currentTracker;
 	private Level currentLevel;
-	
-	private float AvgSpeed;
-	private int qty;
+
 	public static bool inObject;
 	public static int seed;
-
 	public static string[] statList = new string[4];
-	
 	public Text PointDisplay;
 
-	void OnEnable() {	
+	void OnEnable() {
 		SceneManager.sceneLoaded += OnSceneLoaded;
 	}
 
@@ -199,6 +201,11 @@ public class MasterController : MonoBehaviour {
 		statList[2] = "Speed";
 		statList[3] = "Points";
 
+		Weights[0] = 0.4f;
+		Weights[1] = 0.6f;
+		Weights[2] = 0.4f;
+		Weights[3] = 0.8f;
+
 		player = GameObject.FindGameObjectWithTag("Player");
 		carRB = player.GetComponent<Rigidbody> ();
 		carController = player.GetComponent<_CarController>();
@@ -212,6 +219,23 @@ public class MasterController : MonoBehaviour {
 			Trackers[i].Levels.Add(Trackers[i].L0);
 			Trackers[i].Levels.Add(Trackers[i].L1);
 			Trackers[i].Levels.Add(Trackers[i].L2);
+
+			for (int j = 0; j < 3; j++){
+				statSum[i,j]  = Weights[0];
+				statSum[i,j] += Weights[1];
+				statSum[i,j] += Weights[2];
+				statSum[i,j] += Weights[3];
+			}
+		}
+
+		for (int j = 0; j < 4; j++){
+			for (int k = 0; k < 3; k++){
+				float sum = statSum[j,k];
+
+				TotalSum 		+= sum;
+				TrackerSums[j] 	+= sum;
+				LevelSums[k] 	+= sum;
+			}
 		}
 
 		// Ramp expected values
@@ -250,43 +274,38 @@ public class MasterController : MonoBehaviour {
 		ExpectedValues[1,2,3] = 100f; // Points
 		
 		//::: Spike expected values
-		//SpeedL0
+		//SpikedL0
 		ExpectedValues[2,0,0] = 200f; // Air
 		ExpectedValues[2,0,1] = -5f;  // Back
 		ExpectedValues[2,0,2] = 40f;  // Speed
 		ExpectedValues[2,0,3] = 100f; // Points
-		//SpeedL1
+		//SpikeL1
 		ExpectedValues[2,1,0] = 200f; // Air
 		ExpectedValues[2,1,1] = -5f;  // Back
 		ExpectedValues[2,1,2] = 40f;  // Speed
 		ExpectedValues[2,1,3] = 100f; // Points
-		//SpeedL2
+		//SpikeL2
 		ExpectedValues[2,2,0] = 200f; // Air
 		ExpectedValues[2,2,1] = -5f;  // Back
 		ExpectedValues[2,2,2] = 40f;  // Speed
 		ExpectedValues[2,2,3] = 100f; // Points
 		
 		//::: Wall expected values
-		//SpeedL0
-		ExpectedValues[2,0,0] = 200f; // Air
-		ExpectedValues[2,0,1] = -5f;  // Back
-		ExpectedValues[2,0,2] = 40f;  // Speed
-		ExpectedValues[2,0,3] = 100f; // Points
-		//SpeedL1
-		ExpectedValues[2,1,0] = 200f; // Air
-		ExpectedValues[2,1,1] = -5f;  // Back
-		ExpectedValues[2,1,2] = 40f;  // Speed
-		ExpectedValues[2,1,3] = 100f; // Points
-		//SpeedL2
-		ExpectedValues[2,2,0] = 200f; // Air
-		ExpectedValues[2,2,1] = -5f;  // Back
-		ExpectedValues[2,2,2] = 40f;  // Speed
-		ExpectedValues[2,2,3] = 100f; // Points
-
-		Weights[0] = 0.4f;
-		Weights[1] = 0.6f;
-		Weights[2] = 0.4f;
-		Weights[3] = 0.8f;
+		//WallL0
+		ExpectedValues[3,0,0] = 200f; // Air
+		ExpectedValues[3,0,1] = -5f;  // Back
+		ExpectedValues[3,0,2] = 40f;  // Speed
+		ExpectedValues[3,0,3] = 100f; // Points
+		//WallL1
+		ExpectedValues[3,1,0] = 200f; // Air
+		ExpectedValues[3,1,1] = -5f;  // Back
+		ExpectedValues[3,1,2] = 40f;  // Speed
+		ExpectedValues[3,1,3] = 100f; // Points
+		//WallL2
+		ExpectedValues[3,2,0] = 200f; // Air
+		ExpectedValues[3,2,1] = -5f;  // Back
+		ExpectedValues[3,2,2] = 40f;  // Speed
+		ExpectedValues[3,2,3] = 100f; // Points
 
 		print(seed);
 
@@ -322,6 +341,10 @@ public class MasterController : MonoBehaviour {
 
 			if (PointDisplay != null) PointDisplay.text = totalPoints.ToString();
 
+		} else {
+			currentLevel = null;
+			currentTracker = null;
+			objectTouched = false;
 		}
 	}
 
@@ -346,12 +369,10 @@ public class MasterController : MonoBehaviour {
 		print ("Total Points: " + totalPoints.ToString ());
 	}
 
-	public void PlayerInteracted(string id){
+	public void PlayerInteracted(int idTrack, int idLev){
 		// Here we evaluate the ID sent from the interactable and increment to the appropriate tracker
-		StatTracker tracker;
-		Level level;
-
-		GetTracker(id, out tracker, out level);
+		StatTracker tracker = Trackers[idTrack];
+		Level level = tracker.Levels[idLev];
 
 		level.numTotal++;
 
@@ -361,6 +382,14 @@ public class MasterController : MonoBehaviour {
 			currentTracker = tracker;
 			currentLevel = level;
 			objectTouched = true;
+
+			Xspin = 0;
+			Yspin = 0;
+			Zspin = 0;
+
+			PostObjectSpeed = 0;
+			PostObjectAir = 0;
+			PostObjectBack = 0;
 			PostObjectPoints = 0;
 		}
 	}
@@ -426,13 +455,13 @@ public class MasterController : MonoBehaviour {
 			bool state2 = (preObjectPoints <= 300 && currentTracker.getPoints() >= 300);
 
 			if (state1) {
-				print("State1: " + currentTracker.ID);
+				//print("State1: " + currentTracker.ID);
 				currentTracker.L0.Preference = 16;
 				GenerateInfiniteFull.intro = false;
 				carController.HorsePower = 2500f;
 			}
 			if (state2) {
-				print("State2: " + currentTracker.ID);
+				//print("State2: " + currentTracker.ID);
 				currentTracker.L0.Preference = 11;
 				currentTracker.L1.Preference = 22;
 			}
@@ -456,13 +485,47 @@ public class MasterController : MonoBehaviour {
 	}
 
 	private void AIMonitorPlayer(){
-		// TODO: All avgs should be summed then compared to the total, then preferences are changed based on that.
-		//string s;
+		float value;
+
+		//::::Check all of this math as many times as you can until you are positive beyond doubt that it is correct
+		
 		currentLevel.AverageStats();
+
+		for (int i = 0; i < statSum.Length; i++){
+			value += ((currentLevel.avgStats[i]/ExpectedValues[currentTracker.ID, currentLevel.ID, i]) * Weights[i]);
+		}
+
+		int diffValue = value - statSum[currentTracker.ID, currentLevel.ID];
+
+		TotalSum += diffValue;
+		TrackerSums[currentTracker.ID] += diffValue;
+		LevelSums[currentLevel.ID] += diffValue;
+
+		statSum[currentTracker.ID, currentLevel.ID] = value;
+
+		// In case what I wrote above doesnt make sense, use this each time instead
+		/*for (int j = 0; j < 4; j++){
+			for (int k = 0; k < 3; k++){
+				float sum = statSum[j,k];
+
+				TotalSum 		+= sum;
+				TrackerSums[j] 	+= sum;
+				LevelSums[k] 	+= sum;
+			}
+		}*/
+		
+		for (int j = 0; j < Trackers.Count; j++){
+			Tracker[j].Preference = (TrackerSums[j]/TotalSum);
+			for (int k = 0; k < Trackers[j].Levels.Count; k++){
+				Tracker[j].Levels[k].Preference = (statSum[j,k]/LevelSums[k]);
+			}
+		}
+
+		// For printing information
 		/*for (int i = 0; i < currentTracker.Levels.Count; i++){
 			if (currentTracker.Levels[i].numTotal > 0) {
 				for (int j = 0; j < currentLevel.avgStats.Length; j++){
-					s = string.Format("{0}{1} {2}:{3}", currentTracker.ID, i, statList[j], currentTracker.Levels[i].avgStats[j]);
+					string s = string.Format("{0}{1} {2}:{3}", currentTracker.ID, i, statList[j], currentTracker.Levels[i].avgStats[j]);
 					print(s);
 				}
 			}
@@ -502,18 +565,5 @@ public class MasterController : MonoBehaviour {
 			sw.WriteLine();
 		}
         sw.Close();
-	}
-
-	private void GetTracker(string id, out StatTracker tracker, out Level level){
-		tracker = null;
-		level = null;
-
-		for (int i = 0; i < 3; i++){
-			if (id.StartsWith(Trackers[i].ID)) tracker = Trackers[i];
-		} if (tracker == null) tracker = Wall;
-		
-		for (int j = 0; j < 2; j++){
-			if (id.EndsWith(tracker.Levels[j].ID)) level = tracker.Levels[j];
-		} if (level == null) level = tracker.L2;
 	}
 }

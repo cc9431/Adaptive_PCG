@@ -96,7 +96,7 @@ public class UIController : MonoBehaviour {
 		slider = eventSystem.currentSelectedGameObject.GetComponent<Slider>();
 		_CarController.Keyboard = (slider.value == 1);
 
-		print(_CarController.Keyboard.ToString());
+		//print(_CarController.Keyboard.ToString());
 	}
 
 	public void FreePlayButton(){

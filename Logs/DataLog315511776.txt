@@ -1,6 +1,0 @@
-Stats
-air, back, speed, points
-
-
-
-
