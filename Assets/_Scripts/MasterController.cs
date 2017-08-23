@@ -161,6 +161,7 @@ public class MasterController : MonoBehaviour {
 	}
 
 	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+		//::::DELETE EVERYTHING IN START THAT YOU DO HERE
 		orbs = 0;
 		framesInAir = 0;
 		framesAtMax = 0;
@@ -173,10 +174,10 @@ public class MasterController : MonoBehaviour {
 		jumps = 0;
 		deaths = 0;
 
-		Ramp = new StatTracker("R", 25);
-		Speed = new StatTracker("S", 50);
-		Spike = new StatTracker("K", 75);
-		Wall = new StatTracker("W", 100);
+		Ramp = new StatTracker(0, 25);
+		Speed = new StatTracker(1, 50);
+		Spike = new StatTracker(2, 75);
+		Wall = new StatTracker(3, 100);
 
 		Trackers = new List<StatTracker>();
 
@@ -210,21 +211,22 @@ public class MasterController : MonoBehaviour {
 		carRB = player.GetComponent<Rigidbody> ();
 		carController = player.GetComponent<_CarController>();
 
-		Trackers.Add(Ramp);
-		Trackers.Add(Speed);
-		Trackers.Add(Spike);
-		Trackers.Add(Wall);
+		//Trackers.Add(Ramp);
+		//Trackers.Add(Speed);
+		//Trackers.Add(Spike);
+		//Trackers.Add(Wall);
 
-		for (int i = 0; i < Trackers.Count; i++){
-			Trackers[i].Levels.Add(Trackers[i].L0);
-			Trackers[i].Levels.Add(Trackers[i].L1);
-			Trackers[i].Levels.Add(Trackers[i].L2);
+		for (int i = 0; i < 4; i++){
+			//Trackers[i].Levels.Add(Trackers[i].L0);
+			//Trackers[i].Levels.Add(Trackers[i].L1);
+			//Trackers[i].Levels.Add(Trackers[i].L2);
 
-			for (int j = 0; j < 3; j++){
-				statSum[i,j]  = Weights[0];
-				statSum[i,j] += Weights[1];
-				statSum[i,j] += Weights[2];
-				statSum[i,j] += Weights[3];
+			for (int m = 0; m < 3; m++){
+				print(Trackers.Count.ToString());
+				statSum[i,m] = Weights[0];
+				statSum[i,m] += Weights[1];
+				statSum[i,m] += Weights[2];
+				statSum[i,m] += Weights[3];
 			}
 		}
 
@@ -485,7 +487,7 @@ public class MasterController : MonoBehaviour {
 	}
 
 	private void AIMonitorPlayer(){
-		float value;
+		float value = 0;
 
 		//::::Check all of this math as many times as you can until you are positive beyond doubt that it is correct
 		
@@ -495,7 +497,7 @@ public class MasterController : MonoBehaviour {
 			value += ((currentLevel.avgStats[i]/ExpectedValues[currentTracker.ID, currentLevel.ID, i]) * Weights[i]);
 		}
 
-		int diffValue = value - statSum[currentTracker.ID, currentLevel.ID];
+		float diffValue = value - statSum[currentTracker.ID, currentLevel.ID];
 
 		TotalSum += diffValue;
 		TrackerSums[currentTracker.ID] += diffValue;
@@ -515,9 +517,9 @@ public class MasterController : MonoBehaviour {
 		}*/
 		
 		for (int j = 0; j < Trackers.Count; j++){
-			Tracker[j].Preference = (TrackerSums[j]/TotalSum);
+			Trackers[j].Preference = (int) (TrackerSums[j]/TotalSum);
 			for (int k = 0; k < Trackers[j].Levels.Count; k++){
-				Tracker[j].Levels[k].Preference = (statSum[j,k]/LevelSums[k]);
+				Trackers[j].Levels[k].Preference = (int) (statSum[j,k]/LevelSums[k]);
 			}
 		}
 

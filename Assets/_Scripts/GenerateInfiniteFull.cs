@@ -18,18 +18,22 @@ class Tile{
 class Interact{
 	public GameObject interactable;
 	public float creationTime;
-	public string id;
+	public int idLev;
+	public int idTrack;
 
 	// Instatiation
-	public Interact(GameObject i, float ctime, string identify){
+	public Interact(GameObject i, float ctime, int lev, int track){
 		interactable = i;
 		creationTime = ctime;
-		id = identify;
+		idLev = lev;
+		idTrack = track;
 	}
 }
 
 public class GenerateInfiniteFull: MonoBehaviour {
 	public static bool intro = true;
+
+	public GameObject[,] ObjectList=new GameObject[3,4];
 	public GameObject groundPlane;
 	public GameObject groundSpike;
 
@@ -49,21 +53,15 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	public GameObject Interact_WallL1;
 	public GameObject Interact_WallL2;
 
+	private int[] TopList = new int[4];
+	private int[] BottomList = new int[3];
+
 	private GameObject player;
 	private MasterController Master;
 
 	public static bool Restart;
 
-	private int rampJump = 0;
-	private int speedPortal = 1;
-	private int spikeStrip = 2;
-	private int wallDestroy = 3;
-
-	private int level0 = 0;
-	private int level1 = 1;
-	private int level2 = 2;
-
-	int groundPlaneSize = 10 * 5;
+	int groundPlaneSize = 50;
 	int tilesInFront = 10;
 	int tilesBehind = -3;
 	int intCount = 0;
@@ -158,8 +156,8 @@ public class GenerateInfiniteFull: MonoBehaviour {
 							decideFunObj (out funObject, out identifyTrack, out identifyLev);
 						} else {
 							funObject = groundSpike;
-							identifyTrack = level0;
-							identifyLev = level0;
+							identifyTrack = 0;
+							identifyLev = 0;
 						}
 
 						Vector3 interactPos = new Vector3 (randomLocation, 1, tileLocation + randomLocation);
@@ -174,7 +172,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 						control.setMaster (Master);
 
 						// Create an Interact class object and add it to our 
-						Interact funObj = new Interact (interact, updateTime, identify);
+						Interact funObj = new Interact (interact, updateTime, identifyLev, identifyTrack);
 						interactableMatrix.Add (interactName, funObj);
 					} else if (interactableMatrix.ContainsKey (interactName)) {
 						(interactableMatrix [interactName] as Interact).creationTime = updateTime;
@@ -234,11 +232,32 @@ public class GenerateInfiniteFull: MonoBehaviour {
 
 	private void decideFunObj(out GameObject funInteract, out int funIDTrack, out int funID){
 		int topLevelRNG = Random.Range(0, 100);
-		int bottomLevelRNG = Random.Range(0, 33);
+		int bottomLevelRNG = Random.Range(0, 100);
 		
-		bool R = (topLevelRNG >= 0 && topLevelRNG < MasterController.Ramp.Preference);
-		bool S = (topLevelRNG >= MasterController.Ramp.Preference && topLevelRNG < MasterController.Speed.Preference);
-		bool K = (topLevelRNG >= MasterController.Speed.Preference && topLevelRNG < MasterController.Spike.Preference);
+		funInteract=Interact_WallL0;
+		funID=0;
+		funIDTrack=3;
+		
+		/*int RampPref = MasterController.Ramp.Preference;
+		int SpeedPref = RampPref + MasterController.Speed.Preference;
+		int SpikePref = SpeedPref + MasterController.Spike.Preference;
+		int WallPref = SpikePref + MasterController.Wall.Preference;
+
+		int RL0Pref = MasterController.Ramp.L0.Preference;
+		int RL1Pref = MasterController.Ramp.L0.Preference;
+		//::::set these up like the top level
+		int SL0Pref = MasterController.Speed.L0.Preference;
+		int SL1Pref = MasterController.Ramp.L0.Preference;
+		
+		int KL0Pref = MasterController.Ramp.L0.Preference;
+		int KL1Pref = MasterController.Ramp.L0.Preference;
+		
+		int WL0Pref = MasterController.Ramp.L0.Preference;
+		int WL1Pref = MasterController.Ramp.L0.Preference;
+		
+		bool R = (topLevelRNG >= 0 && topLevelRNG < RampPref);
+		bool S = (topLevelRNG >= RampPref && topLevelRNG < SpeedPref);
+		bool K = (topLevelRNG >= SpeedPref && topLevelRNG < SpikePref);
 		
 		bool RL0;
 		bool SL0;
@@ -322,7 +341,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 				funInteract = Interact_WallL2;
 				funID = level2;
 			}
-		}
+		}*/
 	}
 
 	void StartFunction(){
