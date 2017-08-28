@@ -49,7 +49,7 @@ public class _CarController : MonoBehaviour {
 
 		drift = notDriftSideways;
 		drift.extremumValue = 0.1f;
-		drift.asymptoteValue = 0.1f;
+		drift.asymptoteValue = 0.01f;
 	}
 
 	void FixedUpdate () {
@@ -99,8 +99,7 @@ public class _CarController : MonoBehaviour {
 		foreach(WheelCollider wheel in WheelColliders) RPMs += wheel.rpm;
 		RPMs = RPMs/4;
 
-		if (PlayerRB.position.y > highestPoint)
-			highestPoint = PlayerRB.position.y;
+		if (PlayerRB.position.y > highestPoint) highestPoint = PlayerRB.position.y;
 	}
 
 	void MoveThatCar(){
@@ -131,6 +130,8 @@ public class _CarController : MonoBehaviour {
 			speedGate -= 0.1f;
 		} else Boost = Input.GetAxis ("Boost");
 
+		HighSteerAngle = 9 - 3 * (RPMs/3000);
+
 		float steering = HighSteerAngle * Turn;
 		float drive = 0;
 
@@ -158,11 +159,12 @@ public class _CarController : MonoBehaviour {
 			PlayerRB.drag = 0.5f;
 
 			if (Drift) {
-				PlayerRB.angularDrag = 5f;
+				PlayerRB.angularDrag = 0f;
+				PlayerRB.drag = 0f;
 
 				driftOrNotForward = drift;
-				driftOrNotSideways = drift;
-				RocketLeagueAirControls(Spin, Turn, Pitch);
+				//driftOrNotSideways = drift;
+				//RocketLeagueAirControls(false, Turn, 0f);
 			} else {
 				PlayerRB.angularDrag = 0.5f;
 
@@ -219,7 +221,7 @@ public class _CarController : MonoBehaviour {
 
 	void RocketLeagueAirControls(bool spin, float turn, float pitch){
 		if (spin) 	PlayerRB.AddRelativeTorque (Vector3.back * turn, ForceMode.VelocityChange);
-			else 		PlayerRB.AddRelativeTorque (0.93f * Vector3.up * turn, ForceMode.VelocityChange);
-						PlayerRB.AddRelativeTorque (0.93f * Vector3.right * pitch, ForceMode.VelocityChange);
+		else 		PlayerRB.AddRelativeTorque (0.93f * Vector3.up * turn, ForceMode.VelocityChange);
+					PlayerRB.AddRelativeTorque (0.93f * Vector3.right * pitch, ForceMode.VelocityChange);
 	}
 }

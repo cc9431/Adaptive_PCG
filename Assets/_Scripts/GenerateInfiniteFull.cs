@@ -15,6 +15,7 @@ class Tile{
 	}
 }
 
+// Class for spawning in each game object
 class Interact{
 	public GameObject interactable;
 	public float creationTime;
@@ -31,47 +32,28 @@ class Interact{
 }
 
 public class GenerateInfiniteFull: MonoBehaviour {
-	public static bool intro = true;
+	public static bool intro = true; // To give players some time to get used to mechanics before random/adaptive spawning starts
+	private bool adapt; // Boolean that decides whether player gets adaptive or random spawning
+	public List<GameObject> ObjectList = new List<GameObject>(); // List of all prefab objects that can be spawned
+	private int[] TopList = new int[4]; // List of cumulative preference values for each type
+	private int[] BottomList = new int[3]; // List of cumulative preference values for each level
 
-	public GameObject[,] ObjectList=new GameObject[3,4];
-	public GameObject groundPlane;
-	public GameObject groundSpike;
+	private GameObject player; // To track the position of the player for spawning around them
+	private MasterController Master; // Holding the MasterController to later pass it to each interactable after spawning
 
-	public GameObject Interact_RampL0;
-	public GameObject Interact_RampL1;
-	public GameObject Interact_RampL2;
+	public static bool Restart; // If the player hits a spike, they will get placed back at the beginning
 
-	public GameObject Interact_SpikesL0;
-	public GameObject Interact_SpikesL1;
-	public GameObject Interact_SpikesL2;
+	int groundPlaneSize = 50; // The size of each tile
+	int tilesInFront = 10; // Number of tiles spawned in front of player
+	int tilesBehind = -3; // Number of tiles spawned behind player
+	int intCount = 0; // Used to only spawn interactables every 3 tiles
 
-	public GameObject Interact_SpeedL0;
-	public GameObject Interact_SpeedL1;
-	public GameObject Interact_SpeedL2;
+	Vector3 startPos; // Start position each time the player passes the tile size threshold
 
-	public GameObject Interact_WallL0;
-	public GameObject Interact_WallL1;
-	public GameObject Interact_WallL2;
+	Hashtable tileMatrix = new Hashtable(); // Hashtable of every tile and its creation time
+	Hashtable interactableMatrix = new Hashtable(); // Hashtable of every object and its creation time
 
-	private int[] TopList = new int[4];
-	private int[] BottomList = new int[3];
-
-	private GameObject player;
-	private MasterController Master;
-
-	public static bool Restart;
-
-	int groundPlaneSize = 50;
-	int tilesInFront = 10;
-	int tilesBehind = -3;
-	int intCount = 0;
-
-	Vector3 startPos;
-
-	// Hashtable of every tile and its creation time
-	Hashtable tileMatrix = new Hashtable();
-	Hashtable interactableMatrix = new Hashtable();
-
+	// Each script with public static variables requires that I use OnEnable, OnDisable, and OnSceneLoaded to change those variables each time a reload the game
 	void OnEnable() {
 		SceneManager.sceneLoaded += OnSceneLoaded;
 	}
@@ -83,23 +65,28 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
 		intro = true;
 		Restart = false;
+		if (Random.Range(0,2) == 1) adapt = true;
+		if (adapt) print(adapt);
 	}
 
+	// Before anything else is started I must create a new, unique seed for each player.
 	void Awake(){
 		MasterController.seed = Mathf.Abs(System.Environment.TickCount);
-		
 		Random.InitState(MasterController.seed);
 	}
 
+	// Get references to player and to the MasterController, then start the player in the middle of 14 empty tiles
 	void Start(){
-		// Get player from tag
 		player = GameObject.FindWithTag("Player");
 		Master = GetComponent<MasterController> ();
 
 		StartFunction();
 	}
 
+	// Each update this function is called to check the position of the player and change the environment accordingly
+	// This script is not responsible for any 'smart' adaption, only for spawning based on calculations made by other scripts
 	void FixedUpdate(){
+		// If the player hits a spike, destroy all tiles and game objects and start over
 		if (Restart){
 			foreach (Tile tls in tileMatrix.Values) {
 				Destroy (tls.gameTile);
@@ -114,10 +101,8 @@ public class GenerateInfiniteFull: MonoBehaviour {
 			Restart = false;
 
 		} else {
-			// This is where we check the position of the player and update our hashtable based on that
-			int zMove = (int)(player.transform.position.z - startPos.z);
-
 			// Check if the player has moved a tile size distance
+			int zMove = (int)(player.transform.position.z - startPos.z);
 			if (Mathf.Abs (zMove) >= groundPlaneSize) {
 				float updateTime = Time.realtimeSinceStartup;
 
@@ -125,7 +110,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 				// If so, update the time identity
 				// If not, create the new tile and add it to the matrix
 				for (int z = tilesBehind; z <= tilesInFront; z++) {
-					// This will be our tile for each slot
+					// This will be our tile and object for each slot
 					GameObject t;
 					GameObject interact;
 
@@ -133,18 +118,26 @@ public class GenerateInfiniteFull: MonoBehaviour {
 					float tileLocation = (z * groundPlaneSize + startPos.z);
 					float randomLocation = Random.Range (-20f, 20f);
 
+					// Create unique names for each object based on their position, this is used for debugging and hashtable logging
 					Vector3 tilePos = new Vector3 (0, 0, tileLocation);
 					string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
 					string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
 
+					// If the game is still in intro-mode, coinflip is true every third tile
+					// else, coinflip is true with 1/3 chance
+					// coinFlip is used to determine whether an object should be spawned on a tile
 					bool coinFlip;
 					if (intro) coinFlip = (intCount == 1);
 					else coinFlip = (Random.Range(0, 3) != 1);
 
+					// Only spawn objects if we are looking at the ninth tile ahead of the player
 					bool ninthTile = (z == 9);
+
+					// If the coinFlip is true, we are on the ninth tile, and the spawned object is not already in the hashtable, then we can spawn a new object
 					bool spawnNewFunObj = (!interactableMatrix.ContainsKey (interactName) && ninthTile && coinFlip);
 
 					if (spawnNewFunObj) {
+						// Should we spawn an object or just a spike strip?
 						bool SpikeOrFun = (Random.Range(0, 5) != 1);
 
 						GameObject funObject;
@@ -155,7 +148,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 							// call function that takes data from Master and decides which item should be generated
 							decideFunObj (out funObject, out identifyTrack, out identifyLev);
 						} else {
-							funObject = groundSpike;
+							funObject = ObjectList[1];
 							identifyTrack = 0;
 							identifyLev = 0;
 						}
@@ -181,7 +174,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 					intCount = (intCount + 1) % 3;
 					
 					if (!tileMatrix.ContainsKey (tilename)) {
-						t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);
+						t = (GameObject) Instantiate(ObjectList[0], tilePos, Quaternion.identity);
 
 						t.name = tilename;
 						Tile tile = new Tile (t, updateTime);
@@ -230,120 +223,56 @@ public class GenerateInfiniteFull: MonoBehaviour {
 		}
 	}
 
+	// Function for deciding which object should be spawned based on 'Preference' values calculated by the MasterController
+	//:::Comment this function!
 	private void decideFunObj(out GameObject funInteract, out int funIDTrack, out int funID){
-		int topLevelRNG = Random.Range(0, 100);
-		int bottomLevelRNG = Random.Range(0, 100);
-		
-		funInteract=Interact_WallL0;
-		funID=0;
-		funIDTrack=3;
-		
-		/*int RampPref = MasterController.Ramp.Preference;
-		int SpeedPref = RampPref + MasterController.Speed.Preference;
-		int SpikePref = SpeedPref + MasterController.Spike.Preference;
-		int WallPref = SpikePref + MasterController.Wall.Preference;
-
-		int RL0Pref = MasterController.Ramp.L0.Preference;
-		int RL1Pref = MasterController.Ramp.L0.Preference;
-		//::::set these up like the top level
-		int SL0Pref = MasterController.Speed.L0.Preference;
-		int SL1Pref = MasterController.Ramp.L0.Preference;
-		
-		int KL0Pref = MasterController.Ramp.L0.Preference;
-		int KL1Pref = MasterController.Ramp.L0.Preference;
-		
-		int WL0Pref = MasterController.Ramp.L0.Preference;
-		int WL1Pref = MasterController.Ramp.L0.Preference;
-		
-		bool R = (topLevelRNG >= 0 && topLevelRNG < RampPref);
-		bool S = (topLevelRNG >= RampPref && topLevelRNG < SpeedPref);
-		bool K = (topLevelRNG >= SpeedPref && topLevelRNG < SpikePref);
-		
-		bool RL0;
-		bool SL0;
-		bool KL0;
-		bool WL0;
-		
-		bool RL1;
-		bool SL1;
-		bool KL1;
-		bool WL1;
-
-		if (intro){
-			RL0 = true;
-			SL0 = true;
-			KL0 = true;
-			WL0 = true;
-
-			RL1 = false;
-			SL1 = false;
-			KL1 = false;
-			WL1 = false;
+		if(intro){
+			funID = 0;
+			funIDTrack = Random.Range(0, 4);
 		} else {
-			RL0 = (bottomLevelRNG < MasterController.Ramp.L0.Preference);
-			RL1 = (!RL0 && bottomLevelRNG < MasterController.Ramp.L1.Preference);
+			if (adapt){
+				int topLevelRNG = Random.Range(0, TopList[3]);
+				int bottomLevelRNG = Random.Range(0, BottomList[2]);
+				
+				int IDLev = 0;
+				int IDTrack = 0;
+				bool topPicked = false;
+				bool bottomPicked = false;
 
-			SL0 = (bottomLevelRNG < MasterController.Speed.L0.Preference);
-			SL1 = (!SL0 && bottomLevelRNG < MasterController.Speed.L1.Preference);
-			
-			KL0 = (bottomLevelRNG < MasterController.Spike.L0.Preference);
-			KL1 = (!KL0 && bottomLevelRNG < MasterController.Spike.L1.Preference);
-			
-			WL0 = (bottomLevelRNG < MasterController.Wall.L0.Preference);
-			WL1 = (!WL0 && bottomLevelRNG < MasterController.Wall.L1.Preference);
+				TopList[0] = MasterController.Ramp.Preference;
+
+				for (int type = 0; type < 4; type++){
+					string s = string.Format ("{0} Preference: {1}, Sum: {2}", MasterController.Trackers[type].name, MasterController.Trackers[type].Preference, TopList[type]);
+					print(s);
+
+					if (type > 0) TopList[type] = TopList [type - 1] + MasterController.Trackers[type].Preference;
+					if((topLevelRNG - TopList[type]) <= 0 && !topPicked) {
+						IDTrack = type;
+						topPicked = true;
+						BottomList[0] = MasterController.Trackers[type].L0.Preference;
+
+						for (int lev = 0; lev < 3; lev++){
+							if (lev > 0) BottomList[lev] = BottomList[lev - 1] + MasterController.Trackers[type].Levels[lev].Preference;
+							if((bottomLevelRNG - BottomList[lev]) <= 0 && !bottomPicked) {
+								IDLev = lev;
+								bottomPicked = true;
+							}
+						}
+					}
+				}
+
+				funIDTrack = IDTrack;
+				funID = IDLev;
+			} else {
+				funID = Random.Range(0, 3);
+				funIDTrack = Random.Range(0, 4);
+			}
 		}
 
-		if (R) {
-			funIDTrack = rampJump;
-			if (RL0) {
-				funInteract = Interact_RampL0;
-				funID = level0;
-			} else if (RL1) {
-				funInteract = Interact_RampL1;
-				funID = level1;
-			} else {
-				funInteract = Interact_RampL2;
-				funID = level2;
-			}
-		} else if (S) {
-			funIDTrack = speedPortal;
-			if (SL0) {
-				funInteract = Interact_SpeedL0;
-				funID = level0;
-			} else if (SL1) {
-				funInteract = Interact_SpeedL1;
-				funID = level1;
-			} else {
-				funInteract = Interact_SpeedL2;
-				funID = level2;
-			}
-		} else if (K) {
-			funIDTrack = spikeStrip;
-			if (KL0) {
-				funInteract = Interact_SpikesL0;
-				funID = level0;
-			} else if (KL1) {
-				funInteract = Interact_SpikesL1;
-				funID = level1;
-			} else {
-				funInteract = Interact_SpikesL2;
-				funID = level2;
-			}
-		} else {
-			funIDTrack = wallDestroy;
-			if (WL0) {
-				funInteract = Interact_WallL0;
-				funID = level0;
-			} else if (WL1) {
-				funInteract = Interact_WallL1;
-				funID = level1;
-			} else {
-				funInteract = Interact_WallL2;
-				funID = level2;
-			}
-		}*/
+		funInteract = ObjectList[2 + funID + (funIDTrack * 3)];
 	}
 
+	// Function used at start and when player dies
 	void StartFunction(){
 		// Set generator position to zero
 		transform.position = Vector3.zero;
@@ -362,7 +291,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 
 			Vector3 tilePos = new Vector3(0, 0, tileLocation);
 
-			t = (GameObject) Instantiate(groundPlane, tilePos, Quaternion.identity);
+			t = (GameObject) Instantiate(ObjectList[0], tilePos, Quaternion.identity);
 
 			// This name scheme is mostly for debugging in the future when tiles have ramps on them
 			string tilename = "Tile_" + ((int)(tilePos.z)).ToString();

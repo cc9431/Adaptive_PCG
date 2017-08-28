@@ -41,6 +41,7 @@ public class StatTracker {
 	public int numTotal;
 	public int ID;
 	public int Preference;
+	public string name;
 
 	public List<Level> Levels = new List<Level>();
 	public Level L0 = new Level(0, 33);
@@ -48,9 +49,10 @@ public class StatTracker {
 	public Level L2 = new Level(2, 33);
 
 
-	public StatTracker(int id, int pref){
+	public StatTracker(int id, int pref, string nm){
 		ID = id;
 		Preference = pref;
+		name = nm;
 	}
 
 	public float[] AverageStats(){
@@ -99,11 +101,11 @@ public class MasterController : MonoBehaviour {
 	private int totalPoints;		// Total points based on tricks and orbs collected
 	public static int orbs;
 
-	public static List<StatTracker> Trackers = new List<StatTracker>();
-	public static StatTracker Ramp = new StatTracker(0, 25);
-	public static StatTracker Speed = new StatTracker(1, 50);
-	public static StatTracker Spike = new StatTracker(2, 75);
-	public static StatTracker Wall = new StatTracker(3, 100);
+	public static List<StatTracker> Trackers;
+	public static StatTracker Ramp;
+	public static StatTracker Speed;
+	public static StatTracker Spike;
+	public static StatTracker Wall;
 
 	public static int framesInAir;		// Used to evaluate the engagement of the player
 	public static int framesAtMax;
@@ -161,31 +163,31 @@ public class MasterController : MonoBehaviour {
 	}
 
 	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
-		//::::DELETE EVERYTHING IN START THAT YOU DO HERE
 		orbs = 0;
+		jumps = 0;
+		deaths = 0;
+
 		framesInAir = 0;
 		framesAtMax = 0;
 		framesBoosting = 0;
 		framesOnBack = 0;
 		framesDrifting = 0;
 		timesReset = 0;
-		inObject = false;
-		objectTouched = false;
-		jumps = 0;
-		deaths = 0;
 
-		Ramp = new StatTracker(0, 25);
-		Speed = new StatTracker(1, 50);
-		Spike = new StatTracker(2, 75);
-		Wall = new StatTracker(3, 100);
+		inObject = false;
+		StatTracking = false;
+		objectTouched = false;
+	
+		Ramp  = new StatTracker(0, 100/4, "Ramp");
+		Speed = new StatTracker(1, 100/4, "Speed");
+		Spike = new StatTracker(2, 100/4, "Spike");
+		Wall  = new StatTracker(3, 100/4, "Wall");
 
 		Trackers = new List<StatTracker>();
-
 		Trackers.Add(Ramp);
 		Trackers.Add(Speed);
 		Trackers.Add(Spike);
 		Trackers.Add(Wall);
-
 		for (int i = 0; i < Trackers.Count; i++){
 			Trackers[i].Levels.Add(Trackers[i].L0);
 			Trackers[i].Levels.Add(Trackers[i].L1);
@@ -194,9 +196,6 @@ public class MasterController : MonoBehaviour {
 	}
 
 	void Start() {
-		StatTracking = false;
-		objectTouched = false;
-
 		statList[0] = "Air";
 		statList[1] = "Back";
 		statList[2] = "Speed";
@@ -211,32 +210,15 @@ public class MasterController : MonoBehaviour {
 		carRB = player.GetComponent<Rigidbody> ();
 		carController = player.GetComponent<_CarController>();
 
-		//Trackers.Add(Ramp);
-		//Trackers.Add(Speed);
-		//Trackers.Add(Spike);
-		//Trackers.Add(Wall);
+		for (int type = 0; type < 4; type++){
+			for (int lev = 0; lev < 3; lev++){
+				statSum[type, lev] = Weights[0] + Weights[1] + Weights[2] + Weights[3];
 
-		for (int i = 0; i < 4; i++){
-			//Trackers[i].Levels.Add(Trackers[i].L0);
-			//Trackers[i].Levels.Add(Trackers[i].L1);
-			//Trackers[i].Levels.Add(Trackers[i].L2);
+				float sum = statSum[type, lev];
 
-			for (int m = 0; m < 3; m++){
-				print(Trackers.Count.ToString());
-				statSum[i,m] = Weights[0];
-				statSum[i,m] += Weights[1];
-				statSum[i,m] += Weights[2];
-				statSum[i,m] += Weights[3];
-			}
-		}
-
-		for (int j = 0; j < 4; j++){
-			for (int k = 0; k < 3; k++){
-				float sum = statSum[j,k];
-
-				TotalSum 		+= sum;
-				TrackerSums[j] 	+= sum;
-				LevelSums[k] 	+= sum;
+				TotalSum 			+= sum;
+				TrackerSums[type] 	+= sum;
+				LevelSums[lev] 		+= sum;
 			}
 		}
 
@@ -246,68 +228,64 @@ public class MasterController : MonoBehaviour {
 		ExpectedValues[0,0,1] = 3f;   	// Back
 		ExpectedValues[0,0,2] = 60f;	// Speed
 		ExpectedValues[0,0,3] = 35f;	// Points
-		// RampL1 :::: You gotta do test to figure out what the expected values for L1 and L2 are
-		//:::: DONE?
+
 		ExpectedValues[0,1,0] = 135f;	// Air
 		ExpectedValues[0,1,1] = 4f;		// Back
 		ExpectedValues[0,1,2] = 55f;	// Speed
 		ExpectedValues[0,1,3] = 50f;	// Points
 		// RampL2
-		ExpectedValues[0,2,0] = 215f; // Air
-		ExpectedValues[0,2,1] = 4f;  // Back
-		ExpectedValues[0,2,2] = 30f;  // Speed
-		ExpectedValues[0,2,3] = 75f; // Points
+		ExpectedValues[0,2,0] = 225f; 	// Air
+		ExpectedValues[0,2,1] = 4f;  	// Back
+		ExpectedValues[0,2,2] = 30f;  	// Speed
+		ExpectedValues[0,2,3] = 80f; 	// Points
 	
-		//::: Speed expected values
 		//SpeedL0
-		ExpectedValues[1,0,0] = 5f; // Air
-		ExpectedValues[1,0,1] = 0f;  // Back
-		ExpectedValues[1,0,2] = 40f;  // Speed
-		ExpectedValues[1,0,3] = 100f; // Points
+		ExpectedValues[1,0,0] = 1f; 	// Air
+		ExpectedValues[1,0,1] = 1f;  	// Back
+		ExpectedValues[1,0,2] = 80f;  	// Speed
+		ExpectedValues[1,0,3] = 20f; 	// Points
 		//SpeedL1
-		ExpectedValues[1,1,0] = 200f; // Air
-		ExpectedValues[1,1,1] = -5f;  // Back
-		ExpectedValues[1,1,2] = 40f;  // Speed
-		ExpectedValues[1,1,3] = 100f; // Points
+		ExpectedValues[1,1,0] = 75; 	// Air
+		ExpectedValues[1,1,1] = 4f;  	// Back
+		ExpectedValues[1,1,2] = 80f;  	// Speed
+		ExpectedValues[1,1,3] = 25f; 	// Points
 		//SpeedL2
-		ExpectedValues[1,2,0] = 200f; // Air
-		ExpectedValues[1,2,1] = -5f;  // Back
-		ExpectedValues[1,2,2] = 40f;  // Speed
-		ExpectedValues[1,2,3] = 100f; // Points
+		ExpectedValues[1,2,0] = 80; 	// Air
+		ExpectedValues[1,2,1] = 4f;  	// Back
+		ExpectedValues[1,2,2] = 80f;  	// Speed
+		ExpectedValues[1,2,3] = 40f; 	// Points
 		
-		//::: Spike expected values
 		//SpikedL0
-		ExpectedValues[2,0,0] = 200f; // Air
-		ExpectedValues[2,0,1] = -5f;  // Back
-		ExpectedValues[2,0,2] = 40f;  // Speed
-		ExpectedValues[2,0,3] = 100f; // Points
+		ExpectedValues[2,0,0] = 60f; 	// Air
+		ExpectedValues[2,0,1] = 1f;  	// Back
+		ExpectedValues[2,0,2] = 40f;  	// Speed
+		ExpectedValues[2,0,3] = 30f; 	// Points
 		//SpikeL1
-		ExpectedValues[2,1,0] = 200f; // Air
-		ExpectedValues[2,1,1] = -5f;  // Back
-		ExpectedValues[2,1,2] = 40f;  // Speed
-		ExpectedValues[2,1,3] = 100f; // Points
+		ExpectedValues[2,1,0] = 60f; 	// Air
+		ExpectedValues[2,1,1] = 1f;  	// Back
+		ExpectedValues[2,1,2] = 45f;  	// Speed
+		ExpectedValues[2,1,3] = 30; 	// Points
 		//SpikeL2
-		ExpectedValues[2,2,0] = 200f; // Air
-		ExpectedValues[2,2,1] = -5f;  // Back
-		ExpectedValues[2,2,2] = 40f;  // Speed
-		ExpectedValues[2,2,3] = 100f; // Points
+		ExpectedValues[2,2,0] = 60f; 	// Air
+		ExpectedValues[2,2,1] = 1f;  	// Back
+		ExpectedValues[2,2,2] = 50f;  	// Speed
+		ExpectedValues[2,2,3] = 55f; 	// Points
 		
-		//::: Wall expected values
 		//WallL0
-		ExpectedValues[3,0,0] = 200f; // Air
-		ExpectedValues[3,0,1] = -5f;  // Back
-		ExpectedValues[3,0,2] = 40f;  // Speed
-		ExpectedValues[3,0,3] = 100f; // Points
+		ExpectedValues[3,0,0] = 1f; 	// Air
+		ExpectedValues[3,0,1] = 1f;  	// Back
+		ExpectedValues[3,0,2] = 70f;  	// Speed
+		ExpectedValues[3,0,3] = 25f; 	// Points
 		//WallL1
-		ExpectedValues[3,1,0] = 200f; // Air
-		ExpectedValues[3,1,1] = -5f;  // Back
-		ExpectedValues[3,1,2] = 40f;  // Speed
-		ExpectedValues[3,1,3] = 100f; // Points
+		ExpectedValues[3,1,0] = 4f; 	// Air
+		ExpectedValues[3,1,1] = 1f;  	// Back
+		ExpectedValues[3,1,2] = 70f;  	// Speed
+		ExpectedValues[3,1,3] = 45f; 	// Points
 		//WallL2
-		ExpectedValues[3,2,0] = 200f; // Air
-		ExpectedValues[3,2,1] = -5f;  // Back
-		ExpectedValues[3,2,2] = 40f;  // Speed
-		ExpectedValues[3,2,3] = 100f; // Points
+		ExpectedValues[3,2,0] = 70f; 	// Air
+		ExpectedValues[3,2,1] = 1f;  	// Back
+		ExpectedValues[3,2,2] = 50f;  	// Speed
+		ExpectedValues[3,2,3] = 65f; 	// Points
 
 		print(seed);
 
@@ -441,38 +419,24 @@ public class MasterController : MonoBehaviour {
 		if (!(_CarController.inAir || inObject)) {
 			int preObjectPoints = currentTracker.getPoints();
 			currentLevel.Points += PostObjectPoints;
-			//print(currentTracker.ID + " " + currentTracker.getPoints());
 
 			currentLevel.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, air));
 			currentLevel.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, back));
 			currentLevel.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, speed));
 			currentLevel.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, PostObjectPoints));
 
-			/*currentTracker.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, air));
-			currentTracker.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, back));
-			currentTracker.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, speed));
-			currentTracker.Stats.Add(new KeyValuePair<float, int>(Time.timeSinceLevelLoad, PostObjectPoints));*/
-
 			bool state1 = (preObjectPoints <= 200 && currentTracker.getPoints() >= 200);
-			bool state2 = (preObjectPoints <= 300 && currentTracker.getPoints() >= 300);
 
 			if (state1) {
-				//print("State1: " + currentTracker.ID);
-				currentTracker.L0.Preference = 16;
 				GenerateInfiniteFull.intro = false;
 				carController.HorsePower = 2500f;
 			}
-			if (state2) {
-				//print("State2: " + currentTracker.ID);
-				currentTracker.L0.Preference = 11;
-				currentTracker.L1.Preference = 22;
-			}
 
-			// reset all tracking variables
+			// reset tracking variables
 			StatTracking = false;
 			objectTouched = false;
 
-			AIMonitorPlayer();
+			if (!GenerateInfiniteFull.intro) AIMonitorPlayer();
 
 			currentLevel = null;
 			currentTracker = null;
@@ -488,15 +452,14 @@ public class MasterController : MonoBehaviour {
 
 	private void AIMonitorPlayer(){
 		float value = 0;
-
-		//::::Check all of this math as many times as you can until you are positive beyond doubt that it is correct
 		
 		currentLevel.AverageStats();
 
-		for (int i = 0; i < statSum.Length; i++){
+		for (int i = 0; i < 4; i++){
 			value += ((currentLevel.avgStats[i]/ExpectedValues[currentTracker.ID, currentLevel.ID, i]) * Weights[i]);
 		}
 
+		value += currentLevel.numTotal;
 		float diffValue = value - statSum[currentTracker.ID, currentLevel.ID];
 
 		TotalSum += diffValue;
@@ -504,33 +467,18 @@ public class MasterController : MonoBehaviour {
 		LevelSums[currentLevel.ID] += diffValue;
 
 		statSum[currentTracker.ID, currentLevel.ID] = value;
-
-		// In case what I wrote above doesnt make sense, use this each time instead
-		/*for (int j = 0; j < 4; j++){
-			for (int k = 0; k < 3; k++){
-				float sum = statSum[j,k];
-
-				TotalSum 		+= sum;
-				TrackerSums[j] 	+= sum;
-				LevelSums[k] 	+= sum;
-			}
-		}*/
 		
-		for (int j = 0; j < Trackers.Count; j++){
-			Trackers[j].Preference = (int) (TrackerSums[j]/TotalSum);
-			for (int k = 0; k < Trackers[j].Levels.Count; k++){
-				Trackers[j].Levels[k].Preference = (int) (statSum[j,k]/LevelSums[k]);
+		for (int j = 0; j < 4; j++){
+			Trackers[j].Preference = (int) (100 * (TrackerSums[j]/TotalSum));
+			for (int k = 0; k < 3; k++){
+				Trackers[j].Levels[k].Preference = (int) (100 * (statSum[j,k]/LevelSums[k]));
 			}
 		}
 
 		// For printing information
-		/*for (int i = 0; i < currentTracker.Levels.Count; i++){
-			if (currentTracker.Levels[i].numTotal > 0) {
-				for (int j = 0; j < currentLevel.avgStats.Length; j++){
-					string s = string.Format("{0}{1} {2}:{3}", currentTracker.ID, i, statList[j], currentTracker.Levels[i].avgStats[j]);
-					print(s);
-				}
-			}
+		/*for (int stat = 0; stat < 4; stat++){
+			string s = string.Format("L{2}:{0} {1}", statList[stat], currentLevel.avgStats[stat], currentLevel.ID);
+			print(s);
 		}*/
 	}
 
