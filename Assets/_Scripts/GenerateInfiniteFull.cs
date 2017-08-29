@@ -33,7 +33,7 @@ class Interact{
 
 public class GenerateInfiniteFull: MonoBehaviour {
 	public static bool intro = true; // To give players some time to get used to mechanics before random/adaptive spawning starts
-	private bool adapt; // Boolean that decides whether player gets adaptive or random spawning
+	public static bool adapt; // Boolean that decides whether player gets adaptive or random spawning
 	public List<GameObject> ObjectList = new List<GameObject>(); // List of all prefab objects that can be spawned
 	private int[] TopList = new int[4]; // List of cumulative preference values for each type
 	private int[] BottomList = new int[3]; // List of cumulative preference values for each level
@@ -224,36 +224,44 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	}
 
 	// Function for deciding which object should be spawned based on 'Preference' values calculated by the MasterController
-	//:::Comment this function!
-	private void decideFunObj(out GameObject funInteract, out int funIDTrack, out int funID){
+	private void decideFunObj(out GameObject funInteract, out int funIDTrack, out int funIDLev){
 		if(intro){
-			funID = 0;
+			// If the player has not yet made 200 points for a single type, then only generate level 0 items with no adaptivity
+			funIDLev = 0;
 			funIDTrack = Random.Range(0, 4);
 		} else {
+			// There is a 1/2 chance everytime the player starts that the game will be adaptive or not
 			if (adapt){
+				// If the game is adaptive, roll a number between zero and the largest number in the cumulative preference list for both top level and bottom level
 				int topLevelRNG = Random.Range(0, TopList[3]);
 				int bottomLevelRNG = Random.Range(0, BottomList[2]);
 				
-				int IDLev = 0;
+				// Initialize variables
+				// IDLev and IDTrack are standing in for funIDTrack and funIDLev because of the way 'out' works (The funIDTrack and funIDLev variables must be assigned before the function ends and are also treated as final variables)
+				int IDLev = 0; 
 				int IDTrack = 0;
 				bool topPicked = false;
 				bool bottomPicked = false;
 
+				// The upcoming loop both assigns and uses the new preference values for the type of object
 				TopList[0] = MasterController.Ramp.Preference;
-
 				for (int type = 0; type < 4; type++){
+					// For debugging
 					string s = string.Format ("{0} Preference: {1}, Sum: {2}", MasterController.Trackers[type].name, MasterController.Trackers[type].Preference, TopList[type]);
 					print(s);
-
+					// This is where we sum up the preference values for the next iteration of the loop
 					if (type > 0) TopList[type] = TopList [type - 1] + MasterController.Trackers[type].Preference;
 					if((topLevelRNG - TopList[type]) <= 0 && !topPicked) {
+						// The type is decided from the first preference number that is larger than the randomly generated number
 						IDTrack = type;
 						topPicked = true;
+						// The upcoming loop both assigns and uses the new preference values for the level of object
 						BottomList[0] = MasterController.Trackers[type].L0.Preference;
-
 						for (int lev = 0; lev < 3; lev++){
+							//This is where we sum up the preference values for the next iteration of the loop
 							if (lev > 0) BottomList[lev] = BottomList[lev - 1] + MasterController.Trackers[type].Levels[lev].Preference;
 							if((bottomLevelRNG - BottomList[lev]) <= 0 && !bottomPicked) {
+								// The level is decided from the first preference number that is larger than the randomly generated number
 								IDLev = lev;
 								bottomPicked = true;
 							}
@@ -261,15 +269,18 @@ public class GenerateInfiniteFull: MonoBehaviour {
 					}
 				}
 
+				// Finally, the out variables are assinged from the values found in the  
 				funIDTrack = IDTrack;
-				funID = IDLev;
+				funIDLev = IDLev;
 			} else {
-				funID = Random.Range(0, 3);
+				// If the game is not adaptive, the levels and types are chosen completely randomly
+				funIDLev = Random.Range(0, 3);
 				funIDTrack = Random.Range(0, 4);
 			}
 		}
 
-		funInteract = ObjectList[2 + funID + (funIDTrack * 3)];
+		// Finally, assign the object a object model based on the ID numbers assigned (there are two objects in the beginning that must be skipped over).
+		funInteract = ObjectList[2 + funIDLev + (funIDTrack * 3)];
 	}
 
 	// Function used at start and when player dies
