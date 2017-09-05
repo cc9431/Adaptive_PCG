@@ -52,6 +52,7 @@
      <Compile Include="Assets\_Scripts\CameraController.cs" />
      <Compile Include="Assets\_Scripts\GenerateInfiniteFull.cs" />
      <Compile Include="Assets\_Scripts\InteractController.cs" />
+     <Compile Include="Assets\_Scripts\JSON.cs" />
      <Compile Include="Assets\_Scripts\MasterController.cs" />
      <Compile Include="Assets\_Scripts\MaterialController.cs" />
      <Compile Include="Assets\_Scripts\MaxSpeedTrail.cs" />

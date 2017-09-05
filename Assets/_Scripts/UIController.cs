@@ -18,6 +18,7 @@ public class UIController : MonoBehaviour {
 	public GameObject DeathScreen;
 	public GameObject DeathScreenSelectedObject;
 	public GameObject PauseScreenSelectedObject;
+	private JSON JSONClass;
 	private Slider slider;
 
 	void OnEnable() {
@@ -44,6 +45,7 @@ public class UIController : MonoBehaviour {
 	void Start(){
 		car = GameObject.FindGameObjectWithTag("Player").transform;
 		eventSystem.SetSelectedGameObject(selectedObject);
+		JSONClass = GetComponent<JSON>();
 	}
 
 	void Update(){
@@ -108,7 +110,7 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void Finish(){
-		MasterController.LogDeath();
+		JSONClass.LogDeath();
 		SceneManager.LoadScene("StartScene");
 	}
 

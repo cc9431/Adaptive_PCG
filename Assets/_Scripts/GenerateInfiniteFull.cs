@@ -66,7 +66,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 		intro = true;
 		Restart = false;
 		if (Random.Range(0,2) == 1) adapt = true;
-		if (adapt) print(adapt);
+		if (adapt) print("adapt");
 	}
 
 	// Before anything else is started I must create a new, unique seed for each player.
@@ -246,20 +246,17 @@ public class GenerateInfiniteFull: MonoBehaviour {
 				// The upcoming loop both assigns and uses the new preference values for the type of object
 				TopList[0] = MasterController.Ramp.Preference;
 				for (int type = 0; type < 4; type++){
-					// For debugging
-					string s = string.Format ("{0} Preference: {1}, Sum: {2}", MasterController.Trackers[type].name, MasterController.Trackers[type].Preference, TopList[type]);
-					print(s);
 					// This is where we sum up the preference values for the next iteration of the loop
-					if (type > 0) TopList[type] = TopList [type - 1] + MasterController.Trackers[type].Preference;
+					if (type > 0) TopList[type] = TopList [type - 1] + MasterController.Types[type].Preference;
 					if((topLevelRNG - TopList[type]) <= 0 && !topPicked) {
 						// The type is decided from the first preference number that is larger than the randomly generated number
 						IDTrack = type;
 						topPicked = true;
 						// The upcoming loop both assigns and uses the new preference values for the level of object
-						BottomList[0] = MasterController.Trackers[type].L0.Preference;
+						BottomList[0] = MasterController.Types[type].L0.Preference;
 						for (int lev = 0; lev < 3; lev++){
 							//This is where we sum up the preference values for the next iteration of the loop
-							if (lev > 0) BottomList[lev] = BottomList[lev - 1] + MasterController.Trackers[type].Levels[lev].Preference;
+							if (lev > 0) BottomList[lev] = BottomList[lev - 1] + MasterController.Types[type].Levels[lev].Preference;
 							if((bottomLevelRNG - BottomList[lev]) <= 0 && !bottomPicked) {
 								// The level is decided from the first preference number that is larger than the randomly generated number
 								IDLev = lev;
@@ -267,6 +264,9 @@ public class GenerateInfiniteFull: MonoBehaviour {
 							}
 						}
 					}
+					// For debugging
+					//string s = string.Format ("{0} Preference: {1}, Sum: {2}", MasterController.Types[type].name, MasterController.Types[type].Preference, TopList[type]);
+					//print(s);
 				}
 
 				// Finally, the out variables are assinged from the values found in the  

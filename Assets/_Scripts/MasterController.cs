@@ -9,11 +9,11 @@ using UnityEngine.SceneManagement;
 // Each level has a specific game object model associated to it through the object's ID assigned by the GenerateInfiniteFull script
 public class Level {
 	public int Points;						// Total number of points made from using this object
-	public List<KeyValuePair<float, int>> Stats = new List<KeyValuePair<float, int>>(); // The 'dictionary' of Stats (list of keyvaluepair because I require non-unique keys)
-	public float[] avgStats = new float[4];	// All of the stats tracked by this level averaged out by type
 	public int numTotal;					// Total number of times the player has interacted with this object
 	public int ID;							// This ID relates to which level the object is
 	public int Preference;					// The value that decides how often this object is generated
+	public List<KeyValuePair<float, int>> Stats = new List<KeyValuePair<float, int>>(); // The 'dictionary' of Stats (list of keyvaluepair because I require non-unique keys)
+	public float[] avgStats = new float[4];	// All of the stats tracked by this level averaged out by type
 
 	// Initialization function
 	public Level(int id, int pref){
@@ -22,10 +22,10 @@ public class Level {
 	}
 
 	// Function for taking the total list of stats and averaging them for preference analysis
-	public float[] AverageStats(int air, int back, int speed, int points, float time){
+	public float[] AverageStats(int air, int trick, int speed, int points, float time){
 		// Add our new stats to the list of stats
 		Stats.Add(new KeyValuePair<float, int>(time, air));
-		Stats.Add(new KeyValuePair<float, int>(time, back));
+		Stats.Add(new KeyValuePair<float, int>(time, trick));
 		Stats.Add(new KeyValuePair<float, int>(time, speed));
 		Stats.Add(new KeyValuePair<float, int>(time, points));
 
@@ -35,10 +35,10 @@ public class Level {
 		}
 
 		/*
-		//:::If what I wrote above doesn't work, go back to this
+		//::If what I wrote above doesn't work, go back to this
 		for (int i = 0; i < avgStats.Length; i++){
 			sum = 0;
-			// The stats are recorded in the same order every time the player interacts (air, back, speed, points)
+			// The stats are recorded in the same order every time the player interacts (air, trick, speed, points)
 			// Thus to average we just iterate from 0-3, simply jumping four spots from front to back, starting one further each time
 			for (int j = i; j < Stats.Count; j += 4){
 				sum += Stats[j].Value;
@@ -54,7 +54,7 @@ public class Level {
 // This class is for tracking the overall stats of each type
 // This class does not have an associated model for each type, instead it is used more to organize and categorize our data
 // This way we have four types with three levels instead of individually tracking all 12 different objects
-public class StatTracker {
+public class Type {
 	public int Points;						// Total number of points made from using this object
 	public List<KeyValuePair<float, int>> Stats = new List<KeyValuePair<float, int>>();  // The 'dictionary' of Stats (list of keyvaluepair because I require non-unique keys)
 	public float[] avgStats = new float[4];	// All of the stats tracked by this level averaged out by type
@@ -69,7 +69,7 @@ public class StatTracker {
 	public Level L2 = new Level(2, 33);
 
 	// Initialization
-	public StatTracker(int id, int pref, string nm){
+	public Type(int id, int pref, string nm){
 		ID = id;
 		Preference = pref;
 		name = nm;
@@ -122,11 +122,11 @@ public class MasterController : MonoBehaviour {
 	private int totalPoints;								// Total points based on tricks and orbs collected
 	public static int orbs;									// Total number of orbs collected
 
-	public static List<StatTracker> Trackers;				// List of four types of objects with the four different types below it
-	public static StatTracker Ramp;
-	public static StatTracker Speed;
-	public static StatTracker Spike;
-	public static StatTracker Wall;
+	public static List<Type> Types;				// List of four types of objects with the four different types below it
+	public static Type Ramp;
+	public static Type Speed;
+	public static Type Spike;
+	public static Type Wall;
 	
 	// Used to evaluate the engagement of the player
 	public static int framesInAir;							// Number of frames spent in the air in total
@@ -145,7 +145,7 @@ public class MasterController : MonoBehaviour {
 	private float[,,] ExpectedValues = new float[4,3,4];	// 3D matrix of expected stat values based on play throughs and logging of average stat data
 	private float[,] statSum = new float[4,3];				// 2D matrix of the summed values for each interactable object
 	private float[] Weights = new float[4];					// List of weights that are applied to each type of statistic
-	private float[] TrackerSums = new float[4];				// List of summed stats from each type overall
+	private float[] TypeSums = new float[4];				// List of summed stats from each type overall
 	private float[] LevelSums = new float[3];				// List of summed stats from each level overall
 	private float TotalSum;									// Total sum of all stats from all objects
 	
@@ -168,17 +168,18 @@ public class MasterController : MonoBehaviour {
 
 	// These values are where we store the current running stats while the player interacts with an object
 	private int PostObjectAir;								// Frames spent in air during interaction
-	private int PostObjectBack;								// Frames spent on back during interaction
+	private int PostObjectTricks;							// Number of tricks performed during interaction
 	private int PostObjectPoints;							// Points gained during interaction
 	public static int PostObjectSpeed;						// Speed reached at the moment the player exits the object's collider
 
-	private StatTracker currentTracker;						// Reference to the current type of object the player is interacting with
+	private Type currentType;						// Reference to the current type of object the player is interacting with
 	private Level currentLevel;								// Reference to the current level of the type of the object the player is interacting with
 
 	public static bool inObject;							// If the player's collider is inside an object's collider, this boolean is true
 	public static int seed;									// Each play has a unique seed, used for determining the random number generation and used by me to save data to a unique file each play through
 	public static string[] statList = new string[4];		// List of the names of each type of stat for debugging
 	public Text PointDisplay;								// Reference to the UI element that displays the total number of points
+	public JSON JSONClass;
 
 	// Each script with public static variables requires that I use OnEnable, OnDisable, and OnSceneLoaded to change those variables each time a reload the game
 	void OnEnable() {
@@ -209,32 +210,32 @@ public class MasterController : MonoBehaviour {
 		StatTracking = false;
 		objectTouched = false;
 	
-		Ramp  = new StatTracker(0, 100/4, "Ramp");
-		Speed = new StatTracker(1, 100/4, "Speed");
-		Spike = new StatTracker(2, 100/4, "Spike");
-		Wall  = new StatTracker(3, 100/4, "Wall");
+		Ramp  = new Type(0, 100/4, "Ramp");
+		Speed = new Type(1, 100/4, "Speed");
+		Spike = new Type(2, 100/4, "Spike");
+		Wall  = new Type(3, 100/4, "Wall");
 
-		Trackers = new List<StatTracker>();
-		Trackers.Add(Ramp);
-		Trackers.Add(Speed);
-		Trackers.Add(Spike);
-		Trackers.Add(Wall);
-		for (int i = 0; i < Trackers.Count; i++){
-			Trackers[i].Levels.Add(Trackers[i].L0);
-			Trackers[i].Levels.Add(Trackers[i].L1);
-			Trackers[i].Levels.Add(Trackers[i].L2);
+		Types = new List<Type>();
+		Types.Add(Ramp);
+		Types.Add(Speed);
+		Types.Add(Spike);
+		Types.Add(Wall);
+		for (int i = 0; i < Types.Count; i++){
+			Types[i].Levels.Add(Types[i].L0);
+			Types[i].Levels.Add(Types[i].L1);
+			Types[i].Levels.Add(Types[i].L2);
 		}
 	}
 
 	// Initialize a whole bunch of our variables and trackers and such
 	void Start() {
 		statList[0] = "Air";
-		statList[1] = "Back";
+		statList[1] = "Tricks";
 		statList[2] = "Speed";
 		statList[3] = "Points";
 
 		Weights[0] = 0.4f;
-		Weights[1] = 0.6f;
+		Weights[1] = 0.5f;
 		Weights[2] = 0.4f;
 		Weights[3] = 0.8f;
 
@@ -249,7 +250,7 @@ public class MasterController : MonoBehaviour {
 				float sum = statSum[type, lev];
 
 				TotalSum 			+= sum;
-				TrackerSums[type] 	+= sum;
+				TypeSums[type] 	+= sum;
 				LevelSums[lev] 		+= sum;
 			}
 		}
@@ -257,65 +258,65 @@ public class MasterController : MonoBehaviour {
 		// Ramp expected values
 		// RampL0
 		ExpectedValues[0,0,0] = 65f;	// Air
-		ExpectedValues[0,0,1] = 3f;   	// Back
+		ExpectedValues[0,0,1] = 1f;   	// Tricks
 		ExpectedValues[0,0,2] = 60f;	// Speed
 		ExpectedValues[0,0,3] = 35f;	// Points
 		// RampL1
 		ExpectedValues[0,1,0] = 135f;	// Air
-		ExpectedValues[0,1,1] = 4f;		// Back
+		ExpectedValues[0,1,1] = 3f;		// Tricks
 		ExpectedValues[0,1,2] = 55f;	// Speed
 		ExpectedValues[0,1,3] = 50f;	// Points
 		// RampL2
 		ExpectedValues[0,2,0] = 225f; 	// Air
-		ExpectedValues[0,2,1] = 4f;  	// Back
+		ExpectedValues[0,2,1] = 4f;  	// Tricks
 		ExpectedValues[0,2,2] = 30f;  	// Speed
 		ExpectedValues[0,2,3] = 80f; 	// Points
 		// Speed expected values
 		//SpeedL0
 		ExpectedValues[1,0,0] = 1f; 	// Air
-		ExpectedValues[1,0,1] = 1f;  	// Back
+		ExpectedValues[1,0,1] = 1f;  	// Tricks
 		ExpectedValues[1,0,2] = 80f;  	// Speed
 		ExpectedValues[1,0,3] = 20f; 	// Points
 		//SpeedL1
 		ExpectedValues[1,1,0] = 75; 	// Air
-		ExpectedValues[1,1,1] = 4f;  	// Back
+		ExpectedValues[1,1,1] = 3f;  	// Tricks
 		ExpectedValues[1,1,2] = 80f;  	// Speed
 		ExpectedValues[1,1,3] = 25f; 	// Points
 		//SpeedL2
 		ExpectedValues[1,2,0] = 80; 	// Air
-		ExpectedValues[1,2,1] = 4f;  	// Back
+		ExpectedValues[1,2,1] = 4f;  	// Tricks
 		ExpectedValues[1,2,2] = 80f;  	// Speed
 		ExpectedValues[1,2,3] = 40f; 	// Points
 		// Spike expected values
 		//SpikedL0
 		ExpectedValues[2,0,0] = 60f; 	// Air
-		ExpectedValues[2,0,1] = 1f;  	// Back
+		ExpectedValues[2,0,1] = 1f;  	// Tricks
 		ExpectedValues[2,0,2] = 40f;  	// Speed
 		ExpectedValues[2,0,3] = 30f; 	// Points
 		//SpikeL1
 		ExpectedValues[2,1,0] = 60f; 	// Air
-		ExpectedValues[2,1,1] = 1f;  	// Back
+		ExpectedValues[2,1,1] = 1f;  	// Tricks
 		ExpectedValues[2,1,2] = 45f;  	// Speed
 		ExpectedValues[2,1,3] = 30; 	// Points
 		//SpikeL2
 		ExpectedValues[2,2,0] = 60f; 	// Air
-		ExpectedValues[2,2,1] = 1f;  	// Back
+		ExpectedValues[2,2,1] = 1f;  	// Tricks
 		ExpectedValues[2,2,2] = 50f;  	// Speed
 		ExpectedValues[2,2,3] = 55f; 	// Points
 		// Wall expected values
 		//WallL0
 		ExpectedValues[3,0,0] = 1f; 	// Air
-		ExpectedValues[3,0,1] = 1f;  	// Back
+		ExpectedValues[3,0,1] = 1f;  	// Tricks
 		ExpectedValues[3,0,2] = 70f;  	// Speed
 		ExpectedValues[3,0,3] = 25f; 	// Points
 		//WallL1
 		ExpectedValues[3,1,0] = 4f; 	// Air
-		ExpectedValues[3,1,1] = 1f;  	// Back
+		ExpectedValues[3,1,1] = 1f;  	// Tricks
 		ExpectedValues[3,1,2] = 70f;  	// Speed
 		ExpectedValues[3,1,3] = 45f; 	// Points
 		//WallL2
 		ExpectedValues[3,2,0] = 70f; 	// Air
-		ExpectedValues[3,2,1] = 1f;  	// Back
+		ExpectedValues[3,2,1] = 2f;  	// Tricks
 		ExpectedValues[3,2,2] = 50f;  	// Speed
 		ExpectedValues[3,2,3] = 65f; 	// Points
 
@@ -352,7 +353,7 @@ public class MasterController : MonoBehaviour {
 		} else {
 			// If the player dies, zero out all currently stored variables and trackers
 			currentLevel = null;
-			currentTracker = null;
+			currentType = null;
 			objectTouched = false;
 
 			Xspin = 0;
@@ -361,7 +362,7 @@ public class MasterController : MonoBehaviour {
 
 			PostObjectSpeed = 0;
 			PostObjectAir = 0;
-			PostObjectBack = 0;
+			PostObjectTricks = 0;
 			PostObjectPoints = 0;
 		}
 	}
@@ -393,14 +394,14 @@ public class MasterController : MonoBehaviour {
 	// Called whenever a player collides with an object's collider
 	public void PlayerInteracted(int idTrack, int idLev){
 		// Here we evaluate the ID sent from the interactable and increment the total number of the appropriate tracker
-		StatTracker tracker = Trackers[idTrack];
-		Level level = tracker.Levels[idLev];
+		Type type = Types[idTrack];
+		Level level = type.Levels[idLev];
 
 		level.numTotal++;
 
 		// This is used to keep track of the first object touched after the player starts a trick
 		if (!objectTouched) {
-			currentTracker = tracker;
+			currentType = type;
 			currentLevel = level;
 			objectTouched = true;
 
@@ -410,7 +411,7 @@ public class MasterController : MonoBehaviour {
 
 			PostObjectSpeed = 0;
 			PostObjectAir = 0;
-			PostObjectBack = 0;
+			PostObjectTricks = 0;
 			PostObjectPoints = 0;
 		}
 	}
@@ -424,28 +425,34 @@ public class MasterController : MonoBehaviour {
 			bool Z = (Input.GetAxis ("Spin") != 0);
 
 			if (_CarController.inAir) PostObjectAir++;
-			if (_CarController.onBack) PostObjectBack++;
 
 			Xspin += X;
 			if (!Z) Yspin += Y;
 			else Zspin += Y;
+
 		} else {
+			int div;
+
+			if(_CarController.Keyboard) div = 40;
+			else div = 25;
+
 			// This function is called each frame the player is in an object or in the air, it is also called the first frame that those are both false, thus this part of the function is only called once per interaction
 
 			// This is where we tally up all of the stats that were collected while the player was doing tricks
-			int flp = Mathf.Abs((int) (Xspin / 25));
-			int trn = Mathf.Abs((int) (Yspin / 25));
-			int spn = Mathf.Abs((int) (Zspin / 25));
+			int flp = Mathf.Abs((int) (Xspin / div));
+			int trn = Mathf.Abs((int) (Yspin / div));
+			int spn = Mathf.Abs((int) (Zspin / div));
 
 			totalFlips += flp;
 			totalTurns += trn;
 			totalSpins += spn;
 
 			int addedPoints = ((12 * flp) + (10 * trn) + (15 * spn));
+			PostObjectTricks = (flp + trn + spn);
 			PostObjectSpeed = (int) carRB.velocity.magnitude;
 
 			// If the player interacted with an object during their trick, we send the data to the Points added function to evaluate the new stats
-			if (objectTouched) PointsAdded(addedPoints, PostObjectAir, PostObjectBack, PostObjectSpeed);
+			if (objectTouched) PointsAdded(addedPoints, PostObjectAir, PostObjectTricks, PostObjectSpeed);
 			
 			// The points gained from doing tricks is updated with the DisplayPoints function
 			DisplayPoints(addedPoints);
@@ -457,40 +464,8 @@ public class MasterController : MonoBehaviour {
 
 			PostObjectSpeed = 0;
 			PostObjectAir = 0;
-			PostObjectBack = 0;
+			PostObjectTricks = 0;
 			PostObjectPoints = 0;
-		}
-	}
-
-	// This function is used to evaluate the stats gained and assign them to the corrent type/level
-	public void PointsAdded(int addedPoints, int air = 0, int back = 0, int speed = 0){
-		// This function is called when a player gets an orb and when they finish a trick so this is where we store the points gained
-		PostObjectPoints += addedPoints;
-		
-		// If the function is called becasue we just finished a trick then we must evaluate which object to give the stats to
-		if (!(_CarController.inAir || inObject)) {	
-			int preObjectPoints = currentTracker.getPoints(); // This is used to evaluate whether the player passes the threshold to pass the intro level difficulty
-			currentLevel.Points += PostObjectPoints;
-
-			// This is where we update our stats list and average stats list
-			currentLevel.AverageStats(air, back, speed, PostObjectPoints, Time.timeSinceLevelLoad);
-
-			// If the player had less than 200 and now has more than 200 points, they have passed the threshold for the intro and can now begin the true game
-			bool state1 = (preObjectPoints <= 200 && currentTracker.getPoints() >= 200);
-			if (state1) {
-				GenerateInfiniteFull.intro = false;
-				carController.HorsePower = 2500f;
-			}
-
-			// Reset tracking variables
-			StatTracking = false;
-			objectTouched = false;
-
-			// If the player has finished the intro requirements and they have been given the adaptive version of the game, apply the adaptive generation algorithm
-			if (!GenerateInfiniteFull.intro && GenerateInfiniteFull.adapt) AIMonitorPlayer();
-
-			currentLevel = null;
-			currentTracker = null;
 		}
 	}
 
@@ -502,13 +477,45 @@ public class MasterController : MonoBehaviour {
 		}
 	}
 
+	// This function is used to evaluate the stats gained and assign them to the corrent type/level
+	public void PointsAdded(int addedPoints, int air = 0, int trick = 0, int speed = 0){
+		// This function is called when a player gets an orb and when they finish a trick so this is where we store the points gained
+		PostObjectPoints += addedPoints;
+		
+		// If the function is called becasue we just finished a trick then we must evaluate which object to give the stats to
+		if (!(_CarController.inAir || inObject)) {
+			int preObjectPoints = currentType.getPoints(); // This is used to evaluate whether the player passes the threshold to pass the intro level difficulty
+			currentLevel.Points += PostObjectPoints;
+
+			// This is where we update our stats list and average stats list
+			currentLevel.AverageStats(air, trick, speed, PostObjectPoints, Time.timeSinceLevelLoad);
+
+			// If the player had less than 200 and now has more than 200 points, they have passed the threshold for the intro and can now begin the true game
+			bool state1 = (preObjectPoints <= 200 && currentType.getPoints() >= 200);
+			if (state1) {
+				GenerateInfiniteFull.intro = false;
+				carController.HorsePower = 2500f;
+			}
+
+			// Reset tracking variables
+			StatTracking = false;
+			objectTouched = false;
+
+			// If the player has finished the intro requirements and they have been given the adaptive version of the game, apply the adaptive generation algorithm
+			if (!GenerateInfiniteFull.intro) AIMonitorPlayer();
+
+			currentLevel = null;
+			currentType = null;
+		}
+	}
+
 	// This is the function where we analyze the player's stats and tweak the preference values of each type/level accordingly
 	private void AIMonitorPlayer(){
 		// This algorithm only checks the stats for the object the player just interacted with, since that is the only one that would have new stat values
 		float value = 0;
 		// Value is the sum of the weighted comparisons of the current average stats and the expected values
 		for (int stat = 0; stat < 4; stat++){
-			value += ((currentLevel.avgStats[stat]/ExpectedValues[currentTracker.ID, currentLevel.ID, stat]) * Weights[stat]);
+			value += ((currentLevel.avgStats[stat]/ExpectedValues[currentType.ID, currentLevel.ID, stat]) * Weights[stat]);
 		}
 
 		// Value is augmented by the number of times the player has interacted with an object
@@ -516,22 +523,22 @@ public class MasterController : MonoBehaviour {
 		value += currentLevel.numTotal;
 		
 		// We then find get the difference between the current summed stat value in our 2D matrix and our new value and apply it to our different tracking lists (I do it this way to avoid having to go back and sum up each list from scratch)
-		float diffValue = value - statSum[currentTracker.ID, currentLevel.ID];
+		float diffValue = value - statSum[currentType.ID, currentLevel.ID];
 		
 		TotalSum += diffValue;
-		TrackerSums[currentTracker.ID] += diffValue;
+		TypeSums[currentType.ID] += diffValue;
 		LevelSums[currentLevel.ID] += diffValue;
 
 		// The new value is then assinged to the spot it belongs in the 2D stat matrix
-		statSum[currentTracker.ID, currentLevel.ID] = value;
+		statSum[currentType.ID, currentLevel.ID] = value;
 		
-		//:::The preference values are decided in a Top-Down fashion.
+		//:The preference values are decided in a Top-Down fashion.
 		// This is done by summing the total weighted stat values (plus number of objects interacted with) and finding the ratio of that to the total sum of all stats. The same is done for the levels of each type
 		// Should I do bottom up? or maybe every object for itself??
 		for (int type = 0; type < 4; type++){
-			Trackers[type].Preference = (int) (100 * (TrackerSums[type]/TotalSum));
+			Types[type].Preference = (int) (100 * (TypeSums[type]/TotalSum));
 			for (int lev = 0; lev < 3; lev++){
-				Trackers[type].Levels[lev].Preference = (int) (100 * (statSum[type,lev]/LevelSums[lev]));
+				Types[type].Levels[lev].Preference = (int) (100 * (statSum[type,lev]/LevelSums[lev]));
 			}
 		}
 
@@ -540,41 +547,5 @@ public class MasterController : MonoBehaviour {
 			string s = string.Format("L{2}:{0} {1}", statList[stat], currentLevel.avgStats[stat], currentLevel.ID);
 			print(s);
 		}*/
-	}
-
-	// :::Temporary function for recording data. Should be changed to its own JSON file building class 
-	public static void LogDeath(){
-		string fileName = string.Format("Logs/DataLog{0}.txt", seed);
-        StreamWriter sw = File.CreateText(fileName);
-
-		StatTracker track;
-		Level lev;
-		KeyValuePair<float, int> stat;
-		string s;
-
-		sw.WriteLine("Stats\nair, back, speed, points");
-		for (int i = 0; i < Trackers.Count; i++){
-			track = Trackers[i];
-
-			if (track.getNumTotal() > 0) {
-				for (int j = 0; j < track.Levels.Count; j++){
-					lev = track.Levels[j];
-					
-					if (lev.numTotal > 0) {
-						foreach(int num in lev.avgStats){
-							sw.Write("{0} ", num.ToString());
-						}
-						for (int k = 0; k < lev.Stats.Count; k++){
-							stat = lev.Stats[k];
-							if (k%4 == 0) sw.Write("{0}| ", lev.Stats[k].Key);
-							s = string.Format("{0}{1} {2}:{3}", track.ID, lev.ID, statList[k%4], stat.Value.ToString());
-							sw.Write(s + ", ");
-						}
-					}
-				}
-			}
-			sw.WriteLine();
-		}
-        sw.Close();
 	}
 }
