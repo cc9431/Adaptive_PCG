@@ -48,8 +48,11 @@ public class _CarController : MonoBehaviour {
 		notDriftForward = WheelColliders [0].forwardFriction;
 
 		drift = notDriftSideways;
+		//drift.extremumValue = 2.1f;
+		//drift.asymptoteValue = 2.1f;
 		drift.extremumValue = 0.1f;
-		drift.asymptoteValue = 0.1f;
+		drift.asymptoteValue = 0.01f;
+
 	}
 
 	void FixedUpdate () {
@@ -99,8 +102,7 @@ public class _CarController : MonoBehaviour {
 		foreach(WheelCollider wheel in WheelColliders) RPMs += wheel.rpm;
 		RPMs = RPMs/4;
 
-		if (PlayerRB.position.y > highestPoint)
-			highestPoint = PlayerRB.position.y;
+		if (PlayerRB.position.y > highestPoint) highestPoint = PlayerRB.position.y;
 	}
 
 	void MoveThatCar(){
@@ -110,16 +112,17 @@ public class _CarController : MonoBehaviour {
 		float Reverse = Input.GetAxis ("Reverse");
 		float Jump = Input.GetAxis ("Jump");
 		bool Spin = (Input.GetAxis ("Spin") != 0);
+		float drive = 0;
+		maxSpeed = RPMs >= 3000;
 		Drift = (Input.GetAxis ("Brake") != 0);
+		WheelFrictionCurve driftOrNotSideways = new WheelFrictionCurve();
+		WheelFrictionCurve driftOrNotForward = new WheelFrictionCurve();
 
 		if (Keyboard){
 			if (Input.GetKey (KeyCode.A))		Turn = -1;
 			else if (Input.GetKey (KeyCode.D))	Turn = 1;
-			else								Turn = 0;
-			
 			if (Input.GetKey (KeyCode.W))		Accel = 1;
 			else								Accel = 0;
-
 			if (Input.GetKey(KeyCode.S)) 		Reverse = -1;
 			else 								Reverse = 0;
 			if (Input.GetKey (KeyCode.Space)) 	Jump = 1;
@@ -129,26 +132,19 @@ public class _CarController : MonoBehaviour {
 		if (speedGate > 0) {
 			Boost = 1.5f;
 			speedGate -= 0.1f;
-		} else Boost = Input.GetAxis ("Boost");
-
-		float steering = HighSteerAngle * Turn;
-		float drive = 0;
-
-		maxSpeed = RPMs >= 3000;
+		} else Boost = 0;
 		boosting = Boost != 0;
+
+		HighSteerAngle = 9 - 3 * (RPMs/3000);
+		float steering = HighSteerAngle * Turn;
 
 		WheelColliders [0].steerAngle = steering;
 		WheelColliders [1].steerAngle = steering;
-
-		WheelFrictionCurve driftOrNotSideways = new WheelFrictionCurve ();
-		WheelFrictionCurve driftOrNotForward = new WheelFrictionCurve ();
 
 		if (!maxSpeed) PlayerRB.AddForce (30000f * gameObject.transform.forward * Boost, ForceMode.Force);
 
 		if (inAir) {
 			Drift = false;
-			driftOrNotForward = notDriftForward;
-			driftOrNotSideways = notDriftSideways;
 
 			PlayerRB.drag = 0f;
 			PlayerRB.angularDrag = 5f;
@@ -156,23 +152,22 @@ public class _CarController : MonoBehaviour {
 			RocketLeagueAirControls(Spin, Turn, Pitch);
 		} else {
 			PlayerRB.drag = 0.5f;
+			PlayerRB.angularDrag = 0.5f;
 
 			if (Drift) {
-				PlayerRB.angularDrag = 5f;
-
-				driftOrNotForward = drift;
 				driftOrNotSideways = drift;
-				RocketLeagueAirControls(Spin, Turn, Pitch);
+				driftOrNotForward = drift;
+				RocketLeagueAirControls(false, Turn*0.1f, 0f);
+				if (Accel != 0 && !maxSpeed) PlayerRB.AddForce (30000f * gameObject.transform.forward, ForceMode.Force);
+				Accel = 0;
 			} else {
-				PlayerRB.angularDrag = 0.5f;
-
+				driftOrNotSideways = notDriftSideways;
 				driftOrNotForward = notDriftForward;
-				driftOrNotSideways = notDriftSideways; 
 			}
+
 			if (!maxSpeed) {
-				if (Accel > 0)
-					drive = HorsePower * (Accel);
-				if (Reverse < 0) drive = HorsePower * (Reverse);
+				if (Accel > 0)		drive = HorsePower * (Accel);
+				if (Reverse < 0) 	drive = HorsePower * (Reverse);
 			} 
 			if (Jump != 0 && !lastFrameJump) {
 				PlayerRB.AddForce (13000f * gameObject.transform.up * Jump, ForceMode.Impulse);
@@ -187,7 +182,6 @@ public class _CarController : MonoBehaviour {
 			wheel.motorTorque = drive;
 			FixMeshPositions(wheel);
 		}
-
 		lastFrameJump = (Jump == 1);
 	}
 
@@ -219,7 +213,7 @@ public class _CarController : MonoBehaviour {
 
 	void RocketLeagueAirControls(bool spin, float turn, float pitch){
 		if (spin) 	PlayerRB.AddRelativeTorque (Vector3.back * turn, ForceMode.VelocityChange);
-			else 		PlayerRB.AddRelativeTorque (0.93f * Vector3.up * turn, ForceMode.VelocityChange);
-						PlayerRB.AddRelativeTorque (0.93f * Vector3.right * pitch, ForceMode.VelocityChange);
+		else 		PlayerRB.AddRelativeTorque (0.93f * Vector3.up * turn, ForceMode.VelocityChange);
+					PlayerRB.AddRelativeTorque (0.93f * Vector3.right * pitch, ForceMode.VelocityChange);
 	}
 }

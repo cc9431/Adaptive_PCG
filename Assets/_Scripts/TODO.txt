@@ -1,20 +1,9 @@
-
-::::Finish Data Logging: log all raw data every 30 seco
-::::Tutorial Level:
-    ::::Max Speed Lower, Objects spawned every 4 tiles, 
-
-:::Player Matching: Through trial and error, find expected value for average stat of each interactable. For Example, RampL0 should have 25air, 5back, 10max, 60points.
-    :::After dividing the average of all the RampL0, RampL1, and RampL2 stats by their respective expected values, apply weights to the resulting numbers based on how much I think each stat should matter (Higher than expected point gain should be rewarded more over higher than expected max-speed frame number, because high max-speed frames is easier than high point gain). After this, calculate how Ramps in general compare to the rest of the types, by applying this same process to each type and adding all results together, then dividing each by the sum. Use the resulting numbers to shift preference values.
-        :::Weights in order of size: Points, Back, Air, Max
-    :::Total number of incounters should also be applied to the weighing
-
-::: Change style of preference picking, instead of values that divide the styles and levels, use percents and sum ontop of the previous to get the effect of what I am doing now
-
-::Finish UI buttons
-::Blend two mars meshes into each other
-
-
-
+//:::COMMENTS
+//:::Setup for meeting with Bob:
+    Player matching style [see below]
+    Next steps for testing
+    Help with Stat List<KeyValuePair<float, int>>
+//:Drifting still sucks
 ===============================================================================================
 Jasmine's Notes
 
@@ -29,12 +18,12 @@ survey question: how often do you play games? do you like video games? etc.
 
 ===============================================================================================
 
-:: Player Matching: There are a couple of questions I have about the best way to set up the preference values...
+//::Player Matching:
     Should I do a top-down system? (Types are compared, then within each type, levels are compared)
         If so, how should the types be compared?
-            Should each type just sum all values from all three levels?
+            Should each type just sum all values from all three levels? ::Currently how I'm doing it
             Should each type use its 'best' values?
-            Should each type use just one level?
+            Should each type use just one pre-picked level?
             Should each type weight the levels then use all values?
     Should I do a bottom-up system? (Levels are compared, then whithin each level, types are compared)
         If so, how should the levels be compared?
@@ -42,3 +31,15 @@ survey question: how often do you play games? do you like video games? etc.
             Should each level use its 'best' type?
             Should each level weight the types?
     Should I do an all equal system? (All 12 items are compared to each other and preferences are built from that)
+
+    Not todo: (because I've done them)
+//:::Tutorial Level:
+    //:::Max Speed Lower, Objects spawned every 4 tiles
+//:::Finish Data Logging: Create JSON file for logging all levels
+//::Player Matching: Through trial and error, find expected value for average stat of each interactable. For Example, RampL0 should have 25air, 5back, 10max, 60points.
+    //::After dividing the average of all the RampL0, RampL1, and RampL2 stats by their respective expected values, apply weights to the resulting numbers based on how much I think each stat should matter (Higher than expected point gain should be rewarded more over higher than expected max-speed frame number, because high max-speed frames is easier than high point gain). After this, calculate how Ramps in general compare to the rest of the types, by applying this same process to each type and adding all results together, then dividing each by the sum. Use the resulting numbers to shift preference values.
+        //::Weights in order of size: Points, Back, Air, Max
+//::Change style of preference picking, instead of values that divide the styles and levels, use percents and sum ontop of the previous to get the effect of what I am doing now
+//::Total number of incounters should also be applied to the weighing
+//:Finish UI buttons
+//::Different divisors for keyboard and controller
