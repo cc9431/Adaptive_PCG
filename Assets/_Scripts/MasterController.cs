@@ -14,6 +14,7 @@ public class Level {
 	public int Preference;					// The value that decides how often this object is generated
 	public List<KeyValuePair<float, int>> Stats = new List<KeyValuePair<float, int>>(); // The 'dictionary' of Stats (list of keyvaluepair because I require non-unique keys)
 	public float[] avgStats = new float[4];	// All of the stats tracked by this level averaged out by type
+	public float[] stdDevStats = new float[4];
 
 	// Initialization function
 	public Level(int id, int pref){
@@ -31,11 +32,30 @@ public class Level {
 
 		// For each slot, update the average by adding in the four most recent stats and calculating the average with those new values
 		for (int stat = 0; stat < 4; stat++){
-			avgStats[stat] += (Stats[Stats.Count - (stat + 1)].Value - avgStats[stat])/(Stats.Count/4);
+			// Get the most recent stat relating to which slot we are looking at: air, trick, speed, and points
+			float statValue = Stats[Stats.Count - (stat + 1)].Value; 
+			// Keep track of the difference between the new stat value and the old average (mean)
+			float oldDiff = statValue - avgStats[stat];
+			// Total count for each stat is (size of the stat list) / 4 since the list keeps track of all 4 different stats
+			int statSize = Stats.Count/4;
+
+			/// Recalculate the average (mean): 
+			/// newMean = oldMean + ((newValue - oldMean) / count)
+			avgStats[stat] += oldDiff / statSize;
+			
+			// Save the difference between the new value and the new average (mean)
+			float newDiff = statValue - avgStats[stat];
+
+			/// if we have more than one set of stats, recalculate the new standard deviation (population):
+			/// newStandardDeviation = SquareRoot(newVariance)
+			/// newVariance = ((count - 1)oldVariance + (newValue - oldMean)(newValue - newMean)) / count
+			/// else the standard deviation is 0 because we only have one input
+			if (statSize > 1) stdDevStats[stat] = Mathf.Sqrt((((statSize - 1) * stdDevStats[stat]) + ((oldDiff) * (newDiff))) / statSize );
+			else stdDevStats[stat] = 0;
 		}
 
 		/*
-		//::If what I wrote above doesn't work, go back to this
+		//If what I wrote above doesn't work, go back to this
 		for (int i = 0; i < avgStats.Length; i++){
 			sum = 0;
 			// The stats are recorded in the same order every time the player interacts (air, trick, speed, points)
@@ -532,7 +552,6 @@ public class MasterController : MonoBehaviour {
 		// The new value is then assinged to the spot it belongs in the 2D stat matrix
 		statSum[currentType.ID, currentLevel.ID] = value;
 		
-		//:The preference values are decided in a Top-Down fashion.
 		// This is done by summing the total weighted stat values (plus number of objects interacted with) and finding the ratio of that to the total sum of all stats. The same is done for the levels of each type
 		// Should I do bottom up? or maybe every object for itself??
 		for (int type = 0; type < 4; type++){
