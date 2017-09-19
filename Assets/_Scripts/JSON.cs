@@ -46,10 +46,13 @@ public class JSON : MonoBehaviour {
         data.typeID = topID;
 
         // Because the JsonUtility cannot handle List<KeyValuePair<float, int>> we need to turn it into an array of strings
-        List<int> tempStats = new List<int>();    
+        List<int> tempStats = new List<int>();
         for(int stat = 0; stat < lev.Stats.Count; stat++) {
-            if((stat % 4) == 0) tempStats.Add((int)lev.Stats[stat].Key);
-            tempStats.Add(lev.Stats[stat].Value);
+            tempStats.Add((int)lev.Stats[stat].Key);
+            tempStats.Add(lev.Stats[stat].Value[0]);
+            tempStats.Add(lev.Stats[stat].Value[1]);
+            tempStats.Add(lev.Stats[stat].Value[2]);
+            tempStats.Add(lev.Stats[stat].Value[3]);
         }
         data.Stats = tempStats.ToArray();
         

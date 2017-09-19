@@ -1,14 +1,10 @@
 //:::COMMENTS
-//:::Setup:
-    Player matching style [see below]
-    Next steps for testing
+//::How to calculate standard deviation for Types?
+//::For one credit: Lab hours for Sven/assisting in lab creation and such
 //:Drifting needs work
 
-//:::Need to set up a standard deviation for average stats, instead of comparing values directly to expected, only change preference if the value significantly different
-
-//:::Arguement for how to calculate engagement and skill progression. What values do I have for measuring these variables? In plain english.
-
-//::For one credit: find something vaugely academic that I am interested in one hour every two weeks.
+Todo for next time:
+Argument for how to calculate engagement and skill progression. What values do I have for measuring these variables? In plain english.
 ===============================================================================================
 Jasmine's Notes
 
@@ -37,7 +33,7 @@ survey question: how often do you play games? do you like video games? etc.
             Should each level weight the types?
     Should I do an all equal system? (All 12 items are compared to each other and preferences are built from that)
 
-    Not todo: (because I've done them)
+    Not todo (because I've done them)
 //:::Tutorial Level:
     //:::Max Speed Lower, Objects spawned every 4 tiles
 //:::Finish Data Logging: Create JSON file for logging all levels

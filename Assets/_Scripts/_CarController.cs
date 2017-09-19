@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-	// This script is to allow the player to control the car (while they are still alive)
-	// The player can accelerate, reverse, drift/handbrake, boost, jump, and rotate in the air on three axes.
-	// This script keeps track of data about the player's interaction with the game and sends it to the
-	// master controller.
+	/// This script is to allow the player to control the car (while they are still alive)
+	/// The player can accelerate, reverse, drift/handbrake, boost, jump, and rotate in the air on three axes.
+	/// This script keeps track of data about the player's interaction with the game and sends it to the
+	/// master controller.
 
 public class _CarController : MonoBehaviour {
 	private WheelCollider[] WheelColliders;

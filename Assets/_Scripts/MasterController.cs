@@ -12,7 +12,7 @@ public class Level {
 	public int numTotal;					// Total number of times the player has interacted with this object
 	public int ID;							// This ID relates to which level the object is
 	public int Preference;					// The value that decides how often this object is generated
-	public List<KeyValuePair<float, int>> Stats = new List<KeyValuePair<float, int>>(); // The 'dictionary' of Stats (list of keyvaluepair because I require non-unique keys)
+	public List<KeyValuePair<float, int[]>> Stats = new List<KeyValuePair<float, int[]>>(); // The 'dictionary' of Stats (list of keyvaluepair because I require non-unique keys)
 	public float[] avgStats = new float[4];	// All of the stats tracked by this level averaged out by type
 	public float[] stdDevStats = new float[4];
 
@@ -25,19 +25,17 @@ public class Level {
 	// Function for taking the total list of stats and averaging them for preference analysis
 	public float[] AverageStats(int air, int trick, int speed, int points, float time){
 		// Add our new stats to the list of stats
-		Stats.Add(new KeyValuePair<float, int>(time, air));
-		Stats.Add(new KeyValuePair<float, int>(time, trick));
-		Stats.Add(new KeyValuePair<float, int>(time, speed));
-		Stats.Add(new KeyValuePair<float, int>(time, points));
+		int[] statArray = {air, trick, speed, points};
+		Stats.Add(new KeyValuePair<float, int[]>(time, statArray));
 
 		// For each slot, update the average by adding in the four most recent stats and calculating the average with those new values
 		for (int stat = 0; stat < 4; stat++){
 			// Get the most recent stat relating to which slot we are looking at: air, trick, speed, and points
-			float statValue = Stats[Stats.Count - (stat + 1)].Value; 
+			float statValue = Stats[Stats.Count - 1].Value[stat];
 			// Keep track of the difference between the new stat value and the old average (mean)
 			float oldDiff = statValue - avgStats[stat];
 			// Total count for each stat is (size of the stat list) / 4 since the list keeps track of all 4 different stats
-			int statSize = Stats.Count/4;
+			int statSize = Stats.Count;
 
 			/// Recalculate the average (mean): 
 			/// newMean = oldMean + ((newValue - oldMean) / count)
@@ -76,7 +74,7 @@ public class Level {
 // This way we have four types with three levels instead of individually tracking all 12 different objects
 public class Type {
 	public int Points;						// Total number of points made from using this object
-	public List<KeyValuePair<float, int>> Stats = new List<KeyValuePair<float, int>>();  // The 'dictionary' of Stats (list of keyvaluepair because I require non-unique keys)
+	public List<KeyValuePair<float, int[]>> Stats = new List<KeyValuePair<float, int[]>>();  // The 'dictionary' of Stats (list of keyvaluepair because I require non-unique keys)
 	public float[] avgStats = new float[4];	// All of the stats tracked by this level averaged out by type
 	public int numTotal;					// Total number of times the player has interacted with this object
 	public int ID;							// This ID relates to which level the object is
@@ -270,7 +268,7 @@ public class MasterController : MonoBehaviour {
 				float sum = statSum[type, lev];
 
 				TotalSum 			+= sum;
-				TypeSums[type] 	+= sum;
+				TypeSums[type] 		+= sum;
 				LevelSums[lev] 		+= sum;
 			}
 		}
