@@ -130,7 +130,7 @@ public class StatJSON : MonoBehaviour {
             }
         }
 
-        recap["numObjTouched"] = numObjTouched;
+        recap["NumObjTouched"] = numObjTouched;
         dataList["Timed Data"].Add(Time.timeSinceLevelLoad.ToString(), recap);
         
         // Debugging
