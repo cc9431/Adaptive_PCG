@@ -137,7 +137,7 @@ public class Type {
 }
 
 public class MasterController : MonoBehaviour {
-	private int totalPoints;								// Total points based on tricks and orbs collected
+	public static int totalPoints;								// Total points based on tricks and orbs collected
 	public static int orbs;									// Total number of orbs collected
 
 	public static List<Type> Types;				// List of four types of objects with the four different types below it
@@ -155,9 +155,12 @@ public class MasterController : MonoBehaviour {
 	public static int timesReset;							// Number of frames reset from being stuck
 
 	// How many tricks the player does over all
-	private int totalFlips;									// Number of spins about the x axis
-	private int totalTurns;									// Number of spins about the y axis
-	private int totalSpins;									// Number of spins about the z axis
+	public static int totalFlips;									// Number of spins about the x axis
+	public static int totalTurns;									// Number of spins about the y axis
+	public static int totalSpins;									// Number of spins about the z axis
+	public static int perfectFlips;									// Number of spins about the x axis
+	public static int perfectTurns;									// Number of spins about the y axis
+	public static int perfectSpins;									// Number of spins about the z axis
 
 	// Lists and sums of the expected and tracked statistic values
 	private float[,,] ExpectedValues = new float[4,3,4];	// 3D matrix of expected stat values based on play throughs and logging of average stat data
@@ -168,7 +171,7 @@ public class MasterController : MonoBehaviour {
 	private float TotalSum;									// Total sum of all stats from all objects
 	
 	private int qty;										// Counter for the average speed stat
-	private float AvgSpeed;									// Average speed since startup
+	public static float AvgSpeed;									// Average speed since startup
 	public static int jumps;								// How many times a player jumps
 	public static int deaths;								// How many times a player dies
 
@@ -188,6 +191,7 @@ public class MasterController : MonoBehaviour {
 	private int PostObjectAir;								// Frames spent in air during interaction
 	private int PostObjectTricks;							// Number of tricks performed during interaction
 	private int PostObjectPoints;							// Points gained during interaction
+	private int PostObjectBack;								// Used to determine if player commited a perfect trick
 	public static int PostObjectSpeed;						// Speed reached at the moment the player exits the object's collider
 
 	private Type currentType;						// Reference to the current type of object the player is interacting with
@@ -197,13 +201,14 @@ public class MasterController : MonoBehaviour {
 	public static int seed;									// Each play has a unique seed, used for determining the random number generation and used by me to save data to a unique file each play through
 	public static string[] statList = new string[4];		// List of the names of each type of stat for debugging
 	public Text PointDisplay;								// Reference to the UI element that displays the total number of points
-	public JSON JSONClass;
+	public StatJSON statJSON;
+	private float lastLogTime;
 
 	// Each script with public static variables requires that I use OnEnable, OnDisable, and OnSceneLoaded to change those variables each time a reload the game
 	void OnEnable() {
 		// <
 		SceneManager.sceneLoaded += OnSceneLoaded;
-	}
+	}	
 
 	void OnDisable() {
 		// =
@@ -216,6 +221,7 @@ public class MasterController : MonoBehaviour {
 		orbs = 0;
 		jumps = 0;
 		deaths = 0;
+		totalPoints = 0;
 
 		framesInAir = 0;
 		framesAtMax = 0;
@@ -223,11 +229,19 @@ public class MasterController : MonoBehaviour {
 		framesOnBack = 0;
 		framesDrifting = 0;
 		timesReset = 0;
+		AvgSpeed = 0;
 
 		inObject = false;
 		StatTracking = false;
 		objectTouched = false;
 	
+		totalFlips = 0;
+		totalSpins = 0;
+		totalTurns = 0;
+		perfectFlips = 0;
+		perfectSpins = 0;
+		perfectTurns = 0;
+
 		Ramp  = new Type(0, 100/4, "Ramp");
 		Speed = new Type(1, 100/4, "Speed");
 		Spike = new Type(2, 100/4, "Spike");
@@ -343,9 +357,9 @@ public class MasterController : MonoBehaviour {
 		AddPointsController.Initialize();
 	}
 
-	void LateUpdate () {
+	void FixedUpdate() {
 		// Only track stats, update speed, or update points if the player is alive
-		if (_CarController.Alive) {
+		if (_CarController.Alive && !_CarController.TimedOut) {
 			// TrackStats() is called every frame that the car is in the air or in an Object's collider and the first frame that the car touches back down
 			if (StatTracking || _CarController.inAir || inObject) TrackStats ();
 
@@ -367,21 +381,11 @@ public class MasterController : MonoBehaviour {
 			StatTracking = _CarController.inAir || inObject;
 
 			if (PointDisplay != null) PointDisplay.text = totalPoints.ToString();
+		}
 
-		} else {
-			// If the player dies, zero out all currently stored variables and trackers
-			currentLevel = null;
-			currentType = null;
-			objectTouched = false;
-
-			Xspin = 0;
-			Yspin = 0;
-			Zspin = 0;
-
-			PostObjectSpeed = 0;
-			PostObjectAir = 0;
-			PostObjectTricks = 0;
-			PostObjectPoints = 0;
+		if ((Time.timeSinceLevelLoad - lastLogTime) >= 30){
+			lastLogTime = Time.timeSinceLevelLoad;
+			statJSON.ThirtySecondLog();
 		}
 	}
 
@@ -389,15 +393,6 @@ public class MasterController : MonoBehaviour {
 	private void UpdateAverageSpeed(float newSpeed){
 		++qty;
 		AvgSpeed += (newSpeed - AvgSpeed)/qty;
-	}
-
-	// Used for debugging
-	private void PrintStats(){
-		print ("framesAtMax: " + framesAtMax.ToString());
-		print ("framesBoosting: " + framesBoosting.ToString());
-		print ("framesInAir: " + framesInAir.ToString());
-		print ("framesDrifting: " + framesDrifting.ToString ());
-		print ("framesOnBack: " + framesOnBack.ToString ());
 	}
 
 	// Used for debugging
@@ -431,6 +426,7 @@ public class MasterController : MonoBehaviour {
 			PostObjectAir = 0;
 			PostObjectTricks = 0;
 			PostObjectPoints = 0;
+			PostObjectBack = 0;
 		}
 	}
 
@@ -443,6 +439,7 @@ public class MasterController : MonoBehaviour {
 			bool Z = (Input.GetAxis ("Spin") != 0);
 
 			if (_CarController.inAir) PostObjectAir++;
+			if (_CarController.onBack) PostObjectBack++;
 
 			Xspin += X;
 			if (!Z) Yspin += Y;
@@ -450,8 +447,10 @@ public class MasterController : MonoBehaviour {
 
 		} else {
 			int div;
+			int penalty = 0;
+			bool perfectTrick = (PostObjectBack < 2);
 
-			if(_CarController.Keyboard) div = 40;
+			if (_CarController.Keyboard) div = 38;
 			else div = 25;
 
 			// This function is called each frame the player is in an object or in the air, it is also called the first frame that those are both false, thus this part of the function is only called once per interaction
@@ -461,11 +460,20 @@ public class MasterController : MonoBehaviour {
 			int trn = Mathf.Abs((int) (Yspin / div));
 			int spn = Mathf.Abs((int) (Zspin / div));
 
+			if (!perfectTrick) penalty = -PostObjectBack * 2;
+			else{
+				penalty = 0;
+				perfectFlips += flp;
+				perfectSpins += trn;
+				perfectTurns += spn;
+			}
+
 			totalFlips += flp;
 			totalTurns += trn;
 			totalSpins += spn;
 
-			int addedPoints = ((12 * flp) + (10 * trn) + (15 * spn));
+			int addedPoints = Mathf.Clamp(penalty + ((12 * flp) + (10 * trn) + (15 * spn)), 0, 50);
+			if (addedPoints < 0) addedPoints = 0;
 			PostObjectTricks = (flp + trn + spn);
 			PostObjectSpeed = (int) carRB.velocity.magnitude;
 
@@ -509,7 +517,8 @@ public class MasterController : MonoBehaviour {
 			currentLevel.AverageStats(air, trick, speed, PostObjectPoints, Time.timeSinceLevelLoad);
 
 			// If the player had less than 200 and now has more than 200 points, they have passed the threshold for the intro and can now begin the true game
-			bool state1 = (preObjectPoints <= 200 && currentType.getPoints() >= 200);
+			int introThreshold = 100;
+			bool state1 = (preObjectPoints <= introThreshold && currentType.getPoints() >= introThreshold);
 			if (state1) {
 				GenerateInfiniteFull.intro = false;
 				carController.HorsePower = 2500f;
@@ -520,7 +529,7 @@ public class MasterController : MonoBehaviour {
 			objectTouched = false;
 
 			// If the player has finished the intro requirements and they have been given the adaptive version of the game, apply the adaptive generation algorithm
-			if (!GenerateInfiniteFull.intro) AIMonitorPlayer();
+			if (!GenerateInfiniteFull.intro) PrefAlgorithm();
 
 			currentLevel = null;
 			currentType = null;
@@ -528,7 +537,7 @@ public class MasterController : MonoBehaviour {
 	}
 
 	// This is the function where we analyze the player's stats and tweak the preference values of each type/level accordingly
-	private void AIMonitorPlayer(){
+	private void PrefAlgorithm(){
 		// This algorithm only checks the stats for the object the player just interacted with, since that is the only one that would have new stat values
 		float value = 0;
 		// Value is the sum of the weighted comparisons of the current average stats and the expected values
@@ -538,7 +547,7 @@ public class MasterController : MonoBehaviour {
 
 		// Value is augmented by the number of times the player has interacted with an object
 		// Since I believe this number is one of the best predicters of a player's preference for an object, it is weighted with a full 100%
-		value += currentLevel.numTotal;
+		value +=(Mathf.Log(currentLevel.numTotal) + 2);
 		
 		// We then find get the difference between the current summed stat value in our 2D matrix and our new value and apply it to our different tracking lists (I do it this way to avoid having to go back and sum up each list from scratch)
 		float diffValue = value - statSum[currentType.ID, currentLevel.ID];
@@ -565,4 +574,24 @@ public class MasterController : MonoBehaviour {
 			print(s);
 		}*/
 	}
+
+	public void playerDied(){
+		// If the player dies, zero out all currently stored variables and trackers
+		deaths++;
+
+		currentLevel = null;
+		currentType = null;
+		objectTouched = false;
+
+		Xspin = 0;
+		Yspin = 0;
+		Zspin = 0;
+
+		PostObjectSpeed = 0;
+		PostObjectAir = 0;
+		PostObjectTricks = 0;
+		PostObjectPoints = 0;
+		PostObjectBack = 0;
+	}
+
 }

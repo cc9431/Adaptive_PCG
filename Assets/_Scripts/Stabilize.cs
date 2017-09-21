@@ -11,7 +11,7 @@ public class Stabilize : MonoBehaviour{
     public float AntiRoll;
  
     public void FixedUpdate(){
-		if (_CarController.Alive) {
+		if (_CarController.Alive && !_CarController.TimedOut) {
 			WheelHit hit;
 			float travelL = 1.0f;
 			float travelR = 1.0f;

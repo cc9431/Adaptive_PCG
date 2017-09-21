@@ -4,7 +4,7 @@
 //:Drifting needs work
 
 Todo for next time:
-Argument for how to calculate engagement and skill progression. What values do I have for measuring these variables? In plain english.
+Play for 5 minutes and rack up a whole bunch of sample data
 ===============================================================================================
 Jasmine's Notes
 

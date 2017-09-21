@@ -11,32 +11,31 @@ public class UIController : MonoBehaviour {
 	private bool lastFrameAlive;
 	private Transform car;
 
+	public MasterController master;
+
 	public bool Paused;
 	public EventSystem eventSystem;
 	public GameObject selectedObject;
 	public GameObject PauseScreen;
 	public GameObject DeathScreen;
+	public GameObject TimeScreen;
 	public GameObject DeathScreenSelectedObject;
+	public GameObject DeathScreenContinue;
 	public GameObject PauseScreenSelectedObject;
-	private JSON JSONClass;
+	public GameObject TimeScreenSelectedObject;
+	private StatJSON JSONClass;
 	private Slider slider;
 
-	void OnEnable() {
-		//SceneManager.sceneLoaded += OnSceneLoaded;
-	}
+	void OnEnable() {}
 
 	void OnDisable() {
 		buttonSelected = false;
-		//SceneManager.sceneLoaded -= OnSceneLoaded;
-	}
-
-	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
-		
 	}
 
 	void Awake(){
 		if (PauseScreen != null) PauseScreen.SetActive(false);
 		if (DeathScreen != null) DeathScreen.SetActive(false);
+		if (TimeScreen != null) TimeScreen.SetActive(false);
 
 		Cursor.visible = false;
 		Cursor.lockState = CursorLockMode.Confined;
@@ -45,7 +44,7 @@ public class UIController : MonoBehaviour {
 	void Start(){
 		car = GameObject.FindGameObjectWithTag("Player").transform;
 		eventSystem.SetSelectedGameObject(selectedObject);
-		JSONClass = GetComponent<JSON>();
+		JSONClass = GetComponent<StatJSON>();
 	}
 
 	void Update(){
@@ -54,13 +53,13 @@ public class UIController : MonoBehaviour {
 			buttonSelected = true;
 		}
 
-		if (Input.GetAxisRaw("Jump") != 0 || Input.GetKeyDown(KeyCode.Space)){
+		if (Input.GetAxisRaw("Jump") != 0 || Input.GetKeyDown(KeyCode.Return)){
 			GameObject button = eventSystem.currentSelectedGameObject;
 			PointerEventData pointer = new PointerEventData(EventSystem.current);
 			ExecuteEvents.Execute(button, pointer, ExecuteEvents.pointerClickHandler);
 		}
 
-		if (_CarController.Alive) {
+		if (_CarController.Alive && !_CarController.TimedOut) {
 			// Where we check if the player pauses the game or not
 			bool Pause = (Input.GetAxisRaw("Submit") != 0);
 
@@ -78,6 +77,12 @@ public class UIController : MonoBehaviour {
 		} else {
 			if (lastFrameAlive && DeathScreen != null) {
 				if (Time.timeSinceLevelLoad < 300f) Restart();
+				else if (_CarController.TimedOut){
+					TimeScreen.SetActive(true);
+					selectedObject = TimeScreenSelectedObject;
+					Time.timeScale = 0.2f;
+					buttonSelected = false;
+				}
 				else {
 					DeathScreen.SetActive(true);
 					selectedObject = DeathScreenSelectedObject;
@@ -118,6 +123,8 @@ public class UIController : MonoBehaviour {
 		Rigidbody carRB = car.gameObject.GetComponent<Rigidbody> ();
 
 		GenerateInfiniteFull.Restart = true;
+
+		master.playerDied();
 		
 		car.position = new Vector3(0, 11, 0);
 		car.rotation = Quaternion.identity;

@@ -25,16 +25,18 @@ public class _CarController : MonoBehaviour {
 	public static bool bodyTouching;
 	public static bool onBack;
 	public static bool Alive;
+	public static bool TimedOut;
 	public static bool Keyboard;
 
 	private bool lastFrameJump;
-	private bool lastFrameAlive;
+	private bool lastFrameAlive = true;
 	private float waitForReset;
 	public float Boost;
 	private float HighSteerAngle = 6f;
 	public float HorsePower = 1700f;
 	void Awake(){
 		Alive = true;
+		TimedOut = false;
 	}
 
 	void Start(){
@@ -56,36 +58,37 @@ public class _CarController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		if (Alive) {
-			if (!lastFrameAlive){
-				foreach (WheelCollider wheel in WheelColliders) {
-					wheel.gameObject.SetActive(true);
+		TimedOut = (Time.timeSinceLevelLoad > 301f);
+		if (!TimedOut) {
+			if (Alive) {
+				if (!lastFrameAlive){
+					foreach (WheelCollider wheel in WheelColliders) {
+						wheel.gameObject.SetActive(true);
+					}
+				}
+				if (waitForReset < 99) waitForReset++;
+				
+				ResetPosition ();
+				CheckThatCar ();
+				MoveThatCar ();
+
+				if (inAir) MasterController.framesInAir++;
+				if (maxSpeed) MasterController.framesAtMax++;
+				if (boosting) MasterController.framesBoosting++;
+				if (onBack) MasterController.framesOnBack++;
+				if (Drift) MasterController.framesDrifting++;
+
+			} else {
+				if (lastFrameAlive) {
+					speedGate = 0;
+					foreach (WheelCollider wheel in WheelColliders) {
+							wheel.gameObject.SetActive(false);
+					}
 				}
 			}
-			if (waitForReset < 99) waitForReset++;
-			
-			ResetPosition ();
-			CheckThatCar ();
-			MoveThatCar ();
 
-			if (inAir) MasterController.framesInAir++;
-			if (maxSpeed) MasterController.framesAtMax++;
-			if (boosting) MasterController.framesBoosting++;
-			if (onBack) MasterController.framesOnBack++;
-			if (Drift) MasterController.framesDrifting++;
-
-		} else {
-			if (lastFrameAlive) {
-				speedGate = 0;
-
-				MasterController.deaths++;
-				foreach (WheelCollider wheel in WheelColliders) {
-						wheel.gameObject.SetActive(false);
-				}
-			}
+			lastFrameAlive = Alive;
 		}
-
-		lastFrameAlive = Alive;
 	}
 
 	void CheckThatCar(){

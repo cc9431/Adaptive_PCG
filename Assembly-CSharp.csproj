@@ -52,7 +52,6 @@
      <Compile Include="Assets\_Scripts\CameraController.cs" />
      <Compile Include="Assets\_Scripts\GenerateInfiniteFull.cs" />
      <Compile Include="Assets\_Scripts\InteractController.cs" />
-     <Compile Include="Assets\_Scripts\JSON.cs" />
      <Compile Include="Assets\_Scripts\MasterController.cs" />
      <Compile Include="Assets\_Scripts\MaterialController.cs" />
      <Compile Include="Assets\_Scripts\MaxSpeedTrail.cs" />
@@ -64,7 +63,9 @@
      <Compile Include="Assets\_Scripts\SpeedGateController.cs" />
      <Compile Include="Assets\_Scripts\Speedometer.cs" />
      <Compile Include="Assets\_Scripts\Stabilize.cs" />
+     <Compile Include="Assets\_Scripts\StatJSON.cs" />
      <Compile Include="Assets\_Scripts\SunMoon.cs" />
+     <Compile Include="Assets\_Scripts\TimerScript.cs" />
      <Compile Include="Assets\_Scripts\UIController.cs" />
      <Compile Include="Assets\_Scripts\WallController.cs" />
      <Compile Include="Assets\_Scripts\_CarController.cs" />
@@ -87,6 +88,10 @@
  <Reference Include="UnityEngine.VR">
  <HintPath>/Volumes/Macintosh HD 2/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
  </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{94AF2723-53EE-2076-CF84-F69765FF6162}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

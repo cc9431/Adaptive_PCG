@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adaptive_PCG", "Assembly-CSharp-firstpass.csproj", "{94AF2723-53EE-2076-CF84-F69765FF6162}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adaptive_PCG", "Assembly-CSharp.csproj", "{F3E7485F-01D1-F44A-FEDE-EEBADDFC6936}"
 EndProject
 Global
@@ -9,6 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{94AF2723-53EE-2076-CF84-F69765FF6162}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94AF2723-53EE-2076-CF84-F69765FF6162}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94AF2723-53EE-2076-CF84-F69765FF6162}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94AF2723-53EE-2076-CF84-F69765FF6162}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F3E7485F-01D1-F44A-FEDE-EEBADDFC6936}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F3E7485F-01D1-F44A-FEDE-EEBADDFC6936}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3E7485F-01D1-F44A-FEDE-EEBADDFC6936}.Release|Any CPU.ActiveCfg = Release|Any CPU
