@@ -201,8 +201,6 @@ public class MasterController : MonoBehaviour {
 	public static int seed;									// Each play has a unique seed, used for determining the random number generation and used by me to save data to a unique file each play through
 	public static string[] statList = new string[4];		// List of the names of each type of stat for debugging
 	public Text PointDisplay;								// Reference to the UI element that displays the total number of points
-	public StatJSON statJSON;
-	private float lastLogTime;
 
 	// Each script with public static variables requires that I use OnEnable, OnDisable, and OnSceneLoaded to change those variables each time a reload the game
 	void OnEnable() {
@@ -382,11 +380,6 @@ public class MasterController : MonoBehaviour {
 
 			if (PointDisplay != null) PointDisplay.text = totalPoints.ToString();
 		}
-
-		if ((Time.timeSinceLevelLoad - lastLogTime) >= 30){
-			lastLogTime = Time.timeSinceLevelLoad;
-			statJSON.ThirtySecondLog();
-		}
 	}
 
 	// Called once per frame to keep track of the average speed of the player throughout the game
@@ -464,8 +457,8 @@ public class MasterController : MonoBehaviour {
 			else{
 				penalty = 0;
 				perfectFlips += flp;
-				perfectSpins += trn;
-				perfectTurns += spn;
+				perfectTurns += trn;
+				perfectSpins += spn;
 			}
 
 			totalFlips += flp;

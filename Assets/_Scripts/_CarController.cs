@@ -58,7 +58,7 @@ public class _CarController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		TimedOut = (Time.timeSinceLevelLoad > 301f);
+		TimedOut = (Time.timeSinceLevelLoad > 601f);
 		if (!TimedOut) {
 			if (Alive) {
 				if (!lastFrameAlive){

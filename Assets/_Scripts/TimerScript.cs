@@ -17,7 +17,7 @@ public class TimerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		float t = Time.time - startTime;
-		float countDown = Mathf.Clamp(301f - t, 0, 301);
+		float countDown = Mathf.Clamp(601f - t, 0, 601);
 
 		string min = ((int) countDown / 60).ToString();
 		string sec = ((int) countDown % 60).ToString("d2");
@@ -33,7 +33,7 @@ public class TimerScript : MonoBehaviour {
 		float h, s, v;
 
 		Color.RGBToHSV(shadow.effectColor, out h, out s, out v);
-		h = t/475f;
+		h = t/800f;
 		shadow.effectColor = Color.HSVToRGB(h, s, v);
 
 		// Debugging

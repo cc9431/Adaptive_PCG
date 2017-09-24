@@ -7,94 +7,141 @@ using SimpleJSON;
 
 [Serializable]
 public class Data {
-    private bool type;
+    public string type;
     public int Points;
 	public int numTotal;
     public float Preference;
-    public JSONArray avgStats = new JSONArray();
-    public JSONArray statStdDev = new JSONArray();
-    public JSONObject Stats = new JSONObject();
+    public int ID;
+    public float[] avgStats = new float[4];
+    public float[] statStdDev = new float[4];
+    public List<KeyValuePair<float, int[]>> Stats = new List<KeyValuePair<float, int[]>>();
 
-    public Data(Level lev){
-        this.type = false;
+    public Data(Level lev, string name){
+        this.type = name;
         this.Points = lev.Points;
         this.numTotal = lev.numTotal;
         this.Preference = lev.Preference;
-        for(int stat = 0; stat < lev.Stats.Count; stat++) {
-            JSONArray tempArray = new JSONArray();
-            this.Stats.Add(lev.Stats[stat].Key.ToString(), tempArray);
-            for (int four = 0; four < 4; four++){
-                tempArray.Add(lev.Stats[stat].Value[four]);
-                if(stat == 0){
-                    this.avgStats.Add(lev.avgStats[four]);
-                    this.statStdDev.Add(lev.stdDevStats[four]);
-                }
-            }
-        }
-    }
-    public Data(Type type){
-        this.type = true;
-        this.Points = type.Points;
-        this.numTotal = type.getNumTotal();
-        this.Preference = type.Preference;
+        this.ID = lev.ID;
+        this.avgStats = lev.avgStats;
+        this.statStdDev = lev.stdDevStats;
+        this.Stats = lev.Stats;
     }
 
-    public JSONObject createJSON(){
+    public JSONObject LevelsJSON(){
         JSONObject tempObject = new JSONObject();
+        tempObject.Add("Type", this.type);
+        tempObject.Add("Level", this.ID);
         tempObject.Add("Points", this.Points);
         tempObject.Add("numTotal", this.numTotal);
         tempObject.Add("Preference", this.Preference);
-        if (!type){
-            tempObject.Add("avgStats", this.avgStats);
-            tempObject.Add("statStdDev", this.statStdDev);
-            tempObject.Add("Stats", this.Stats);
-        }
+
+        tempObject.Add("avgAir", this.avgStats[0]);
+        tempObject.Add("avgTricks", this.avgStats[1]);
+        tempObject.Add("avgSpeed", this.avgStats[2]);
+        tempObject.Add("avgPoints", this.avgStats[3]);
+        
+        tempObject.Add("StdDevAir", this.avgStats[0]);
+        tempObject.Add("StdDevTricks", this.avgStats[1]);
+        tempObject.Add("StdDevSpeed", this.avgStats[2]);
+        tempObject.Add("StdDevPoints", this.avgStats[3]);
+
+        return tempObject;
+    }
+
+    public JSONObject StatsJSON(int ObjInter){
+        JSONObject tempObject = new JSONObject();
+
+        tempObject.Add("ID", string.Format("{0}{1}", this.type, this.ID));
+        tempObject.Add("Time", this.Stats[ObjInter].Key);
+        tempObject.Add("Air", this.Stats[ObjInter].Value[0]);
+        tempObject.Add("Tricks", this.Stats[ObjInter].Value[1]);
+        tempObject.Add("Speed", this.Stats[ObjInter].Value[2]);
+        tempObject.Add("Points", this.Stats[ObjInter].Value[3]);
+
         return tempObject;
     }
 }
 
 public class StatJSON : MonoBehaviour {
     JSONObject dataList = new JSONObject(); // Top level JSON object
+    float lastLogTime;
 
     void Start(){
         // Add time/seed information
-        dataList.Add("File ID", new JSONObject());
-        dataList.Add("Timed Data", new JSONObject());
-        dataList.Add("Types Log", new JSONObject());
-        dataList["File ID"].Add("Date", System.DateTime.Now.ToLongDateString());
-        dataList["File ID"].Add("Time", System.DateTime.Now.ToLongTimeString());
-        dataList["File ID"].Add("Seed", MasterController.seed);
-        dataList["File ID"].Add("Adaptive", GenerateInfiniteFull.adapt);
+        dataList.Add("File_ID", new JSONObject());
+        dataList.Add("Timed_Data", new JSONArray());
+        dataList.Add("Type_Stats", new JSONArray());
+        dataList.Add("Object_Interactions", new JSONArray());
+
+        // File ID information
+        dataList["File_ID"].Add("Date", System.DateTime.Now.ToLongDateString());
+        dataList["File_ID"].Add("Time", System.DateTime.Now.ToLongTimeString());
+        dataList["File_ID"].Add("Seed", MasterController.seed);
+        dataList["File_ID"].Add("Adaptive", GenerateInfiniteFull.adapt);
     }
 
-	public void LogDeath(){
-        // Create the json file that will be used to record all of the data
-        string fileName = string.Format("/Logs/DataLog{0}.json", MasterController.seed);
+    void Update(){
+        if ((Time.timeSinceLevelLoad - lastLogTime) >= 30){
+			lastLogTime = Time.timeSinceLevelLoad;
+			ThirtySecondLog();
+		}
+    }
 
+	public void DataDump(){
         // Loop through every Level and create the json-ready version of it
-        for (int type = 0; type < 4; type++){               // 4 = MasterController.Types.Count
-            JSONObject JSONType = new JSONObject();
+        for (int type = 0; type < 4; type++){ // 4 = MasterController.Types.Count
             Type TYPEType = MasterController.Types[type];
-            JSONType.Add("Type Stats", new Data(TYPEType).createJSON());
-            for (int lev = 0; lev < 3; lev++){              // 3 = MasterController.Types[type].Levels.Count
-                JSONType.Add(lev.ToString(), new Data(MasterController.Types[type].Levels[lev]).createJSON());
+            for (int lev = 0; lev < 3; lev++){ // 3 = MasterController.Types[type].Levels.Count
+                Data datum = new Data(TYPEType.Levels[lev], TYPEType.name);
+                JSONObject Level = datum.LevelsJSON();
+                dataList["Type_Stats"].Add(Level);
+                for (int ObjInter = 0; ObjInter < datum.Stats.Count; ObjInter++){
+                    JSONObject interaction = datum.StatsJSON(ObjInter);
+                    dataList["Object_Interactions"].Add(interaction);   
+                }
             }
-            dataList["Types Log"].Add(TYPEType.name, JSONType);
         }
 
+        // Create the json file that will be used to record all of the data
+        string fileName = string.Format("/Logs/{0}", MasterController.seed);
+        string fileNameID = fileName + "/ID.json";
+        string fileNameTimed = fileName + "/TimeData.json";
+        string fileNameDump = fileName + "/FinalData.json";
+        string fileNameStats = fileName + "/Stats.json";
+
         // Print out the dataList json to a unique file
-        string json = dataList.ToString();
-        File.WriteAllText(Application.dataPath + fileName, json);
+        string jsonID = dataList["File_ID"].ToString();
+        string jsonTimed = dataList["Timed_Data"].ToString();
+        string jsonTypes = dataList["Type_Stats"].ToString();
+        string jsonStats = dataList["Object_Interactions"].ToString();
+
+        Directory.CreateDirectory(Application.dataPath + fileName);
+
+        File.WriteAllText(Application.dataPath + fileNameID, jsonID);
+        File.WriteAllText(Application.dataPath + fileNameTimed, jsonTimed);
+        File.WriteAllText(Application.dataPath + fileNameDump, jsonTypes);
+        File.WriteAllText(Application.dataPath + fileNameStats, jsonStats);
 	}
 
     public void ThirtySecondLog(){
         int numObjTouched = 0;
         JSONObject recap = new JSONObject();
+        recap.Add("Time", Time.timeSinceLevelLoad.ToString());
 
         // Add current values to JSON object and store with the current time as the key
-        recap.Add("Preferences", new JSONObject());
+        recap.Add("Preferences:", "");
+
+        for (int type = 0; type < 4; type++){
+            Type TYPEType = MasterController.Types[type];
+            numObjTouched += TYPEType.getNumTotal();
+            recap.Add(TYPEType.name, TYPEType.Preference);
+            for (int level = 0; level < 3; level++){
+                int pref = TYPEType.Levels[level].Preference;
+                recap.Add(string.Format("{0}L{1}", TYPEType.name, level), pref);
+            }
+        }
         
-        recap.Add("NumObjTouched", new JSONObject());
+        recap.Add("NumObjTouched", numObjTouched);
         recap.Add("TotalPoints", MasterController.totalPoints);
         recap.Add("Orbs", MasterController.orbs);
         recap.Add("Intro", GenerateInfiniteFull.intro);
@@ -102,38 +149,23 @@ public class StatJSON : MonoBehaviour {
 
         recap.Add("Jumps", MasterController.jumps);
         recap.Add("TimesReset", MasterController.timesReset);
-        recap.Add("AvgSpeed", MasterController.AvgSpeed);
+        recap.Add("AvgSpeed", System.Math.Round(MasterController.AvgSpeed, 5));
         
-        recap.Add("Tricks", new JSONObject());
-        recap["Tricks"].Add("Flips", MasterController.totalFlips);
-        recap["Tricks"].Add("Spins", MasterController.totalSpins);
-        recap["Tricks"].Add("Turns", MasterController.totalTurns);
-        recap["Tricks"].Add("Perfect Flips", MasterController.perfectFlips);
-        recap["Tricks"].Add("Perfect Spins", MasterController.perfectSpins);
-        recap["Tricks"].Add("Perfect Turns", MasterController.perfectTurns);
+        recap.Add("Tricks:", "");
+        recap.Add("Flips", MasterController.totalFlips);
+        recap.Add("Spins", MasterController.totalSpins);
+        recap.Add("Turns", MasterController.totalTurns);
+        recap.Add("Perfect Flips", MasterController.perfectFlips);
+        recap.Add("Perfect Turns", MasterController.perfectTurns);
+        recap.Add("Perfect Spins", MasterController.perfectSpins);
         
-        recap.Add("Frames", new JSONObject());
-        recap["Frames"].Add("framesAtMax", MasterController.framesAtMax);
-        recap["Frames"].Add("framesBoosting", MasterController.framesBoosting);
-        recap["Frames"].Add("framesDrifting", MasterController.framesDrifting);
-        recap["Frames"].Add("framesInAir", MasterController.framesInAir);
-        recap["Frames"].Add("framesOnBack", MasterController.framesOnBack);
+        recap.Add("Frames:", "");
+        recap.Add("framesAtMax", MasterController.framesAtMax);
+        recap.Add("framesBoosting", MasterController.framesBoosting);
+        recap.Add("framesDrifting", MasterController.framesDrifting);
+        recap.Add("framesInAir", MasterController.framesInAir);
+        recap.Add("framesOnBack", MasterController.framesOnBack);
 
-        for (int type = 0; type < 4; type++){
-            JSONObject JSONType = new JSONObject();
-            Type TYPEType = MasterController.Types[type];
-            numObjTouched += TYPEType.getNumTotal();
-            recap["Preferences"].Add(TYPEType.name, JSONType);
-            for (int level = 0; level < 3; level++){
-                int pref = TYPEType.Levels[level].Preference;
-                JSONType.Add(string.Format("Level: {0}", level), pref);
-            }
-        }
-
-        recap["NumObjTouched"] = numObjTouched;
-        dataList["Timed Data"].Add(Time.timeSinceLevelLoad.ToString(), recap);
-        
-        // Debugging
-        //print(Time.timeSinceLevelLoad);
+        dataList["Timed_Data"].Add(recap);
     }
 }

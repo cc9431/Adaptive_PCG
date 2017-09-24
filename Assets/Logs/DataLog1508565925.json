@@ -42,8 +42,8 @@
                 "Spins": 0,
                 "Turns": 2,
                 "Perfect Flips": 0,
-                "Perfect Spins": 2,
-                "Perfect Turns": 0
+                "Perfect Spins": 0,
+                "Perfect Turns": 2
             },
             "Frames": {
                 "framesAtMax": 0,
@@ -89,8 +89,8 @@
                 "Spins": 0,
                 "Turns": 3,
                 "Perfect Flips": 0,
-                "Perfect Spins": 3,
-                "Perfect Turns": 0
+                "Perfect Spins": 0,
+                "Perfect Turns": 3
             },
             "Frames": {
                 "framesAtMax": 2,
@@ -136,8 +136,8 @@
                 "Spins": 0,
                 "Turns": 4,
                 "Perfect Flips": 2,
-                "Perfect Spins": 4,
-                "Perfect Turns": 0
+                "Perfect Spins": 0,
+                "Perfect Turns": 4
             },
             "Frames": {
                 "framesAtMax": 8,
@@ -183,8 +183,8 @@
                 "Spins": 0,
                 "Turns": 8,
                 "Perfect Flips": 6,
-                "Perfect Spins": 8,
-                "Perfect Turns": 0
+                "Perfect Spins": 0,
+                "Perfect Turns": 8
             },
             "Frames": {
                 "framesAtMax": 32,
@@ -230,8 +230,8 @@
                 "Spins": 0,
                 "Turns": 10,
                 "Perfect Flips": 6,
-                "Perfect Spins": 10,
-                "Perfect Turns": 0
+                "Perfect Spins": 0,
+                "Perfect Turns": 10
             },
             "Frames": {
                 "framesAtMax": 79,
@@ -277,8 +277,8 @@
                 "Spins": 0,
                 "Turns": 15,
                 "Perfect Flips": 6,
-                "Perfect Spins": 14,
-                "Perfect Turns": 0
+                "Perfect Spins": 0,
+                "Perfect Turns": 14
             },
             "Frames": {
                 "framesAtMax": 178,
@@ -324,8 +324,8 @@
                 "Spins": 0,
                 "Turns": 16,
                 "Perfect Flips": 6,
-                "Perfect Spins": 14,
-                "Perfect Turns": 0
+                "Perfect Spins": 0,
+                "Perfect Turns": 14
             },
             "Frames": {
                 "framesAtMax": 232,
@@ -371,8 +371,8 @@
                 "Spins": 0,
                 "Turns": 18,
                 "Perfect Flips": 8,
-                "Perfect Spins": 16,
-                "Perfect Turns": 0
+                "Perfect Spins": 0,
+                "Perfect Turns": 16
             },
             "Frames": {
                 "framesAtMax": 253,
@@ -418,8 +418,8 @@
                 "Spins": 0,
                 "Turns": 22,
                 "Perfect Flips": 11,
-                "Perfect Spins": 20,
-                "Perfect Turns": 0
+                "Perfect Spins": 0,
+                "Perfect Turns": 20
             },
             "Frames": {
                 "framesAtMax": 253,
@@ -465,8 +465,8 @@
                 "Spins": 0,
                 "Turns": 23,
                 "Perfect Flips": 12,
-                "Perfect Spins": 20,
-                "Perfect Turns": 0
+                "Perfect Spins": 0,
+                "Perfect Turns": 20
             },
             "Frames": {
                 "framesAtMax": 291,

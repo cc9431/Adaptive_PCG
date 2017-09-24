@@ -115,7 +115,7 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void Finish(){
-		JSONClass.LogDeath();
+		JSONClass.DataDump();
 		SceneManager.LoadScene("StartScene");
 	}
 
