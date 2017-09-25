@@ -17,10 +17,7 @@ public class UIController : MonoBehaviour {
 	public EventSystem eventSystem;
 	public GameObject selectedObject;
 	public GameObject PauseScreen;
-	public GameObject DeathScreen;
 	public GameObject TimeScreen;
-	public GameObject DeathScreenSelectedObject;
-	public GameObject DeathScreenContinue;
 	public GameObject PauseScreenSelectedObject;
 	public GameObject TimeScreenSelectedObject;
 	private StatJSON JSONClass;
@@ -34,7 +31,6 @@ public class UIController : MonoBehaviour {
 
 	void Awake(){
 		if (PauseScreen != null) PauseScreen.SetActive(false);
-		if (DeathScreen != null) DeathScreen.SetActive(false);
 		if (TimeScreen != null) TimeScreen.SetActive(false);
 
 		Cursor.visible = false;
@@ -75,18 +71,12 @@ public class UIController : MonoBehaviour {
 			// This helps emulate the OnKey method that only reacts once per button press.
 			lastFramePause = Pause;
 		} else {
-			if (lastFrameAlive && DeathScreen != null) {
+			if (lastFrameAlive) {
 				if (Time.timeSinceLevelLoad < 300f) Restart();
 				else if (_CarController.TimedOut){
 					TimeScreen.SetActive(true);
 					selectedObject = TimeScreenSelectedObject;
 					Time.timeScale = 0.2f;
-					buttonSelected = false;
-				}
-				else {
-					DeathScreen.SetActive(true);
-					selectedObject = DeathScreenSelectedObject;
-					Time.timeScale = 0.3f;
 					buttonSelected = false;
 				}
 			}
@@ -96,7 +86,7 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void NewGameButton(){
-		SceneManager.LoadScene("Generate_Infinite");
+		SceneManager.LoadScene("Practice");
 	}
 
 	public void OnValueChange(){
@@ -106,10 +96,6 @@ public class UIController : MonoBehaviour {
 		//print(_CarController.Keyboard.ToString());
 	}
 
-	public void FreePlayButton(){
-		SceneManager.LoadScene("FreePlay");
-	}
-
 	public void QuitGame(){
 		Application.Quit();
 	}
@@ -117,6 +103,14 @@ public class UIController : MonoBehaviour {
 	public void Finish(){
 		JSONClass.DataDump();
 		SceneManager.LoadScene("StartScene");
+	}
+
+	public void QuitPractice(){
+		SceneManager.LoadScene("StartScene");
+	}
+
+	public void BeginPlay(){
+		SceneManager.LoadScene("Play");
 	}
 
 	public void Restart(){
@@ -131,7 +125,6 @@ public class UIController : MonoBehaviour {
 		carRB.velocity = Vector3.zero;
 		_CarController.Alive = true;
 
-		DeathScreen.SetActive(false);
 		selectedObject = PauseScreenSelectedObject;
 		
 		Time.timeScale = 1f;

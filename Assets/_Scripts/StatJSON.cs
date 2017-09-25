@@ -70,12 +70,12 @@ public class StatJSON : MonoBehaviour {
         // Add time/seed information
         dataList.Add("File_ID", new JSONObject());
         dataList.Add("Timed_Data", new JSONArray());
-        dataList.Add("Type_Stats", new JSONArray());
+        dataList.Add("Final_Data", new JSONArray());
         dataList.Add("Object_Interactions", new JSONArray());
 
         // File ID information
-        dataList["File_ID"].Add("Date", System.DateTime.Now.ToLongDateString());
-        dataList["File_ID"].Add("Time", System.DateTime.Now.ToLongTimeString());
+        dataList["File_ID"].Add("Date", System.DateTime.Now.ToShortDateString());
+        dataList["File_ID"].Add("Time", System.DateTime.Now.ToShortTimeString());
         dataList["File_ID"].Add("Seed", MasterController.seed);
         dataList["File_ID"].Add("Adaptive", GenerateInfiniteFull.adapt);
     }
@@ -94,7 +94,7 @@ public class StatJSON : MonoBehaviour {
             for (int lev = 0; lev < 3; lev++){ // 3 = MasterController.Types[type].Levels.Count
                 Data datum = new Data(TYPEType.Levels[lev], TYPEType.name);
                 JSONObject Level = datum.LevelsJSON();
-                dataList["Type_Stats"].Add(Level);
+                dataList["Final_Data"].Add(Level);
                 for (int ObjInter = 0; ObjInter < datum.Stats.Count; ObjInter++){
                     JSONObject interaction = datum.StatsJSON(ObjInter);
                     dataList["Object_Interactions"].Add(interaction);   
@@ -104,16 +104,16 @@ public class StatJSON : MonoBehaviour {
 
         // Create the json file that will be used to record all of the data
         string fileName = string.Format("/Logs/{0}", MasterController.seed);
-        string fileNameID = fileName + "/ID.json";
-        string fileNameTimed = fileName + "/TimeData.json";
-        string fileNameDump = fileName + "/FinalData.json";
-        string fileNameStats = fileName + "/Stats.json";
+        string fileNameID = fileName + "/ID.csv";
+        string fileNameTimed = fileName + "/TimeData.csv";
+        string fileNameDump = fileName + "/FinalData.csv";
+        string fileNameStats = fileName + "/Stats.csv";
 
         // Print out the dataList json to a unique file
-        string jsonID = dataList["File_ID"].ToString();
-        string jsonTimed = dataList["Timed_Data"].ToString();
-        string jsonTypes = dataList["Type_Stats"].ToString();
-        string jsonStats = dataList["Object_Interactions"].ToString();
+        string jsonID = JSONObjecttoCSV(dataList["File_ID"].AsObject);
+        string jsonTimed = JSONArraytoCSV(dataList["Timed_Data"].AsArray);
+        string jsonTypes = JSONArraytoCSV(dataList["Final_Data"].AsArray);
+        string jsonStats = JSONArraytoCSV(dataList["Object_Interactions"].AsArray);
 
         Directory.CreateDirectory(Application.dataPath + fileName);
 
@@ -167,5 +167,31 @@ public class StatJSON : MonoBehaviour {
         recap.Add("framesOnBack", MasterController.framesOnBack);
 
         dataList["Timed_Data"].Add(recap);
+    }
+
+    public string JSONObjecttoCSV(JSONObject json){
+        string csv = "";
+
+        foreach (KeyValuePair<string, JSONNode> N in json) csv += (N.Key) + ",";
+        csv = csv.Trim(',') + "\n";
+        foreach (KeyValuePair<string, JSONNode> N in json) csv += (N.Value) + ",";
+        
+        return csv.Trim().Trim(',');
+    }
+
+    public string JSONArraytoCSV(JSONArray json){
+        string csv = "";
+        
+        foreach (KeyValuePair<string, JSONNode> N in json[0].AsObject) csv += (N.Key) + ",";
+        csv = csv.Trim(',') + "\n";
+
+        for (int obj = 0; obj < json.Count; obj++){
+            foreach (KeyValuePair<string, JSONNode> N in json[obj].AsObject)
+                csv += (N.Value) + ",";
+
+            csv = csv.Trim(',') + "\n";
+        }
+
+        return csv.Trim().Trim(',');
     }
 }
