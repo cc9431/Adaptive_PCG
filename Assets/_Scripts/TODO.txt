@@ -1,39 +1,17 @@
-//:::COMMENTS
-//::How to calculate standard deviation for Types?
-//::For one credit: Lab hours for Sven/assisting in lab creation and such
-//:Drifting needs work
+//:::Add tutorial for before testing round. Player is in an arena with the interactables. Interactables have descriptions hovering over them. Player can drive around and test out the controls of the car.
+//:::Finish Recruitment Scripts
 
-Todo for next time:
-Play for 5 minutes and rack up a whole bunch of sample data
-===============================================================================================
-Jasmine's Notes
-
-minimum time?
-maximum time?
-unitil minimum time is up, restart automatically upon death
-after minimum time ends, offer option to continue or quit
-how long are you going to tell the test takers that this test will take?
-    make this total time much longer than the minimum playing time
-ask people why they stopped (bored, have somewhere to be, died, frustrated, etc.)
-survey question: how often do you play games? do you like video games? etc.
+//TODO : Finish IRB for next time
 
 ===============================================================================================
+Jasmine's Survey Questions:
 
-//::Player Matching:
-    Should I do a top-down system? (Types are compared, then within each type, levels are compared)
-        If so, how should the types be compared?
-            Should each type just sum all values from all three levels? ::Currently how I'm doing it
-            Should each type use its 'best' values?
-            Should each type use just one pre-picked level?
-            Should each type weight the levels then use all values?
-    Should I do a bottom-up system? (Levels are compared, then whithin each level, types are compared)
-        If so, how should the levels be compared?
-            Should each level just sum all values from the different types?
-            Should each level use its 'best' type?
-            Should each level weight the types?
-    Should I do an all equal system? (All 12 items are compared to each other and preferences are built from that)
+on a scale from 1 - 10 how [bored, frustrated, excited, tired...] were you while playing?
+how often do you play games? do you like video games?
+===============================================================================================
 
     Not todo (because I've done them)
+//:::Start A and Start B should do different things!
 //:::Tutorial Level:
     //:::Max Speed Lower, Objects spawned every 4 tiles
 //:::Finish Data Logging: Create JSON file for logging all levels
@@ -44,3 +22,7 @@ survey question: how often do you play games? do you like video games? etc.
 //::Total number of incounters should also be applied to the weighing
 //:Finish UI buttons
 //::Different divisors for keyboard and controller
+//:FinalData.csv
+    //:Printing avgAir twice 
+    //:ID should be both type and level
+//::Horizontal takes A D left and right. Fix this.

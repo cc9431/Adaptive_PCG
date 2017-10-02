@@ -9,7 +9,6 @@ public class MaterialController : MonoBehaviour {
 	private bool lastFrameSkin;
 	
 	void Update () {
-		//TODO: Where else can this be applied? For fun!
 		bool Skin = (Input.GetAxis("Skin") != 0);
 		if (Skin && !lastFrameSkin) freshPaint();
 

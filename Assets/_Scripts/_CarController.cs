@@ -26,7 +26,7 @@ public class _CarController : MonoBehaviour {
 	public static bool onBack;
 	public static bool Alive;
 	public static bool TimedOut;
-	public static bool Keyboard;
+	public static bool Keyboard = true;
 
 	private bool lastFrameJump;
 	private bool lastFrameAlive = true;
@@ -34,6 +34,26 @@ public class _CarController : MonoBehaviour {
 	public float Boost;
 	private float HighSteerAngle = 6f;
 	public float HorsePower = 1700f;
+
+	public float MaxTime = 601f;
+
+	float Turn;
+	float Accel;
+	float Reverse;
+	float Jump;
+
+	void OnEnable() {
+		SceneManager.sceneLoaded += OnSceneLoaded;
+	}	
+
+	void OnDisable() {
+		SceneManager.sceneLoaded -= OnSceneLoaded;
+	}
+
+	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+		
+	}
+
 	void Awake(){
 		Alive = true;
 		TimedOut = false;
@@ -55,10 +75,12 @@ public class _CarController : MonoBehaviour {
 		drift.extremumValue = 0.1f;
 		drift.asymptoteValue = 0.01f;
 
+		float sliderVal = PlayerPrefs.GetFloat("slider");
+		Keyboard = (sliderVal == 0);
 	}
 
 	void FixedUpdate () {
-		TimedOut = (Time.timeSinceLevelLoad > 601f);
+		TimedOut = (Time.timeSinceLevelLoad > MaxTime);
 		if (!TimedOut) {
 			if (Alive) {
 				if (!lastFrameAlive){
@@ -78,15 +100,7 @@ public class _CarController : MonoBehaviour {
 				if (onBack) MasterController.framesOnBack++;
 				if (Drift) MasterController.framesDrifting++;
 
-			} else {
-				if (lastFrameAlive) {
-					speedGate = 0;
-					foreach (WheelCollider wheel in WheelColliders) {
-							wheel.gameObject.SetActive(false);
-					}
-				}
 			}
-
 			lastFrameAlive = Alive;
 		}
 	}
@@ -109,11 +123,7 @@ public class _CarController : MonoBehaviour {
 	}
 
 	void MoveThatCar(){
-		float Turn = Input.GetAxis ("Horizontal");
 		float Pitch = Input.GetAxis ("Vertical");
-		float Accel = Input.GetAxis ("Drive");
-		float Reverse = Input.GetAxis ("Reverse");
-		float Jump = Input.GetAxis ("Jump");
 		bool Spin = (Input.GetAxis ("Spin") != 0);
 		float drive = 0;
 		maxSpeed = RPMs >= 3000;
@@ -122,14 +132,20 @@ public class _CarController : MonoBehaviour {
 		WheelFrictionCurve driftOrNotForward = new WheelFrictionCurve();
 
 		if (Keyboard){
-			if (Input.GetKey (KeyCode.A))		Turn = -1;
-			else if (Input.GetKey (KeyCode.D))	Turn = 1;
-			if (Input.GetKey (KeyCode.W))		Accel = 1;
+			if (Input.GetKey (KeyCode.A))		Turn = Mathf.Lerp(Turn, -1, 2*Time.deltaTime);
+			else if (Input.GetKey (KeyCode.D))	Turn = Mathf.Lerp(Turn, 1, 2*Time.deltaTime);
+			else								Turn = 0;
+			if (Input.GetKey (KeyCode.W))		Accel = Mathf.Lerp(Accel, 1, 2*Time.deltaTime);
 			else								Accel = 0;
-			if (Input.GetKey(KeyCode.S)) 		Reverse = -1;
+			if (Input.GetKey(KeyCode.S)) 		Reverse = Mathf.Lerp(Reverse, -1, 2*Time.deltaTime);
 			else 								Reverse = 0;
 			if (Input.GetKey (KeyCode.Space)) 	Jump = 1;
 			else 								Jump = 0;
+		} else {
+			Turn = Input.GetAxis ("Horizontal");
+			Accel = Input.GetAxis ("Drive");
+			Reverse = Input.GetAxis ("Reverse");
+			Jump = Input.GetAxis ("Jump");
 		}
 
 		if (speedGate > 0) {
@@ -152,7 +168,7 @@ public class _CarController : MonoBehaviour {
 			PlayerRB.drag = 0f;
 			PlayerRB.angularDrag = 5f;
 
-			RocketLeagueAirControls(Spin, Turn, Pitch);
+			RocketLeagueAirControls(Spin, Input.GetAxis ("Horizontal"), Pitch);
 		} else {
 			PlayerRB.drag = 0.5f;
 			PlayerRB.angularDrag = 0.5f;

@@ -58,7 +58,9 @@
      <Compile Include="Assets\_Scripts\OrbController.cs" />
      <Compile Include="Assets\_Scripts\ParticleController.cs" />
      <Compile Include="Assets\_Scripts\PlayerTriggerController.cs" />
+     <Compile Include="Assets\_Scripts\ResetCube.cs" />
      <Compile Include="Assets\_Scripts\Rotate.cs" />
+     <Compile Include="Assets\_Scripts\SeedDisplayer.cs" />
      <Compile Include="Assets\_Scripts\SideWallVisual.cs" />
      <Compile Include="Assets\_Scripts\SpeedGateController.cs" />
      <Compile Include="Assets\_Scripts\Speedometer.cs" />
@@ -66,6 +68,7 @@
      <Compile Include="Assets\_Scripts\StatJSON.cs" />
      <Compile Include="Assets\_Scripts\SunMoon.cs" />
      <Compile Include="Assets\_Scripts\TimerScript.cs" />
+     <Compile Include="Assets\_Scripts\TutorialScripts.cs" />
      <Compile Include="Assets\_Scripts\UIController.cs" />
      <Compile Include="Assets\_Scripts\WallController.cs" />
      <Compile Include="Assets\_Scripts\_CarController.cs" />

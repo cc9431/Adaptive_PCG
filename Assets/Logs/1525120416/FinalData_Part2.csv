@@ -1,0 +1,13 @@
+ID,Points,numTotal,Preference,avgAir,avgTricks,avgSpeed,avgPoints,StdDevAir,StdDevTricks,StdDevSpeed,StdDevPoints
+Ramp0,0,0,33,0,0,0,0,0,0,0,0
+Ramp1,0,0,33,0,0,0,0,0,0,0,0
+Ramp2,0,0,33,0,0,0,0,0,0,0,0
+Speed0,0,0,33,0,0,0,0,0,0,0,0
+Speed1,0,0,33,0,0,0,0,0,0,0,0
+Speed2,0,0,33,0,0,0,0,0,0,0,0
+Spike0,0,0,33,0,0,0,0,0,0,0,0
+Spike1,0,0,33,0,0,0,0,0,0,0,0
+Spike2,0,0,33,0,0,0,0,0,0,0,0
+Wall0,0,0,33,0,0,0,0,0,0,0,0
+Wall1,0,0,33,0,0,0,0,0,0,0,0
+Wall2,0,0,33,0,0,0,0,0,0,0,0

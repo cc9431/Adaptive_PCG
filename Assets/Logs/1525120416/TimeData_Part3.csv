@@ -1,0 +1,6 @@
+Time,Preferences:,Ramp,RampL0,RampL1,RampL2,Speed,SpeedL0,SpeedL1,SpeedL2,Spike,SpikeL0,SpikeL1,SpikeL2,Wall,WallL0,WallL1,WallL2,NumObjTouched,TotalPoints,Orbs,Intro,Deaths,Jumps,TimesReset,AvgSpeed,Tricks:,Flips,Spins,Turns,Perfect Flips,Perfect Turns,Perfect Spins,Frames:,framesAtMax,framesBoosting,framesDrifting,framesInAir,framesOnBack
+30.00317,,25,33,33,33,25,33,33,33,25,33,33,33,25,33,33,33,2,92,3,True,0,6,0,43.09671,,3,0,2,2,0,0,,10,51,163,484,8
+60.01468,,12,5,25,25,12,5,25,25,12,5,25,25,63,82,25,25,10,335,14,False,0,10,0,46.27473,,7,0,3,2,0,0,,11,101,235,915,18
+90.02679,,15,13,25,22,9,4,25,22,9,4,25,22,64,77,25,31,14,442,19,False,1,13,0,48.02541,,10,0,4,2,0,0,,11,151,574,1370,38
+120.0393,,12,8,24,22,28,32,13,22,9,6,13,22,49,52,49,31,20,663,29,False,1,17,0,52.18502,,15,0,4,5,0,0,,71,301,582,2191,46
+150.0514,,11,6,22,30,38,46,11,16,11,5,31,29,38,41,34,22,30,1039,48,False,1,20,0,53.59409,,21,0,9,5,1,0,,74,371,613,2715,97

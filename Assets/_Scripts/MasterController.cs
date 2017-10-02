@@ -52,19 +52,6 @@ public class Level {
 			else stdDevStats[stat] = 0;
 		}
 
-		/*
-		//If what I wrote above doesn't work, go back to this
-		for (int i = 0; i < avgStats.Length; i++){
-			sum = 0;
-			// The stats are recorded in the same order every time the player interacts (air, trick, speed, points)
-			// Thus to average we just iterate from 0-3, simply jumping four spots from front to back, starting one further each time
-			for (int j = i; j < Stats.Count; j += 4){
-				sum += Stats[j].Value;
-			}
-			count = Stats.Count/4;
-			avgStats[i] = (sum/count);
-		}*/
-
 		return avgStats;
 	}
 }
@@ -198,7 +185,6 @@ public class MasterController : MonoBehaviour {
 	private Level currentLevel;								// Reference to the current level of the type of the object the player is interacting with
 
 	public static bool inObject;							// If the player's collider is inside an object's collider, this boolean is true
-	public static int seed;									// Each play has a unique seed, used for determining the random number generation and used by me to save data to a unique file each play through
 	public static string[] statList = new string[4];		// List of the names of each type of stat for debugging
 	public Text PointDisplay;								// Reference to the UI element that displays the total number of points
 
@@ -350,6 +336,8 @@ public class MasterController : MonoBehaviour {
 		ExpectedValues[3,2,2] = 50f;  	// Speed
 		ExpectedValues[3,2,3] = 65f; 	// Points
 
+		int seed = PlayerPrefs.GetInt("Seed");
+
 		print(seed);
 
 		AddPointsController.Initialize();
@@ -485,6 +473,7 @@ public class MasterController : MonoBehaviour {
 			PostObjectAir = 0;
 			PostObjectTricks = 0;
 			PostObjectPoints = 0;
+			PostObjectBack = 0;
 		}
 	}
 

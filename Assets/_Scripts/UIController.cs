@@ -22,11 +22,20 @@ public class UIController : MonoBehaviour {
 	public GameObject TimeScreenSelectedObject;
 	private StatJSON JSONClass;
 	private Slider slider;
+	string[] sceneList = {"StartScene", "Part1", "Part2", "Part3"}; //:::Add tutorial to this list
+	static int sceneIndex = 0;
 
-	void OnEnable() {}
+	void OnEnable() {
+		SceneManager.sceneLoaded += OnSceneLoaded;
+	}	
 
 	void OnDisable() {
+		SceneManager.sceneLoaded -= OnSceneLoaded;
 		buttonSelected = false;
+	}
+
+	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+		// Reinitialize a whole bunch of public static variables
 	}
 
 	void Awake(){
@@ -41,6 +50,9 @@ public class UIController : MonoBehaviour {
 		car = GameObject.FindGameObjectWithTag("Player").transform;
 		eventSystem.SetSelectedGameObject(selectedObject);
 		JSONClass = GetComponent<StatJSON>();
+		
+		slider = eventSystem.currentSelectedGameObject.GetComponent<Slider>();
+		slider.value = PlayerPrefs.GetFloat("slider");
 	}
 
 	void Update(){
@@ -72,28 +84,46 @@ public class UIController : MonoBehaviour {
 			lastFramePause = Pause;
 		} else {
 			if (lastFrameAlive) {
-				if (Time.timeSinceLevelLoad < 300f) Restart();
-				else if (_CarController.TimedOut){
+				if (_CarController.TimedOut){
 					TimeScreen.SetActive(true);
 					selectedObject = TimeScreenSelectedObject;
 					Time.timeScale = 0.2f;
 					buttonSelected = false;
-				}
+				} else Restart();
 			}
 		}
 
 		lastFrameAlive = _CarController.Alive;
 	}
 
-	public void NewGameButton(){
-		SceneManager.LoadScene("Practice");
+	public void NewGameButtonA(){
+		setSeed();
+		PlayerPrefs.SetInt("ADAPT", 0);
+		sceneIndex++;
+		SceneManager.LoadScene(sceneList[sceneIndex]);
+	}
+	public void NewGameButtonB(){
+		setSeed();
+		PlayerPrefs.SetInt("ADAPT", 1);
+		sceneIndex++;
+		SceneManager.LoadScene(sceneList[sceneIndex]);
+	}
+	public void NextScene(){
+		JSONClass.DataDump(SceneManager.GetActiveScene().name);
+		sceneIndex++;
+		if (sceneList[sceneIndex] == "Part3") PlayerPrefs.SetInt("ADAPT", 0);
+		SceneManager.LoadScene(sceneList[sceneIndex]);
+	}
+
+	public void Tutorial(){
+		SceneManager.LoadScene("Tutorial");
 	}
 
 	public void OnValueChange(){
-		slider = eventSystem.currentSelectedGameObject.GetComponent<Slider>();
-		_CarController.Keyboard = (slider.value == 1);
+		//slider = eventSystem.currentSelectedGameObject.GetComponent<Slider>();
+		_CarController.Keyboard = (slider.value == 0);
 
-		//print(_CarController.Keyboard.ToString());
+		PlayerPrefs.SetFloat("slider", slider.value);
 	}
 
 	public void QuitGame(){
@@ -101,16 +131,14 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void Finish(){
-		JSONClass.DataDump();
-		SceneManager.LoadScene("StartScene");
+		JSONClass.DataDump(SceneManager.GetActiveScene().name);
+		sceneIndex = 0;
+		SceneManager.LoadScene(sceneList[sceneIndex]);
 	}
 
 	public void QuitPractice(){
-		SceneManager.LoadScene("StartScene");
-	}
-
-	public void BeginPlay(){
-		SceneManager.LoadScene("Play");
+		sceneIndex = 0;
+		SceneManager.LoadScene(sceneList[sceneIndex]);
 	}
 
 	public void Restart(){
@@ -134,6 +162,11 @@ public class UIController : MonoBehaviour {
 	public void Resume(){
 		Paused = false;
 		PauseScreen.SetActive(false);
+	}
+
+	private void setSeed(){
+		int seed = Mathf.Abs(System.Environment.TickCount);
+		PlayerPrefs.SetInt("Seed", seed);
 	}
 
 }

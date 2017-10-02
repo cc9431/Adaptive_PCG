@@ -68,14 +68,13 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
 		intro = true;
 		Restart = false;
-		if (Random.Range(0,2) == 1) adapt = true;
-		if (adapt) print("adapt");
+		adapt = (PlayerPrefs.GetInt("ADAPT") == 1);
+		print ("Adapt: " + adapt.ToString());
 	}
 
-	// Before anything else is started I must create a new, unique seed for each player.
 	void Awake(){
-		MasterController.seed = Mathf.Abs(System.Environment.TickCount);
-		Random.InitState(MasterController.seed);
+		int seed = PlayerPrefs.GetInt("Seed");
+		Random.InitState(seed);
 	}
 
 	// Get references to player and to the MasterController, then start the player in the middle of 14 empty tiles

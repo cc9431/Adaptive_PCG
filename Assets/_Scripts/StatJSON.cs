@@ -29,8 +29,8 @@ public class Data {
 
     public JSONObject LevelsJSON(){
         JSONObject tempObject = new JSONObject();
-        tempObject.Add("Type", this.type);
-        tempObject.Add("Level", this.ID);
+        string ID = this.type + this.ID.ToString();
+        tempObject.Add("ID", ID);
         tempObject.Add("Points", this.Points);
         tempObject.Add("numTotal", this.numTotal);
         tempObject.Add("Preference", this.Preference);
@@ -40,10 +40,10 @@ public class Data {
         tempObject.Add("avgSpeed", this.avgStats[2]);
         tempObject.Add("avgPoints", this.avgStats[3]);
         
-        tempObject.Add("StdDevAir", this.avgStats[0]);
-        tempObject.Add("StdDevTricks", this.avgStats[1]);
-        tempObject.Add("StdDevSpeed", this.avgStats[2]);
-        tempObject.Add("StdDevPoints", this.avgStats[3]);
+        tempObject.Add("StdDevAir", this.statStdDev[0]);
+        tempObject.Add("StdDevTricks", this.statStdDev[1]);
+        tempObject.Add("StdDevSpeed", this.statStdDev[2]);
+        tempObject.Add("StdDevPoints", this.statStdDev[3]);
 
         return tempObject;
     }
@@ -65,8 +65,10 @@ public class Data {
 public class StatJSON : MonoBehaviour {
     JSONObject dataList = new JSONObject(); // Top level JSON object
     float lastLogTime;
+    int seed;
 
     void Start(){
+        seed = PlayerPrefs.GetInt("Seed");
         // Add time/seed information
         dataList.Add("File_ID", new JSONObject());
         dataList.Add("Timed_Data", new JSONArray());
@@ -76,7 +78,7 @@ public class StatJSON : MonoBehaviour {
         // File ID information
         dataList["File_ID"].Add("Date", System.DateTime.Now.ToShortDateString());
         dataList["File_ID"].Add("Time", System.DateTime.Now.ToShortTimeString());
-        dataList["File_ID"].Add("Seed", MasterController.seed);
+        dataList["File_ID"].Add("Seed", seed);
         dataList["File_ID"].Add("Adaptive", GenerateInfiniteFull.adapt);
     }
 
@@ -87,7 +89,7 @@ public class StatJSON : MonoBehaviour {
 		}
     }
 
-	public void DataDump(){
+	public void DataDump(string iteration){
         // Loop through every Level and create the json-ready version of it
         for (int type = 0; type < 4; type++){ // 4 = MasterController.Types.Count
             Type TYPEType = MasterController.Types[type];
@@ -103,11 +105,11 @@ public class StatJSON : MonoBehaviour {
         }
 
         // Create the json file that will be used to record all of the data
-        string fileName = string.Format("/Logs/{0}", MasterController.seed);
-        string fileNameID = fileName + "/ID.csv";
-        string fileNameTimed = fileName + "/TimeData.csv";
-        string fileNameDump = fileName + "/FinalData.csv";
-        string fileNameStats = fileName + "/Stats.csv";
+        string fileName = string.Format("/Logs/{0}", seed);
+        string fileNameID = string.Format("{0}/ID_{1}.csv", fileName, iteration);
+        string fileNameTimed = string.Format("{0}/TimeData_{1}.csv", fileName, iteration);
+        string fileNameDump = string.Format("{0}/FinalData_{1}.csv", fileName, iteration);
+        string fileNameStats = string.Format("{0}/Stats_{1}.csv", fileName, iteration);
 
         // Print out the dataList json to a unique file
         string jsonID = JSONObjecttoCSV(dataList["File_ID"].AsObject);
@@ -115,7 +117,7 @@ public class StatJSON : MonoBehaviour {
         string jsonTypes = JSONArraytoCSV(dataList["Final_Data"].AsArray);
         string jsonStats = JSONArraytoCSV(dataList["Object_Interactions"].AsArray);
 
-        Directory.CreateDirectory(Application.dataPath + fileName);
+        if (!Directory.Exists(Application.dataPath + fileName)) Directory.CreateDirectory(Application.dataPath + fileName);
 
         File.WriteAllText(Application.dataPath + fileNameID, jsonID);
         File.WriteAllText(Application.dataPath + fileNameTimed, jsonTimed);
