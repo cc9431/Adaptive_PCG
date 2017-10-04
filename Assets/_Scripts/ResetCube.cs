@@ -15,6 +15,7 @@ public class ResetCube : MonoBehaviour {
 		if (other.CompareTag("Player")) {
 			Car.transform.position = startPos;
 			Car.velocity = Vector3.zero;
+			Car.rotation = Quaternion.identity;
 		}
 	}
 }

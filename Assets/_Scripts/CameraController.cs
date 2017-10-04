@@ -6,7 +6,6 @@ public class CameraController : MonoBehaviour {
 	private Transform player;
 	private Vector3 centerScreen;
 	private Vector3 offset;
-	private Vector3 lookUp;
 	private Rigidbody PlayerRB;
 	private Camera cam;
 
@@ -15,7 +14,7 @@ public class CameraController : MonoBehaviour {
 		PlayerRB = player.GetComponent<Rigidbody> ();
 		cam = gameObject.GetComponent<Camera> ();
 		offset = transform.position - player.transform.position; // Gets distance from player to camera
-		centerScreen = Vector3.up * 2; // Don't want the camera to look directly at player, it feels weird
+		centerScreen = Vector3.up * 3; // Don't want the camera to look directly at player, it feels weird
 	}
 
 	void LateUpdate() {

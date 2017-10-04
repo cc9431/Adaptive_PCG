@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 static class ListQueueStackExtensions {
 	public static T PeekQ<T>(this List<T> list){
@@ -38,6 +39,7 @@ static class ListQueueStackExtensions {
 public class GenerateInfiniteFull: MonoBehaviour {
 	public static bool intro = true; // To give players some time to get used to mechanics before random/adaptive spawning starts
 	public static bool adapt; // Boolean that decides whether player gets adaptive or random spawning
+	public Text wrongWay;
 	public List<GameObject> ObjectList = new List<GameObject>(); // List of all prefab objects that can be spawned
 	private int[] TopList = new int[4]; // List of cumulative preference values for each type
 	private int[] BottomList = new int[3]; // List of cumulative preference values for each level
@@ -48,8 +50,8 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	public static bool Restart; // If the player hits a spike, they will get placed back at the beginning
 
 	int groundPlaneSize = 50; // The size of each tile
-	int tilesInFront = 10; // Number of tiles spawned in front of player
-	int tilesBehind = -3; // Number of tiles spawned behind player
+	int tilesInFront = 20; // Number of tiles spawned in front of player
+	int tilesBehind = -10; // Number of tiles spawned behind player
 	int intCount = 0; // Used to only spawn interactables every 3 tiles
 
 	Vector3 startPos; // Start position each time the player passes the tile size threshold
@@ -73,6 +75,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	}
 
 	void Awake(){
+		wrongWay.enabled = false;
 		int seed = PlayerPrefs.GetInt("Seed");
 		Random.InitState(seed);
 	}
@@ -143,6 +146,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 				string tilename = "Tile_" + ((int)(tilePos.z)).ToString();
 				string interactName = "Inter_" + ((int)(tilePos.z)).ToString();
 				recyclePoolWater(actLikeQueue, tilePool, tilePos, tilename);
+				wrongWay.enabled = !actLikeQueue;
 				if (coinFlip) flippedCoin(interactName, tilePos);
 			}
 		}
@@ -272,6 +276,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 		funInteract = ObjectList[2 + funIDLev + (funIDTrack * 3)];
 	}
 
+	// Take plane from either the front of the array or the back of the array and move it to the other end
 	void recyclePoolWater(bool actLikeQueue, List<GameObject> list, Vector3 newPosition, string newName){
 		if (actLikeQueue){
 			GameObject frontTile = list.Dequeue();

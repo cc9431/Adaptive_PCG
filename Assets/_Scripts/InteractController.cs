@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class InteractController : MonoBehaviour {
-	private MasterController Master;
+	public MasterController Master;
 	private int idTrack;
 	private int idLev;
 	private bool playerTouched;

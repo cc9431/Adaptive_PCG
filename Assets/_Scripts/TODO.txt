@@ -1,5 +1,4 @@
 //:::Add tutorial for before testing round. Player is in an arena with the interactables. Interactables have descriptions hovering over them. Player can drive around and test out the controls of the car.
-//:::Finish Recruitment Scripts
 
 //TODO : Finish IRB for next time
 
@@ -23,6 +22,7 @@ how often do you play games? do you like video games?
 //:Finish UI buttons
 //::Different divisors for keyboard and controller
 //:FinalData.csv
-    //:Printing avgAir twice 
+    //:Printing avgAir twice
     //:ID should be both type and level
 //::Horizontal takes A D left and right. Fix this.
+//:::Finish Recruitment Scripts

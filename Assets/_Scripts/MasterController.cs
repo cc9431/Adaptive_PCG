@@ -529,7 +529,7 @@ public class MasterController : MonoBehaviour {
 
 		// Value is augmented by the number of times the player has interacted with an object
 		// Since I believe this number is one of the best predicters of a player's preference for an object, it is weighted with a full 100%
-		value +=(Mathf.Log(currentLevel.numTotal) + 2);
+		value += Mathf.Sqrt(currentLevel.numTotal);
 		
 		// We then find get the difference between the current summed stat value in our 2D matrix and our new value and apply it to our different tracking lists (I do it this way to avoid having to go back and sum up each list from scratch)
 		float diffValue = value - statSum[currentType.ID, currentLevel.ID];
