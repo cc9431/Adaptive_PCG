@@ -17,7 +17,7 @@ public class TimerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		float t = Time.time - startTime;
-		float countDown = Mathf.Clamp(601f - t, 0, 601);
+		float countDown = Mathf.Clamp(601f - t, 0, 600);
 
 		string min = ((int) countDown / 60).ToString();
 		string sec = ((int) countDown % 60).ToString("d2");

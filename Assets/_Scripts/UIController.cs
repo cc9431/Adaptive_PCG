@@ -72,13 +72,8 @@ public class UIController : MonoBehaviour {
 			bool Pause = (Input.GetAxisRaw("Submit") != 0);
 
 			if (Pause && !lastFramePause) {
-				Paused = !Paused;
-				if (PauseScreen != null) PauseScreen.SetActive(Paused);
-				Cursor.visible = Paused;
+				PauseGame();
 			}
-
-			if (Paused) Time.timeScale = 0;
-			if (!Paused) Time.timeScale = 1;
 
 			// This helps emulate the OnKey method that only reacts once per button press.
 			lastFramePause = Pause;
@@ -94,6 +89,13 @@ public class UIController : MonoBehaviour {
 		}
 
 		lastFrameAlive = _CarController.Alive;
+	}
+
+	public void PauseGame(){
+		Cursor.visible = Paused = !Paused;
+		if (PauseScreen != null) PauseScreen.SetActive(Paused);
+		if (Paused) Time.timeScale = 0;
+		else Time.timeScale = 1;
 	}
 
 	public void NewGameButtonA(){
@@ -160,8 +162,7 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void Resume(){
-		Paused = false;
-		PauseScreen.SetActive(false);
+		PauseGame();
 	}
 
 	private void setSeed(){

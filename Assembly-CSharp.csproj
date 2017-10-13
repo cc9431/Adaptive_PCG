@@ -48,7 +48,6 @@
   <ItemGroup>
      <Compile Include="Assets\_Scripts\AddPoints.cs" />
      <Compile Include="Assets\_Scripts\AddPointsController.cs" />
-     <Compile Include="Assets\_Scripts\BlinkingText.cs" />
      <Compile Include="Assets\_Scripts\BoostTrailBlazer.cs" />
      <Compile Include="Assets\_Scripts\CameraController.cs" />
      <Compile Include="Assets\_Scripts\GenerateInfiniteFull.cs" />
@@ -69,8 +68,8 @@
      <Compile Include="Assets\_Scripts\StatJSON.cs" />
      <Compile Include="Assets\_Scripts\SunMoon.cs" />
      <Compile Include="Assets\_Scripts\TimerScript.cs" />
-     <Compile Include="Assets\_Scripts\TutorialScripts.cs" />
      <Compile Include="Assets\_Scripts\UIController.cs" />
+     <Compile Include="Assets\_Scripts\WallGravity.cs" />
      <Compile Include="Assets\_Scripts\_CarController.cs" />
      <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlendOneOne.shader" />

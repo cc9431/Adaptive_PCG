@@ -1,6 +1,5 @@
 //:::Add tutorial for before testing round. Player is in an arena with the interactables. Interactables have descriptions hovering over them. Player can drive around and test out the controls of the car.
-
-//TODO : Finish IRB for next time
+//::Tutorial should cover entire control set, then show the interactables
 
 ===============================================================================================
 Jasmine's Survey Questions:
