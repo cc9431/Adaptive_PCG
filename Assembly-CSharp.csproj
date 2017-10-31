@@ -67,6 +67,7 @@
      <Compile Include="Assets\_Scripts\Stabilize.cs" />
      <Compile Include="Assets\_Scripts\StatJSON.cs" />
      <Compile Include="Assets\_Scripts\SunMoon.cs" />
+     <Compile Include="Assets\_Scripts\TerrainMover.cs" />
      <Compile Include="Assets\_Scripts\TimerScript.cs" />
      <Compile Include="Assets\_Scripts\UIController.cs" />
      <Compile Include="Assets\_Scripts\WallGravity.cs" />

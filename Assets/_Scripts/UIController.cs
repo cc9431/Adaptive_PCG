@@ -22,7 +22,7 @@ public class UIController : MonoBehaviour {
 	public GameObject TimeScreenSelectedObject;
 	private StatJSON JSONClass;
 	private Slider slider;
-	string[] sceneList = {"StartScene", "Part1", "Part2", "Part3"}; //:::Add tutorial to this list
+	string[] sceneList = {"StartScene", "Part1", "Part2", "Part3"};
 	static int sceneIndex = 0;
 
 	void OnEnable() {

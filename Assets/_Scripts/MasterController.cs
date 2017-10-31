@@ -524,7 +524,10 @@ public class MasterController : MonoBehaviour {
 		float value = 0;
 		// Value is the sum of the weighted comparisons of the current average stats and the expected values
 		for (int stat = 0; stat < 4; stat++){
-			value += ((currentLevel.avgStats[stat]/ExpectedValues[currentType.ID, currentLevel.ID, stat]) * Weights[stat]);
+			var curStat = currentLevel.avgStats[stat];
+			var expectedStat = ExpectedValues[currentType.ID, currentLevel.ID, stat];
+			
+			value += ((curStat/expectedStat) * Weights[stat]);
 		}
 
 		// Value is augmented by the number of times the player has interacted with an object

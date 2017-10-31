@@ -115,16 +115,16 @@ public class GenerateInfiniteFull: MonoBehaviour {
 				GameObject funObject;
 				Vector3 tilePos = startPos;
 				bool actLikeQueue = (zMove >= groundPlaneSize);
-				bool coinFlip;								// If the game is still in intro-mode, coinflip is true every third tile
+				bool coinFlip;						// If the game is still in intro-mode, coinflip is true every third tile
 				if (intro) {
-					coinFlip = (intCount == 1);		// else, coinflip is true with 1/3 chance
-					intCount = (intCount + 1) % 3;
+					coinFlip = (intCount == 1);
+					intCount = (intCount + 1) % 3;	// else, coinflip is true with 1/3 chance
 				}
 				else coinFlip = (Random.Range(0, 3) != 1);	// coinFlip is used to determine whether an object should be spawned on a tile
 
 				if (actLikeQueue){
 					if (interactablePool.Count > 0){
-						if ((interactablePool.PeekQ().transform.position - tilePos).z < tilesBehind * groundPlaneSize){
+					if ((interactablePool.PeekQ().transform.position - tilePos).z < tilesBehind * groundPlaneSize){
 							funObject = interactablePool.Dequeue();
 							DestroyImmediate(funObject);
 						}
@@ -157,9 +157,6 @@ public class GenerateInfiniteFull: MonoBehaviour {
 		// Set generator position to zero
 		transform.position = Vector3.zero;
 		startPos = Vector3.zero;
-
-		// Get the time so that we can name the tiles
-		float updateTime = Time.realtimeSinceStartup;
 
 		// Loop from -tiles to tiles to create a grid centered on the player
 		for (int z = tilesBehind; z <= tilesInFront; z++){
@@ -219,7 +216,7 @@ public class GenerateInfiniteFull: MonoBehaviour {
 	// Function for deciding which object should be spawned based on 'Preference' values calculated by the MasterController
 	private void decideFunObj(out GameObject funInteract, out int funIDTrack, out int funIDLev){
 		if(intro){
-			// If the player has not yet made 200 points for a single type, then only generate level 0 items with no adaptivity
+			// If the player has not yet made 100 points for a single type, then only generate level 0 items with no adaptivity
 			funIDLev = 0;
 			funIDTrack = Random.Range(0, 4);
 		} else {
