@@ -35,7 +35,7 @@ public class TimerScript : MonoBehaviour {
 		Color.RGBToHSV(shadow.effectColor, out h, out s, out v);
 		h = t/800f;
 		shadow.effectColor = Color.HSVToRGB(h, s, v);
-
+		
 		// Debugging
 		//print(h);
 		//print(s);

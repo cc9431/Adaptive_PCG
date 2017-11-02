@@ -48,6 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\_Scripts\AddPoints.cs" />
      <Compile Include="Assets\_Scripts\AddPointsController.cs" />
+     <Compile Include="Assets\_Scripts\BackWallController.cs" />
      <Compile Include="Assets\_Scripts\BoostTrailBlazer.cs" />
      <Compile Include="Assets\_Scripts\CameraController.cs" />
      <Compile Include="Assets\_Scripts\GenerateInfiniteFull.cs" />

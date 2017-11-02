@@ -27,6 +27,7 @@ public class UIController : MonoBehaviour {
 
 	void OnEnable() {
 		SceneManager.sceneLoaded += OnSceneLoaded;
+		Time.timeScale = 1;
 	}	
 
 	void OnDisable() {
