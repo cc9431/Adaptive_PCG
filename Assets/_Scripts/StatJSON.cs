@@ -117,12 +117,12 @@ public class StatJSON : MonoBehaviour {
         string jsonTypes = JSONArraytoCSV(dataList["Final_Data"].AsArray);
         string jsonStats = JSONArraytoCSV(dataList["Object_Interactions"].AsArray);
 
-        if (!Directory.Exists(Application.dataPath + fileName)) Directory.CreateDirectory(Application.dataPath + fileName);
+        if (!Directory.Exists(Application.persistentDataPath + fileName)) Directory.CreateDirectory(Application.persistentDataPath + fileName);
 
-        File.WriteAllText(Application.dataPath + fileNameID, jsonID);
-        File.WriteAllText(Application.dataPath + fileNameTimed, jsonTimed);
-        File.WriteAllText(Application.dataPath + fileNameDump, jsonTypes);
-        File.WriteAllText(Application.dataPath + fileNameStats, jsonStats);
+        File.WriteAllText(Application.persistentDataPath + fileNameID, jsonID);
+        File.WriteAllText(Application.persistentDataPath + fileNameTimed, jsonTimed);
+        File.WriteAllText(Application.persistentDataPath + fileNameDump, jsonTypes);
+        File.WriteAllText(Application.persistentDataPath + fileNameStats, jsonStats);
 	}
 
     public void ThirtySecondLog(){
