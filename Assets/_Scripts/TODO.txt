@@ -1,12 +1,3 @@
-//:::Add tutorial for before testing round. Player is in an arena with the interactables. Interactables have descriptions hovering over them. Player can drive around and test out the controls of the car.
-//:::For next time: 5 pages on what I have done so far.
-===============================================================================================
-Jasmine's Survey Questions:
-
-on a scale from 1 - 10 how [bored, frustrated, excited, tired...] were you while playing?
-how often do you play games? do you like video games?
-===============================================================================================
-
     Not todo (because I've done them)
 //:::Start A and Start B should do different things!
 //:::Tutorial Level:
@@ -24,3 +15,7 @@ how often do you play games? do you like video games?
     //:ID should be both type and level
 //::Horizontal takes A D left and right. Fix this.
 //:::Finish Recruitment Scripts
+//::: Run bootstrapping on all different types of data, put each bootstrap into a csv file, run that through a gaussian distribution and look at what happens
+//:: The hypothesis is that the mean is greater than zero when exper - control
+
+//::: Analyze Preference values differently
