@@ -1,6 +1,6 @@
 # Dynamic Difficulty Adjustment (DDA) in Procedural Content Generation (PCG)
 
-<img src="/Senior\ Thesis/Figures/ADAPTSCRNSHOT.png"/>
+<img src="/Senior Thesis/Figures/ADAPTSCRNSHOT.png"/>
 
 This is a project built in Unity designed to explore a couple of ideas:
 - Rubber Band AI in DDA
